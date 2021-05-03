@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class Buildings2D: FootprintGrid2D<BuildingChunk2D> {
+public class Buildings2D: FootprintGrid2D<BuildingChunk2D, BuildingTile2D> {
     
     struct Tilemap {
         

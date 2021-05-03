@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class FootprintChunk2D: SKSpriteNode, Codable, Responder2D, Soilable {
+public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -18,20 +18,14 @@ public class FootprintChunk2D: SKSpriteNode, Codable, Responder2D, Soilable {
     
     public var isDirty: Bool = false
     
-    public var footprint: Footprint {
-        
-        didSet {
-            
-            if oldValue != footprint {
-                
-                becomeDirty()
-            }
-        }
-    }
+    public var coordinate: Coordinate
+    var tiles: [T] = []
     
-    required init(footprint: Footprint) {
+    public var footprint: Footprint?
+    
+    required init(coordinate: Coordinate) {
         
-        self.footprint = footprint
+        self.coordinate = coordinate
         
         super.init(texture: nil, color: .black, size: .zero)
         
@@ -42,9 +36,7 @@ public class FootprintChunk2D: SKSpriteNode, Codable, Responder2D, Soilable {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let coordinate = try container.decode(Coordinate.self, forKey: .coordinate)
-        
-        self.footprint = Footprint(coordinate: coordinate, rotation: .north, nodes: [])
+        coordinate = try container.decode(Coordinate.self, forKey: .coordinate)
         
         super.init(texture: nil, color: .black, size: CGSize(width: 1, height: 1))
         
@@ -60,27 +52,32 @@ public class FootprintChunk2D: SKSpriteNode, Codable, Responder2D, Soilable {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(footprint.coordinate, forKey: .coordinate)
+        try container.encode(coordinate, forKey: .coordinate)
     }
     
     @discardableResult public func clean() -> Bool {
         
-        guard isDirty else { return false }
+        guard isDirty,
+              let footprint = footprint else { return false }
         
         anchorPoint = .zero
         position = CGPoint(x: CGFloat(footprint.coordinate.x) - 0.5, y: CGFloat(footprint.coordinate.z) - 0.5)
         
         removeAllChildren()
         
+        tiles.removeAll()
+        
         for coordinate in footprint.nodes {
+            
+            let tile = T(coordinate: coordinate)
 
-            let node = SKSpriteNode(color: .white, size: CGSize(width: 1.0, height: 1.0))
+            tile.anchorPoint = .zero
+            tile.blendMode = .replace
+            tile.position = CGPoint(x: (footprint.coordinate.x - coordinate.x), y: (footprint.coordinate.z - coordinate.z))
+            
+            tiles.append(tile)
 
-            node.anchorPoint = .zero
-            node.blendMode = .replace
-            node.position = CGPoint(x: (footprint.coordinate.x - coordinate.x), y: (footprint.coordinate.z - coordinate.z))
-
-            addChild(node)
+            addChild(tile)
         }
         
         isDirty = false

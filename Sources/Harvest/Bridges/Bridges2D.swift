@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class Bridges2D: FootprintGrid2D<BridgeChunk2D> {
+public class Bridges2D: FootprintGrid2D<BridgeChunk2D, BridgeTile2D> {
     
     public override func add(chunk footprint: Footprint, configure: ChunkConfiguration? = nil) -> BridgeChunk2D? {
         

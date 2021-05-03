@@ -8,7 +8,7 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class BuildingChunk2D: FootprintChunk2D {
+public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -26,9 +26,9 @@ public class BuildingChunk2D: FootprintChunk2D {
         }
     }
     
-    required init(footprint: Footprint) {
-            
-        super.init(footprint: footprint)
+    required init(coordinate: Coordinate) {
+        
+        super.init(coordinate: coordinate)
     }
     
     required public init(from decoder: Decoder) throws {

@@ -21,6 +21,8 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         case surface = "s"
         case walls = "wal"
         case water = "wat"
+        
+        case identifier = "i"
     }
     
     public var ancestor: SoilableParent? { parent as? SoilableParent }
@@ -38,6 +40,8 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
     public let walls: Wall2D
     public let water: Water2D
     
+    let props = Props()
+    
     var harvest: Harvest? { self }
     
     override init() {
@@ -54,6 +58,8 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         water = Water2D()
         
         super.init()
+        
+        name = "Harvest"
         
         addChild(actors)
         addChild(bridges)
@@ -85,6 +91,8 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         water = try container.decode(Water2D.self, forKey: .water)
         
         super.init()
+        
+        name = try container.decode(String.self, forKey: .identifier)
         
         addChild(actors)
         addChild(bridges)
@@ -119,6 +127,8 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         try container.encode(surface, forKey: .surface)
         try container.encode(walls, forKey: .walls)
         try container.encode(water, forKey: .water)
+        
+        try container.encode(name, forKey: .identifier)
     }
 }
 

@@ -7,20 +7,18 @@
 import Meadow
 import SpriteKit
 
-public class Portals2D: FootprintGrid2D<PortalChunk2D> {
+public class Portals2D: FootprintGrid2D<PortalChunk2D, PortalTile2D> {
     
-    public override func add(chunk footprint: Footprint, configure: ChunkConfiguration? = nil) -> PortalChunk2D? {
+    public func add(portal portalType: PortalType, coordinate: Coordinate, configure: ChunkConfiguration? = nil) -> PortalChunk2D? {
         
-        guard let harvest = harvest else { return nil }
+        guard let harvest = harvest,
+              harvest.validate(coordinate: coordinate, grid: .portals) else { return nil }
         
-        for coordinate in footprint.nodes {
+        return super.add(chunk: Footprint(coordinate: coordinate)) { portal in
             
-            if !harvest.validate(coordinate: coordinate, grid: .portals) {
-                
-                return nil
-            }
+            portal.portalType = portalType
+            
+            configure?(portal)
         }
-        
-        return super.add(chunk: footprint, configure: configure)
     }
 }

@@ -8,7 +8,7 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class FoliageChunk2D: FootprintChunk2D {
+public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -26,9 +26,20 @@ public class FoliageChunk2D: FootprintChunk2D {
         }
     }
     
-    required init(footprint: Footprint) {
+    public override var footprint: Footprint? {
+        
+        get {
             
-        super.init(footprint: footprint)
+            guard let model = harvest?.props.prop(foliage: foliageType) else { return nil }
+            
+            return Footprint(coordinate: coordinate, rotation: .north, nodes: model.footprint.nodes)
+        }
+        set {}
+    }
+    
+    required init(coordinate: Coordinate) {
+        
+        super.init(coordinate: coordinate)
     }
     
     required public init(from decoder: Decoder) throws {
@@ -75,7 +86,7 @@ public class FoliageChunk2D: FootprintChunk2D {
             child.setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         }
         
-        return super.clean()
+        return true
     }
 }
 

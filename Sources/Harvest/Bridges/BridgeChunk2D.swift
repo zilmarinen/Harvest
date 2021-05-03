@@ -8,15 +8,15 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class BridgeChunk2D: FootprintChunk2D {
+public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
     
     private enum CodingKeys: CodingKey {
         
     }
     
-    required init(footprint: Footprint) {
-            
-        super.init(footprint: footprint)
+    required init(coordinate: Coordinate) {
+        
+        super.init(coordinate: coordinate)
     }
     
     required public init(from decoder: Decoder) throws {

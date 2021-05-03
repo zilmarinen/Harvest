@@ -8,26 +8,35 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class PortalChunk2D: FootprintChunk2D {
+public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
+        case segue = "s"
         case identifier = "i"
         case portalType = "t"
     }
     
     public var identifier: String = ""
+    public var segue = PortalSegue(direction: .north, scene: "", identifier: "")
     public var portalType: PortalType = .seam
     
-    required init(footprint: Footprint) {
-            
-        super.init(footprint: footprint)
+    public override var footprint: Footprint? {
+        
+        get { Footprint(coordinate: coordinate) }
+        set {}
+    }
+    
+    required init(coordinate: Coordinate) {
+        
+        super.init(coordinate: coordinate)
     }
     
     required public init(from decoder: Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
+        segue = try container.decode(PortalSegue.self, forKey: .segue)
         identifier = try container.decode(String.self, forKey: .identifier)
         portalType = try container.decode(PortalType.self, forKey: .portalType)
         
@@ -45,6 +54,7 @@ public class PortalChunk2D: FootprintChunk2D {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
+        try container.encode(segue, forKey: .segue)
         try container.encode(identifier, forKey: .identifier)
         try container.encode(portalType, forKey: .portalType)
     }
@@ -53,9 +63,7 @@ public class PortalChunk2D: FootprintChunk2D {
         
         guard super.clean() else { return false }
         
-        for child in children {
-            
-            guard let child = child as? SKSpriteNode else { continue }
+        for child in tiles {
             
             child.color = .systemYellow
         }

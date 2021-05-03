@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class FootprintGrid2D<C: FootprintChunk2D>: SKNode, Codable, Responder2D, Soilable {
+public class FootprintGrid2D<C: FootprintChunk2D<T>, T: FootprintTile2D>: SKNode, Codable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -75,7 +75,7 @@ public class FootprintGrid2D<C: FootprintChunk2D>: SKNode, Codable, Responder2D,
         
         guard find(chunk: footprint) == nil else { return nil }
         
-        let chunk = C(footprint: footprint)
+        let chunk = C(coordinate: footprint.coordinate)
         
         chunks.append(chunk)
         
@@ -93,12 +93,12 @@ extension FootprintGrid2D {
     
     public func find(chunk coordinate: Coordinate) -> C? {
         
-        return chunks.first { $0.footprint.intersects(coordinate: coordinate) }
+        return chunks.first { $0.footprint?.intersects(coordinate: coordinate) ?? false }
     }
     
     func find(chunk footprint: Footprint) -> C? {
         
-        return chunks.first { $0.footprint.intersects(footprint: footprint) }
+        return chunks.first { $0.footprint?.intersects(footprint: footprint) ?? false }
     }
     
     public func remove(chunk coordinate: Coordinate) {

@@ -41,16 +41,16 @@ public class Scene2D: SKScene, Codable, Soilable {
     
     public let harvest: Harvest
     
-    public override init(size: CGSize) {
+    public init(size: CGSize, harvest: Harvest? = nil) {
         
-        harvest = Harvest()
+        self.harvest = harvest ?? Harvest()
         
         super.init(size: size)
         
         name = "Harvest"
         
         addChild(graph)
-        addChild(harvest)
+        addChild(self.harvest)
         
         becomeDirty()
     }

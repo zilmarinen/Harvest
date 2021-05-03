@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class Foliage2D: FootprintGrid2D<FoliageChunk2D> {
+public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
     
     struct Tilemap {
         
@@ -21,10 +21,11 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D> {
     
     let tilemap = Tilemap()
     
-    public func add(foliage coordinate: Coordinate, rotation: Cardinal, foliageType: FoliageType, configure: ChunkConfiguration? = nil) -> FoliageChunk2D? {
+    public func add(foliage foliageType: FoliageType, coordinate: Coordinate, rotation: Cardinal, configure: ChunkConfiguration? = nil) -> FoliageChunk2D? {
+     
+        guard let harvest = harvest else { return nil }
         
-        guard let model = foliageType.model,
-              let harvest = harvest else { return nil }
+        let model = harvest.props.prop(foliage: foliageType)
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
@@ -36,10 +37,11 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D> {
             }
         }
         
-        guard let foliage = super.add(chunk: footprint) else { return nil }
-        
-        foliage.foliageType = foliageType
-        
-        return foliage
+        return super.add(chunk: footprint) { foliage in
+            
+            foliage.foliageType = foliageType
+            
+            configure?(foliage)
+        }
     }
 }
