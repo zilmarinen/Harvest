@@ -22,6 +22,8 @@ public class FootprintTile2D: SKSpriteNode, Responder2D, Soilable {
         
         super.init(texture: nil, color: .systemPink, size: CGSize(width: 1, height: 1))
         
+        anchorPoint = .zero
+        blendMode = .replace
         zPosition = 1
         
         becomeDirty()

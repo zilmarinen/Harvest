@@ -72,6 +72,6 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
-        return super.clean()
+        return true
     }
 }

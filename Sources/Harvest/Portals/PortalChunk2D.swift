@@ -21,12 +21,6 @@ public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
     public var segue = PortalSegue(direction: .north, scene: "", identifier: "")
     public var portalType: PortalType = .seam
     
-    public override var footprint: Footprint? {
-        
-        get { Footprint(coordinate: coordinate) }
-        set {}
-    }
-    
     required init(coordinate: Coordinate) {
         
         super.init(coordinate: coordinate)
@@ -63,11 +57,14 @@ public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
         
         guard super.clean() else { return false }
         
-        for child in tiles {
+        for tile in tiles {
             
-            child.color = .systemYellow
+            tile.color = .systemYellow
+            tile.direction = segue.direction
+            
+            _ = tile.clean()
         }
         
-        return super.clean()
+        return true
     }
 }

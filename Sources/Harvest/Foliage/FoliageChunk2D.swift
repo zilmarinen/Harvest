@@ -26,15 +26,11 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
         }
     }
     
-    public override var footprint: Footprint? {
+    public override var footprint: Footprint {
         
-        get {
-            
-            guard let model = harvest?.props.prop(foliage: foliageType) else { return nil }
-            
-            return Footprint(coordinate: coordinate, rotation: .north, nodes: model.footprint.nodes)
-        }
-        set {}
+        guard let model = harvest?.props.prop(foliage: foliageType) else { fatalError("Missing prop model") }
+        
+        return Footprint(coordinate: coordinate, rotation: .north, nodes: model.footprint.nodes)
     }
     
     required init(coordinate: Coordinate) {
@@ -44,9 +40,9 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
     
     required public init(from decoder: Decoder) throws {
         
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
         try super.init(from: decoder)
+        
+        let container = try decoder.container(keyedBy: CodingKeys.self)
         
         foliageType = try container.decode(FoliageType.self, forKey: .foliageType)
     }
@@ -77,13 +73,13 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
                                       Float(foliageType.color.blue),
                                       Float(foliageType.color.alpha))
         
-        for child in children {
+        for tile in tiles {
             
-            guard let child = child as? SKSpriteNode else { continue }
+            tile.color = foliageType.color.color
+            tile.shader = tilemap.shader
+            tile.setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
             
-            child.color = foliageType.color.color
-            child.shader = tilemap.shader
-            child.setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
+            _ = tile.clean()
         }
         
         return true

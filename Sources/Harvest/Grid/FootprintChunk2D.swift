@@ -7,7 +7,12 @@
 import Meadow
 import SpriteKit
 
-public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Responder2D, Soilable {
+protocol FootprintChunk2DDataSource {
+    
+    var footprint: Footprint { get }
+}
+
+public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, FootprintChunk2DDataSource, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -21,7 +26,7 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Respon
     public var coordinate: Coordinate
     var tiles: [T] = []
     
-    public var footprint: Footprint?
+    public var footprint: Footprint { Footprint(coordinate: coordinate) }
     
     required init(coordinate: Coordinate) {
         
@@ -57,8 +62,7 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Respon
     
     @discardableResult public func clean() -> Bool {
         
-        guard isDirty,
-              let footprint = footprint else { return false }
+        guard isDirty else { return false }
         
         anchorPoint = .zero
         position = CGPoint(x: CGFloat(footprint.coordinate.x) - 0.5, y: CGFloat(footprint.coordinate.z) - 0.5)
@@ -71,8 +75,6 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Respon
             
             let tile = T(coordinate: coordinate)
 
-            tile.anchorPoint = .zero
-            tile.blendMode = .replace
             tile.position = CGPoint(x: (footprint.coordinate.x - coordinate.x), y: (footprint.coordinate.z - coordinate.z))
             
             tiles.append(tile)

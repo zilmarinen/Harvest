@@ -9,9 +9,12 @@ import SpriteKit
 
 public class Bridges2D: FootprintGrid2D<BridgeChunk2D, BridgeTile2D> {
     
-    public override func add(chunk footprint: Footprint, configure: ChunkConfiguration? = nil) -> BridgeChunk2D? {
+    public func add(bridge bounds: GridBounds, configure: ChunkConfiguration? = nil) -> BridgeChunk2D? {
         
-        guard let harvest = harvest else { return nil }
+        guard bounds.size.x != bounds.size.z,
+              let harvest = harvest else { return nil }
+        
+        let footprint = Footprint(bounds: bounds)
         
         for coordinate in footprint.nodes {
             
@@ -21,6 +24,11 @@ public class Bridges2D: FootprintGrid2D<BridgeChunk2D, BridgeTile2D> {
             }
         }
         
-        return super.add(chunk: footprint, configure: configure)
+        return super.add(chunk: footprint) { bridge in
+            
+            bridge._footprint = footprint
+            
+            configure?(bridge)
+        }
     }
 }

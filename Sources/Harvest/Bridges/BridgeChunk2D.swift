@@ -10,11 +10,18 @@ import SpriteKit
 
 public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
     
-    private enum CodingKeys: CodingKey {
+    private enum CodingKeys: String, CodingKey {
         
+        case footprint = "f"
     }
     
+    var _footprint: Footprint
+    
+    public override var footprint: Footprint { _footprint }
+    
     required init(coordinate: Coordinate) {
+        
+        _footprint = Footprint(coordinate: coordinate)
         
         super.init(coordinate: coordinate)
     }
@@ -23,7 +30,7 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        //
+        _footprint = try container.decode(Footprint.self, forKey: .footprint)
         
         try super.init(from: decoder)
     }
@@ -39,21 +46,20 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        //
+        try container.encode(_footprint, forKey: .footprint)
     }
     
     @discardableResult public override func clean() -> Bool {
         
         guard super.clean() else { return false }
         
-        for child in children {
+        for tile in tiles {
             
-            guard let child = child as? SKSpriteNode else { continue }
+            tile.color = .systemTeal
             
-            child.color = .systemTeal
+            _ = tile.clean()
         }
         
-        return super.clean()
+        return true
     }
 }
-

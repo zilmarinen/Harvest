@@ -93,12 +93,12 @@ extension FootprintGrid2D {
     
     public func find(chunk coordinate: Coordinate) -> C? {
         
-        return chunks.first { $0.footprint?.intersects(coordinate: coordinate) ?? false }
+        return chunks.first { $0.footprint.intersects(coordinate: coordinate) }
     }
     
     func find(chunk footprint: Footprint) -> C? {
         
-        return chunks.first { $0.footprint?.intersects(footprint: footprint) ?? false }
+        return chunks.first { $0.footprint.intersects(footprint: footprint) }
     }
     
     public func remove(chunk coordinate: Coordinate) {
