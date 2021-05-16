@@ -13,6 +13,7 @@ extension SurfaceEdgeType {
         switch self {
         
         case .sloped: return "S"
+        case .stairs: return "-"
         case .terraced: return "T"
         }
     }
@@ -22,6 +23,7 @@ extension SurfaceEdgeType {
         switch self {
         
         case .sloped: return "Sloped"
+        case .stairs: return "Stairs"
         case .terraced: return "Terraced"
         }
     }

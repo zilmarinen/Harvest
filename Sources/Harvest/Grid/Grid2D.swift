@@ -208,5 +208,13 @@ extension Grid2D {
                 tile.add(neighbour: neighbour, cardinal: cardinal)
             }
         }
+        
+        for ordinal in Ordinal.allCases {
+         
+            if let neighbour = find(tile: tile.coordinate + ordinal.coordinate) {
+                
+                tile.add(neighbour: neighbour, ordinal: ordinal)
+            }
+        }
     }
 }

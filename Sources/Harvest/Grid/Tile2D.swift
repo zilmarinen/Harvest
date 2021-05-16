@@ -30,8 +30,8 @@ public class Tile2D: SKSpriteNode, Codable, Responder2D, Soilable {
         }
     }
     
-    public var neighbours: [Cardinal : Tile2D] = [:] {
-        
+    public var neighbours = GridPattern<Tile2D?>(value: nil) {
+    
         didSet {
             
             becomeDirty(recursive: true)
@@ -129,13 +129,25 @@ extension Tile2D {
         
         remove(neighbour: cardinal)
         
-        neighbours.updateValue(neighbour, forKey: cardinal)
+        neighbours.set(value: neighbour, cardinal: cardinal)
         
-        if neighbour.neighbours[cardinal.opposite] != self {
+        if neighbour.neighbours.value(for: cardinal.opposite) != self {
             
             neighbour.add(neighbour: self, cardinal: cardinal.opposite)
+        }
+        
+        becomeDirty(recursive: true)
+    }
+    
+    func add(neighbour: Tile2D, ordinal: Ordinal) {
+        
+        remove(neighbour: ordinal)
+        
+        neighbours.set(value: neighbour, ordinal: ordinal)
+        
+        if neighbour.neighbours.value(for: ordinal.opposite) != self {
             
-            neighbour.becomeDirty(recursive: true)
+            neighbour.add(neighbour: self, ordinal: ordinal.opposite)
         }
         
         becomeDirty(recursive: true)
@@ -143,29 +155,39 @@ extension Tile2D {
     
     func find(neighbour cardinal: Cardinal) -> Self? {
         
-        return neighbours[cardinal] as? Self
+        return neighbours.value(for: cardinal) as? Self
     }
     
     func find(neighbour ordinal: Ordinal) -> Self? {
         
-        let (c0, c1) = ordinal.cardinals
-        
-        return find(neighbour: c0)?.find(neighbour: c1) ?? find(neighbour: c1)?.find(neighbour: c0)
+        return neighbours.value(for: ordinal) as? Self
     }
     
     func remove(neighbour cardinal: Cardinal) {
         
-        guard let neighbour = neighbours[cardinal] else { return }
+        guard let neighbour = neighbours.value(for: cardinal) else { return }
         
-        becomeDirty(recursive: true)
+        neighbours.set(value: nil, cardinal: cardinal)
         
-        neighbours.removeValue(forKey: cardinal)
-        
-        if neighbour.neighbours[cardinal.opposite] == self {
+        if neighbour.neighbours.value(for: cardinal.opposite) == self {
             
             neighbour.remove(neighbour: cardinal.opposite)
-            
-            neighbour.becomeDirty(recursive: true)
         }
+        
+        becomeDirty(recursive: true)
+    }
+    
+    func remove(neighbour ordinal: Ordinal) {
+        
+        guard let neighbour = neighbours.value(for: ordinal) else { return }
+        
+        neighbours.set(value: nil, ordinal: ordinal)
+        
+        if neighbour.neighbours.value(for: ordinal.opposite) == self {
+            
+            neighbour.remove(neighbour: ordinal.opposite)
+        }
+        
+        becomeDirty(recursive: true)
     }
 }

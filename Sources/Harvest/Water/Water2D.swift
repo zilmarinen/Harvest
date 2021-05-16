@@ -74,10 +74,11 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: Grid2D<WaterChunk2D, WaterTile2D>.TileConfiguration? = nil) -> WaterTile2D? {
         
-        guard let harvest = ancestor as? Harvest,
+        /*guard let harvest = ancestor as? Harvest,
               let tile = harvest.surface.find(tile: coordinate),
               tile.corners.values.filter({ $0 < coordinate.y }).count > 0 else { return nil }
         
-        return super.add(tile: coordinate, configure: configure)
+        return super.add(tile: coordinate, configure: configure)*/
+        return nil
     }
 }

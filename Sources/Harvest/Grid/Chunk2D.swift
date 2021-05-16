@@ -75,7 +75,7 @@ public class Chunk2D<T: Tile2D>: SKNode, Codable, Responder2D, Soilable {
         }
         
         isDirty = false
-        
+
         return true
     }
 }
@@ -131,6 +131,11 @@ extension Chunk2D {
         for cardinal in Cardinal.allCases {
             
             tile.remove(neighbour: cardinal)
+        }
+        
+        for ordinal in Ordinal.allCases {
+            
+            tile.remove(neighbour: ordinal)
         }
 
         tiles.remove(at: index)

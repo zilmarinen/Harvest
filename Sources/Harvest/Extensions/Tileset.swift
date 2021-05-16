@@ -11,7 +11,7 @@ extension Tileset {
     
     func image(for tile: TilesetTile) -> NSImage {
         
-        let point = CGPoint(x: tile.uvs.start.x, y: 1 - tile.uvs.start.y)
+        let point = CGPoint(x: tile.uvs.start.x, y: 1 - tile.uvs.end.y)
         let origin = CGPoint(x: image.size.width * point.x, y: image.size.height * point.y)
         let size = CGSize(width: abs(tile.uvs.end.x - tile.uvs.start.x), height: abs(tile.uvs.end.y - tile.uvs.start.y))
         let sourceSize = CGSize(width: image.size.width * size.width, height: image.size.height * size.height)
@@ -25,8 +25,8 @@ extension Tileset {
         
         let transform = NSAffineTransform()
         
-        transform.translateX(by: destinationSize.width, yBy: 0)
-        transform.scaleX(by: -1, yBy: 1)
+        transform.translateX(by: 0, yBy: destinationSize.height)
+        transform.scaleX(by: 1, yBy: -1)
         transform.concat()
         
         image.draw(in: destination, from: source, operation: .copy, fraction: 1.0)
