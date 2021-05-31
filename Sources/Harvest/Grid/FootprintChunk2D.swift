@@ -65,7 +65,7 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Footpr
         guard isDirty else { return false }
         
         anchorPoint = .zero
-        position = CGPoint(x: CGFloat(footprint.coordinate.x) - 0.5, y: CGFloat(footprint.coordinate.z) - 0.5)
+        position = CGPoint(x: CGFloat(footprint.coordinate.x) - CGFloat(World.Constants.volumeSize), y: CGFloat(footprint.coordinate.z) - CGFloat(World.Constants.volumeSize))
         
         removeAllChildren()
         
@@ -75,7 +75,7 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Footpr
             
             let tile = T(coordinate: coordinate)
 
-            tile.position = CGPoint(x: (footprint.coordinate.x - coordinate.x), y: (footprint.coordinate.z - coordinate.z))
+            tile.position = CGPoint(x: (coordinate.x - footprint.coordinate.x), y: (coordinate.z - footprint.coordinate.z))
             
             tiles.append(tile)
 

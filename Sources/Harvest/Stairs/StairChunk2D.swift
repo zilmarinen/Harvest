@@ -1,23 +1,26 @@
 //
-//  BridgeChunk2D.swift
+//  StairChunk2D.swift
 //
 //  Created by Zack Brown on 30/03/2021.
 //
 
-import Foundation
 import Meadow
 import SpriteKit
 
-public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
+public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
         case footprint = "f"
+        case stairType = "t"
         case direction = "d"
+        case elevation = "e"
     }
     
     var _footprint: Footprint
-    var direction: Cardinal = .north
+    public var stairType: StairType = .stone
+    public var direction: Cardinal = .north
+    public var elevation = 1
     
     public override var footprint: Footprint { _footprint }
     
@@ -33,7 +36,9 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         _footprint = try container.decode(Footprint.self, forKey: .footprint)
+        stairType = try container.decode(StairType.self, forKey: .stairType)
         direction = try container.decode(Cardinal.self, forKey: .direction)
+        elevation = try container.decode(Int.self, forKey: .elevation)
         
         try super.init(from: decoder)
     }
@@ -50,18 +55,18 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(_footprint, forKey: .footprint)
+        try container.encode(stairType, forKey: .stairType)
         try container.encode(direction, forKey: .direction)
+        try container.encode(elevation, forKey: .elevation)
     }
     
     @discardableResult public override func clean() -> Bool {
         
         guard super.clean() else { return false }
         
-        direction = (footprint.bounds.size.z > footprint.bounds.size.x ? .north : .east)
-        
         for tile in tiles {
             
-            tile.color = .systemTeal
+            tile.color = .systemOrange
             
             _ = tile.clean()
         }

@@ -28,13 +28,7 @@ public class Buildings2D: FootprintGrid2D<BuildingChunk2D, BuildingTile2D> {
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
-        for coordinate in footprint.nodes {
-            
-            if !harvest.validate(coordinate: coordinate, grid: .buildings) {
-                
-                return nil
-            }
-        }
+        guard harvest.validate(footprint: footprint, grid: .buildings) else { return nil }
         
         guard let building = super.add(chunk: footprint) else { return nil }
         

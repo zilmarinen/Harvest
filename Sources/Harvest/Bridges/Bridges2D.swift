@@ -16,13 +16,7 @@ public class Bridges2D: FootprintGrid2D<BridgeChunk2D, BridgeTile2D> {
         
         let footprint = Footprint(bounds: bounds)
         
-        for coordinate in footprint.nodes {
-            
-            if !harvest.validate(coordinate: coordinate, grid: .bridges) {
-                
-                return nil
-            }
-        }
+        guard harvest.validate(footprint: footprint, grid: .bridges) else { return nil }
         
         return super.add(chunk: footprint) { bridge in
             

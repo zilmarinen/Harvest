@@ -13,7 +13,8 @@ public class WaterTile2D: Tile2D {
     private enum CodingKeys: String, CodingKey {
         
         case tileType = "t"
-        case pattern = "p"
+        case apexPattern = "ap"
+        case volume = "v"
     }
     
     public var tileType: WaterTileType = .water {
@@ -27,7 +28,8 @@ public class WaterTile2D: Tile2D {
         }
     }
     
-    var pattern: Int = 1
+    var apexPattern: Int = 0
+    var volume: TileVolume = TileVolume(apex: TileVolume.Apex(corners: 0), edges: [:])
     
     lazy var label: SKLabelNode = {
         
@@ -56,7 +58,8 @@ public class WaterTile2D: Tile2D {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         tileType = try container.decode(WaterTileType.self, forKey: .tileType)
-        pattern = try container.decode(Int.self, forKey: .pattern)
+        apexPattern = try container.decode(Int.self, forKey: .apexPattern)
+        volume = try container.decode(TileVolume.self, forKey: .volume)
         
         try super.init(from: decoder)
         
@@ -75,7 +78,8 @@ public class WaterTile2D: Tile2D {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(tileType, forKey: .tileType)
-        try container.encode(pattern, forKey: .pattern)
+        try container.encode(apexPattern, forKey: .apexPattern)
+        try container.encode(volume, forKey: .volume)
     }
     
     @discardableResult override public func clean() -> Bool {
@@ -115,56 +119,57 @@ public class WaterTile2D: Tile2D {
         
         super.collapse()
         
-        var pattern = GridPattern(value: true)
+        let sample = sampleNeighbours()
+        
+        var edges: [Cardinal : [Ordinal : Double]] = [:]
+        
+        for cardinal in Cardinal.allCases {
+            
+            let height = sample.elevation.value(for: cardinal)
+            
+            guard height < coordinate.y else { continue }
+            
+            let corner = Double(height) * World.Constants.yScalar
+            
+            let (o0, o1) = cardinal.ordinals
+            
+            edges[cardinal] = [o0 : corner,
+                               o1 : corner]
+        }
+        
+        volume = TileVolume(apex: TileVolume.Apex(corners: Double(coordinate.y) * World.Constants.yScalar), edges: edges)
+        apexPattern = GridPattern.index(of: sample.tileType.pattern(for: tileType.rawValue)) + 1
+    }
+}
+
+extension WaterTile2D {
+    
+    typealias TileNeighbours = (elevation: GridPattern<Int>, tileType: GridPattern<Int?>)
+    
+    func sampleNeighbours() -> TileNeighbours {
+        
+        var elevation = GridPattern<Int>(value: 0)
+        var tileType = GridPattern<Int?>(value: nil)
+        
+        for cardinal in Cardinal.allCases {
+            
+            let neighbour = find(neighbour: cardinal)
+            
+            elevation.set(value: neighbour?.coordinate.y ?? coordinate.y , cardinal: cardinal)
+            
+            tileType.set(value: neighbour?.tileType.rawValue, cardinal: cardinal)
+        }
         
         for ordinal in Ordinal.allCases {
             
-            guard let neighbour = find(neighbour: ordinal),
-                  neighbour.tileType.rawValue > tileType.rawValue else { continue }
+            let neighbour = find(neighbour: ordinal)
             
-            switch ordinal {
+            elevation.set(value: neighbour?.coordinate.y ?? coordinate.y, ordinal: ordinal)
             
-            case .northWest: pattern.northWest = false
-            case .northEast: pattern.northEast = false
-            case .southEast: pattern.southEast = false
-            case .southWest: pattern.southWest = false
-            }
+            tileType.set(value: neighbour?.tileType.rawValue, ordinal: ordinal)
         }
         
-        for cardinal in Cardinal.allCases {
-                    
-            guard let neighbour = find(neighbour: cardinal),
-                  neighbour.tileType.rawValue > tileType.rawValue else { continue }
-            
-            switch cardinal {
-            
-            case .north:
-                
-                pattern.north = false
-                pattern.northWest = false
-                pattern.northEast = false
-                
-            case .east:
-                
-                pattern.east = false
-                pattern.northEast = false
-                pattern.southEast = false
-                
-            case .south:
-                
-                pattern.south = false
-                pattern.southEast = false
-                pattern.southWest = false
-                
-            case .west:
-                
-                pattern.west = false
-                pattern.northWest = false
-                pattern.southWest = false
-            }
-        }
-        
-        self.pattern = GridPattern.index(of: pattern) + 1
+        return (elevation, tileType)
     }
 }
 

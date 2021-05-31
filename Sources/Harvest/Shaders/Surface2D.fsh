@@ -26,6 +26,10 @@ vec4 tileColorLookup(int value) {
         
         return vec4(0.81, 0.90, 0.94, 1);
     }
+    else if (value == 5) {
+        
+        return vec4(0.91, 0.91, 0.91, 1);
+    }
     
     return vec4(1, 1, 1, 1);
 }

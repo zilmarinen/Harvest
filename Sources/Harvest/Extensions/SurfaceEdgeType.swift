@@ -12,8 +12,8 @@ extension SurfaceEdgeType {
         
         switch self {
         
+        case .cutaway: return "C"
         case .sloped: return "S"
-        case .stairs: return "-"
         case .terraced: return "T"
         }
     }
@@ -22,8 +22,8 @@ extension SurfaceEdgeType {
         
         switch self {
         
+        case .cutaway: return "Cutaway"
         case .sloped: return "Sloped"
-        case .stairs: return "Stairs"
         case .terraced: return "Terraced"
         }
     }

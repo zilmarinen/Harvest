@@ -11,19 +11,19 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
     
     enum CodingKeys: String, CodingKey {
         
-        case actors = "a"
-        case bridges = "br"
-        case buildings = "bu"
-        case fences = "fe"
-        case foliage = "fol"
-        case footpath = "foo"
-        case portals = "p"
-        case surface = "s"
-        case walls = "wal"
-        case water = "wat"
+        case actors
+        case bridges
+        case buildings
+        case foliage
+        case footpath
+        case portals
+        case stairs
+        case surface
+        case walls
+        case water
         
-        case name = "n"
-        case identifier = "i"
+        case name
+        case identifier
     }
     
     public var ancestor: SoilableParent? { parent as? SoilableParent }
@@ -33,10 +33,10 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
     public let actors: Actors2D
     public let bridges: Bridges2D
     public let buildings: Buildings2D
-    public let fences: Fence2D
     public let foliage: Foliage2D
     public let footpath: Footpath2D
     public let portals: Portals2D
+    public let stairs: Stairs2D
     public let surface: Surface2D
     public let walls: Wall2D
     public let water: Water2D
@@ -52,10 +52,10 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         actors = Actors2D()
         bridges = Bridges2D()
         buildings = Buildings2D()
-        fences = Fence2D()
         foliage = Foliage2D()
         footpath = Footpath2D()
         portals = Portals2D()
+        stairs = Stairs2D()
         surface = Surface2D()
         walls = Wall2D()
         water = Water2D()
@@ -68,10 +68,10 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         addChild(actors)
         addChild(bridges)
         addChild(buildings)
-        addChild(fences)
         addChild(foliage)
         addChild(footpath)
         addChild(portals)
+        addChild(stairs)
         addChild(surface)
         addChild(walls)
         addChild(water)
@@ -86,10 +86,10 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         actors = try container.decode(Actors2D.self, forKey: .actors)
         bridges = try container.decode(Bridges2D.self, forKey: .bridges)
         buildings = try container.decode(Buildings2D.self, forKey: .buildings)
-        fences = try container.decode(Fence2D.self, forKey: .fences)
         foliage = try container.decode(Foliage2D.self, forKey: .foliage)
         footpath = try container.decode(Footpath2D.self, forKey: .footpath)
         portals = try container.decode(Portals2D.self, forKey: .portals)
+        stairs = try container.decode(Stairs2D.self, forKey: .stairs)
         surface = try container.decode(Surface2D.self, forKey: .surface)
         walls = try container.decode(Wall2D.self, forKey: .walls)
         water = try container.decode(Water2D.self, forKey: .water)
@@ -102,10 +102,10 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         addChild(actors)
         addChild(bridges)
         addChild(buildings)
-        addChild(fences)
         addChild(foliage)
         addChild(footpath)
         addChild(portals)
+        addChild(stairs)
         addChild(surface)
         addChild(walls)
         addChild(water)
@@ -125,10 +125,10 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         try container.encode(actors, forKey: .actors)
         try container.encode(bridges, forKey: .bridges)
         try container.encode(buildings, forKey: .buildings)
-        try container.encode(fences, forKey: .fences)
         try container.encode(foliage, forKey: .foliage)
         try container.encode(footpath, forKey: .footpath)
         try container.encode(portals, forKey: .portals)
+        try container.encode(stairs, forKey: .stairs)
         try container.encode(surface, forKey: .surface)
         try container.encode(walls, forKey: .walls)
         try container.encode(water, forKey: .water)
@@ -149,10 +149,10 @@ extension Harvest {
         actors.clean()
         bridges.clean()
         buildings.clean()
-        fences.clean()
         foliage.clean()
         footpath.clean()
         portals.clean()
+        stairs.clean()
         surface.clean()
         walls.clean()
         water.clean()
@@ -167,47 +167,51 @@ extension Harvest {
 
 extension Harvest {
     
+    func validate(footprint: Footprint, grid: CodingKeys) -> Bool {
+        
+        for coordinate in footprint.nodes {
+            
+            if !validate(coordinate: coordinate, grid: grid) {
+                
+                return false
+            }
+        }
+        
+        return true
+    }
+    
     func validate(coordinate: Coordinate, grid: CodingKeys) -> Bool {
+        
+        guard let surfaceTile = surface.find(tile: coordinate) else { return false }
         
         switch grid {
         
         case .actors:
             
             guard buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
                   water.find(tile: coordinate) == nil else { return false }
             
         case .bridges:
             
             guard bridges.find(chunk: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
-                  walls.find(tile: coordinate) == nil,
-                  footpath.find(tile: coordinate) == nil else { return false }
+                  footpath.find(tile: coordinate) == nil,
+                  portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
+                  walls.find(tile: coordinate) == nil else { return false }
             
         case .buildings:
             
             guard actors.find(actor: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   footpath.find(tile: coordinate) == nil,
                   portals.find(chunk: coordinate) == nil,
-                  walls.find(tile: coordinate) == nil,
-                  water.find(tile: coordinate) == nil else { return false }
-            
-        case .fences:
-            
-            guard actors.find(actor: coordinate) == nil,
-                  bridges.find(chunk: coordinate) == nil,
-                  buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
-                  foliage.find(chunk: coordinate) == nil,
-                  footpath.find(tile: coordinate) == nil,
-                  portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
                   walls.find(tile: coordinate) == nil,
                   water.find(tile: coordinate) == nil else { return false }
             
@@ -215,8 +219,10 @@ extension Harvest {
             
             guard actors.find(actor: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
+                  foliage.find(chunk: coordinate) == nil,
+                  footpath.find(tile: coordinate) == nil,
                   portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
                   walls.find(tile: coordinate) == nil,
                   water.find(tile: coordinate) == nil else { return false }
             
@@ -224,8 +230,8 @@ extension Harvest {
             
             guard bridges.find(chunk: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
                   walls.find(tile: coordinate) == nil,
                   water.find(chunk: coordinate) == nil else { return false }
             
@@ -233,21 +239,33 @@ extension Harvest {
             
             guard actors.find(actor: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
                   walls.find(tile: coordinate) == nil,
                   water.find(chunk: coordinate) == nil else { return false }
+            
+        case .stairs:
+            
+            guard actors.find(actor: coordinate) == nil,
+                  bridges.find(chunk: coordinate) == nil,
+                  buildings.find(chunk: coordinate) == nil,
+                  foliage.find(chunk: coordinate) == nil,
+                  footpath.find(tile: coordinate) == nil,
+                  portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
+                  walls.find(tile: coordinate) == nil,
+                  water.find(tile: coordinate) == nil else { return false }
             
         case .walls:
             
             guard actors.find(actor: coordinate) == nil,
                   bridges.find(chunk: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   footpath.find(tile: coordinate) == nil,
                   portals.find(chunk: coordinate) == nil,
+                  stairs.find(chunk: coordinate) == nil,
                   walls.find(tile: coordinate) == nil,
                   water.find(tile: coordinate) == nil else { return false }
             
@@ -255,11 +273,12 @@ extension Harvest {
             
             guard actors.find(actor: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
-                  fences.find(tile: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   footpath.find(tile: coordinate) == nil,
                   portals.find(chunk: coordinate) == nil,
-                  walls.find(tile: coordinate) == nil else { return false }
+                  stairs.find(chunk: coordinate) == nil,
+                  walls.find(tile: coordinate) == nil,
+                  coordinate.y > surfaceTile.volumes.apex().min() ?? 0 else { return false }
             
         default: break
         }

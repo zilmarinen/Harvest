@@ -8,27 +8,29 @@ import Meadow
 
 extension GridPattern where T == Int {
     
-    func apex(for ordinal: Ordinal, edgeType: SurfaceEdgeType) -> TileVolume.Apex {
-        
-        let scalar = (1.0 / Double(World.Constants.ceiling))
+    func apex(for ordinal: Ordinal, edgeType: SurfaceEdgeType, elevation: Int) -> TileVolume.Apex {
         
         let h0 = value(for: ordinal)
         
-        let c0 = Double(h0) * scalar
+        let c0 = Math.quantize(value: Double(h0) * World.Constants.yScalar)
         
         switch edgeType {
+        
+        case .cutaway:
+            
+            return TileVolume.Apex(corners: Double(elevation) * World.Constants.yScalar)
         
         case .sloped:
             
             let (o0, o1) = ordinal.ordinals
             
-            let c1 = Double(value(for: o1)) * scalar
-            let c2 = Double(value(for: ordinal.opposite)) * scalar
-            let c3 = Double(value(for: o0)) * scalar
+            let c1 = Double(value(for: o1)) * World.Constants.yScalar
+            let c2 = Double(value(for: ordinal.opposite)) * World.Constants.yScalar
+            let c3 = Double(value(for: o0)) * World.Constants.yScalar
             
-            let a1 = max(c0, c1) - (abs(c0 - c1) / 2.0)
-            let a2 = (c0 + c1 + c2 + c3) / 4.0
-            let a3 = max(c0, c3) - (abs(c0 - c3) / 2.0)
+            let a1 = Math.quantize(value: max(c0, c1) - (abs(c0 - c1) / 2.0))
+            let a2 = Math.quantize(value: (c0 + c1 + c2 + c3) / 4.0)
+            let a3 = Math.quantize(value: max(c0, c3) - (abs(c0 - c3) / 2.0))
             
             switch ordinal {
             
@@ -38,24 +40,23 @@ extension GridPattern where T == Int {
             case .southWest: return TileVolume.Apex(corners: [a1, a2, a3, c0])
             }
             
-        case .stairs,
-             .terraced:
+        case .terraced:
             
             return TileVolume.Apex(corners: c0)
         }
     }
 }
 
-extension GridPattern where T == SurfaceTile.TileType? {
+extension GridPattern where T == Int? {
     
-    func pattern(for tileType: SurfaceTile.TileType) -> GridPattern<Bool> {
+    func pattern(for tileType: Int) -> GridPattern<Bool> {
         
         var result = GridPattern<Bool>(value: true)
         
         for ordinal in Ordinal.allCases {
             
             guard let neighbourTileType = value(for: ordinal),
-                  neighbourTileType.primary.rawValue > tileType.primary.rawValue else { continue }
+                  neighbourTileType > tileType else { continue }
                 
             switch ordinal {
             
@@ -69,7 +70,7 @@ extension GridPattern where T == SurfaceTile.TileType? {
         for cardinal in Cardinal.allCases {
             
             guard let neighbourTileType = value(for: cardinal),
-                  neighbourTileType.primary.rawValue > tileType.primary.rawValue else { continue }
+                  neighbourTileType > tileType else { continue }
                 
             switch cardinal {
             
@@ -110,7 +111,7 @@ extension GridPattern where T == SurfaceTile.TileType? {
         let (n0, n1) = (value(for: c0), value(for: c1))
         
         if let n0 = n0,
-           n0.primary.rawValue > tileType.primary.rawValue {
+           n0 > tileType.primary.rawValue {
             
             result.northWest = false
             result.west = false
@@ -118,7 +119,7 @@ extension GridPattern where T == SurfaceTile.TileType? {
         }
         
         if let n1 = n1,
-           n1.primary.rawValue > tileType.primary.rawValue {
+           n1 > tileType.primary.rawValue {
             
             result.northEast = false
             result.east = false

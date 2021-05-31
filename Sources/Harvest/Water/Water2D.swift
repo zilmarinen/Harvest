@@ -9,7 +9,7 @@ import SpriteKit
 
 public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     
-    enum Overlay {
+    public enum Overlay {
         
         case none
         case elevation
@@ -39,7 +39,7 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     
     let tilemap = Tilemap()
     
-    var overlay: Overlay = .none {
+    public var overlay: Overlay = .none {
         
         didSet {
             
@@ -74,11 +74,9 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: Grid2D<WaterChunk2D, WaterTile2D>.TileConfiguration? = nil) -> WaterTile2D? {
         
-        /*guard let harvest = ancestor as? Harvest,
-              let tile = harvest.surface.find(tile: coordinate),
-              tile.corners.values.filter({ $0 < coordinate.y }).count > 0 else { return nil }
+        guard let harvest = ancestor as? Harvest,
+              harvest.validate(coordinate: coordinate, grid: .water) else { return nil }
         
-        return super.add(tile: coordinate, configure: configure)*/
-        return nil
+        return super.add(tile: coordinate, configure: configure)
     }
 }

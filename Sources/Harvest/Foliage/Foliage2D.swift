@@ -29,13 +29,7 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
-        for coordinate in footprint.nodes {
-            
-            if !harvest.validate(coordinate: coordinate, grid: .foliage) {
-                
-                return nil
-            }
-        }
+        guard harvest.validate(footprint: footprint, grid: .foliage) else { return nil }
         
         return super.add(chunk: footprint) { foliage in
             

@@ -158,16 +158,17 @@ public class SurfaceTile2D: Tile2D {
             /// Generate apex for ordinal volume
             //
             
-            apices.append(sample.elevation.apex(for: ordinal, edgeType: edgeType))
+            apices.append(sample.elevation.apex(for: ordinal, edgeType: edgeType, elevation: coordinate.y))
             
             //
             /// Determine transition between tile types along the ordinal
             //
             
             guard let neighbourTileType = sample.tileType.value(for: ordinal),
-                  neighbourTileType.primary.rawValue > tileType.primary.rawValue else { continue }
+                  neighbourTileType > tileType.primary.rawValue,
+                  let secondaryTileType = SurfaceTileType(rawValue: neighbourTileType) else { continue }
             
-            tileType.secondary = (neighbourTileType.primary.rawValue > tileType.secondary.rawValue ? neighbourTileType.primary : tileType.secondary)
+            tileType.secondary = (neighbourTileType > tileType.secondary.rawValue ? secondaryTileType : tileType.secondary)
         }
         
         for ordinal in Ordinal.allCases {
@@ -237,77 +238,58 @@ public class SurfaceTile2D: Tile2D {
             edgePatterns[cardinal] = GridPattern.index(of: sample.tileType.edgePattern(for: tileType, cardinal: cardinal)) + 1
             
             guard let neighbourTileType = sample.tileType.value(for: cardinal),
-                  neighbourTileType.primary.rawValue > tileType.primary.rawValue else { continue }
+                  neighbourTileType > tileType.primary.rawValue,
+                  let secondaryTileType = SurfaceTileType(rawValue: neighbourTileType) else { continue }
             
-            tileType.secondary = (neighbourTileType.primary.rawValue > tileType.secondary.rawValue ? neighbourTileType.primary : tileType.secondary)
+            tileType.secondary = (neighbourTileType > tileType.secondary.rawValue ? secondaryTileType : tileType.secondary)
         }
         
-        self.apexPattern = GridPattern.index(of: sample.tileType.pattern(for: tileType)) + 1
+        apexPattern = GridPattern.index(of: sample.tileType.pattern(for: tileType.primary.rawValue)) + 1
     }
 }
 
 extension SurfaceTile2D {
     
-    typealias TileNeighbours = (elevation: GridPattern<Int>, tileType: GridPattern<SurfaceTile.TileType?>)
+    typealias TileNeighbours = (elevation: GridPattern<Int>, tileType: GridPattern<Int?>)
     
     func apex(for ordinal: Ordinal, cardinal: Cardinal) -> TileVolume.Apex {
         
         guard let neighbour = find(neighbour: cardinal) else {
             
-            let scalar = (1.0 / Double(World.Constants.ceiling))
-            
-            return TileVolume.Apex(corners: Double(coordinate.y) * scalar)
+            return TileVolume.Apex(corners: Double(coordinate.y) * World.Constants.yScalar)
         }
         
-        return neighbour.sampleNeighbours().elevation.apex(for: ordinal, edgeType: neighbour.edgeType)
+        return neighbour.sampleNeighbours().elevation.apex(for: ordinal, edgeType: neighbour.edgeType, elevation: neighbour.coordinate.y)
     }
     
     func sampleNeighbours() -> TileNeighbours {
         
         var elevation = GridPattern<Int>(value: 0)
-        var tileType = GridPattern<SurfaceTile.TileType?>(value: nil)
+        var tileType = GridPattern<Int?>(value: nil)
         
         for cardinal in Cardinal.allCases {
             
             let neighbour = find(neighbour: cardinal)
             
-            switch edgeType {
+            elevation.set(value: neighbour?.coordinate.y ?? coordinate.y , cardinal: cardinal)
             
-            case .stairs:
-                
-                elevation.set(value: coordinate.y , cardinal: cardinal)
-                
-            default:
-                
-                elevation.set(value: neighbour?.coordinate.y ?? coordinate.y , cardinal: cardinal)
-            }
-            
-            tileType.set(value: neighbour?.tileType, cardinal: cardinal)
+            tileType.set(value: neighbour?.tileType.primary.rawValue, cardinal: cardinal)
         }
         
         for ordinal in Ordinal.allCases {
             
             let neighbour = find(neighbour: ordinal)
             
-            switch edgeType {
+            let (c0, c1) = ordinal.cardinals
             
-            case .stairs:
-                
-                elevation.set(value: coordinate.y , ordinal: ordinal)
-                
-            default:
-                
-                let (c0, c1) = ordinal.cardinals
-                
-                let n0 = elevation.value(for: c0)
-                let n1 = elevation.value(for: c1)
-                
-                let corner = min(n0, n1, neighbour?.coordinate.y ?? coordinate.y, coordinate.y)
-                
-                elevation.set(value: corner, ordinal: ordinal)
-            }
+            let n0 = elevation.value(for: c0)
+            let n1 = elevation.value(for: c1)
             
-            tileType.set(value: neighbour?.tileType, ordinal: ordinal)
+            let corner = max(n0, n1, neighbour?.coordinate.y ?? coordinate.y, coordinate.y)
+            
+            elevation.set(value: corner, ordinal: ordinal)
+            
+            tileType.set(value: neighbour?.tileType.primary.rawValue, ordinal: ordinal)
         }
         
         return (elevation, tileType)
