@@ -12,18 +12,21 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
-        case footprint = "f"
-        case direction = "d"
+        case width = "w"
+        case height = "h"
     }
     
-    var _footprint: Footprint
-    var direction: Cardinal = .north
+    public override var footprint: Footprint {
+        
+        let bounds = GridBounds(start: coordinate, end: coordinate + Coordinate(x: width - 1, y: 0, z: height - 1))
+        
+        return Footprint(bounds: bounds)
+    }
     
-    public override var footprint: Footprint { _footprint }
+    public var width: Int = 0
+    public var height: Int = 0
     
     required init(coordinate: Coordinate) {
-        
-        _footprint = Footprint(coordinate: coordinate)
         
         super.init(coordinate: coordinate)
     }
@@ -32,8 +35,8 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        _footprint = try container.decode(Footprint.self, forKey: .footprint)
-        direction = try container.decode(Cardinal.self, forKey: .direction)
+        width = try container.decode(Int.self, forKey: .width)
+        height = try container.decode(Int.self, forKey: .height)
         
         try super.init(from: decoder)
     }
@@ -49,15 +52,13 @@ public class BridgeChunk2D: FootprintChunk2D<BridgeTile2D> {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(_footprint, forKey: .footprint)
-        try container.encode(direction, forKey: .direction)
+        try container.encode(width, forKey: .width)
+        try container.encode(height, forKey: .height)
     }
     
     @discardableResult public override func clean() -> Bool {
         
         guard super.clean() else { return false }
-        
-        direction = (footprint.bounds.size.z > footprint.bounds.size.x ? .north : .east)
         
         for tile in tiles {
             

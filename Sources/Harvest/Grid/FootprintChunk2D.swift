@@ -7,26 +7,24 @@
 import Meadow
 import SpriteKit
 
-protocol FootprintChunk2DDataSource {
-    
-    var footprint: Footprint { get }
-}
-
-public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, FootprintChunk2DDataSource, Responder2D, Soilable {
+public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, FootprintDataSource, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
-        case coordinate = "c"
+        case coordinate = "co"
+        case direction = "d"
     }
     
     public var ancestor: SoilableParent? { parent as? SoilableParent }
     
     public var isDirty: Bool = false
     
-    public var coordinate: Coordinate
-    var tiles: [T] = []
-    
     public var footprint: Footprint { Footprint(coordinate: coordinate) }
+    
+    public var coordinate: Coordinate
+    public var direction: Cardinal = .north
+    
+    var tiles: [T] = []
     
     required init(coordinate: Coordinate) {
         
@@ -42,6 +40,7 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Footpr
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         coordinate = try container.decode(Coordinate.self, forKey: .coordinate)
+        direction = try container.decode(Cardinal.self, forKey: .direction)
         
         super.init(texture: nil, color: .black, size: CGSize(width: 1, height: 1))
         
@@ -58,6 +57,7 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Footpr
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(coordinate, forKey: .coordinate)
+        try container.encode(direction, forKey: .direction)
     }
     
     @discardableResult public func clean() -> Bool {

@@ -41,7 +41,6 @@ public class SurfaceTile2D: Tile2D {
         }
     }
     
-    var neighbourTileType: SurfaceTileType = .dirt
     var apexPattern: Int = 0
     var edgePatterns: [Cardinal : Int] = [:]
     var volumes: [Ordinal : TileVolume] = [:]
@@ -64,8 +63,6 @@ public class SurfaceTile2D: Tile2D {
     required init(coordinate: Coordinate) {
             
         super.init(coordinate: coordinate)
-        
-        addChild(label)
     }
     
     required public init(from decoder: Decoder) throws {
@@ -79,8 +76,6 @@ public class SurfaceTile2D: Tile2D {
         volumes = try container.decode([Ordinal : TileVolume].self, forKey: .volumes)
         
         try super.init(from: decoder)
-        
-        addChild(label)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -135,6 +130,47 @@ public class SurfaceTile2D: Tile2D {
              .material:
             
             label.text = "\(coordinate.y)"
+        }
+        
+        removeAllChildren()
+        
+        addChild(label)
+        
+        let halfSize = CGSize(width: size.width / 2.0, height: size.height / 2.0)
+        let stroke: CGFloat = 0.1
+        var nodePosition = CGPoint.zero
+        var nodeSize = size
+        
+        for cardinal in Cardinal.allCases {
+            
+            let neighbour = find(neighbour: cardinal)
+            
+            guard neighbour?.coordinate.y ?? 0 > coordinate.y else { continue }
+            
+            nodeSize = size
+            nodePosition = CGPoint.zero
+            
+            switch cardinal {
+            
+            case .north,
+                 .south:
+                
+                nodeSize.height = stroke
+                nodePosition.y = (cardinal == .south ? 1 : -1) * (halfSize.height + nodeSize.height / 2.0)
+                
+            case .east,
+                 .west:
+                
+                nodeSize.width = stroke
+                nodePosition.x = (cardinal == .east ? 1 : -1) * (halfSize.width + nodeSize.width / 2.0)
+            }
+            
+            let node = SKSpriteNode(color: .black, size: nodeSize)
+            
+            node.position = nodePosition
+            node.zPosition = 1
+            
+            addChild(node)
         }
         
         return super.clean()

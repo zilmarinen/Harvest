@@ -1,28 +1,26 @@
 //
-//  PortalChunk2D.swift
+//  SeamTile2D.swift
 //
-//  Created by Zack Brown on 16/03/2021.
+//  Created by Zack Brown on 01/06/2021.
 //
 
 import Foundation
 import Meadow
 import SpriteKit
 
-public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
+public class SeamTile2D: Tile2D {
     
     private enum CodingKeys: String, CodingKey {
         
         case segue = "s"
         case identifier = "i"
-        case portalType = "t"
     }
     
     public var identifier: String = ""
     public var segue = PortalSegue(direction: .north, scene: "", identifier: "")
-    public var portalType: PortalType = .portal
     
     required init(coordinate: Coordinate) {
-        
+            
         super.init(coordinate: coordinate)
     }
     
@@ -32,7 +30,6 @@ public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
         
         segue = try container.decode(PortalSegue.self, forKey: .segue)
         identifier = try container.decode(String.self, forKey: .identifier)
-        portalType = try container.decode(PortalType.self, forKey: .portalType)
         
         try super.init(from: decoder)
     }
@@ -50,21 +47,14 @@ public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
         
         try container.encode(segue, forKey: .segue)
         try container.encode(identifier, forKey: .identifier)
-        try container.encode(portalType, forKey: .portalType)
     }
     
-    @discardableResult public override func clean() -> Bool {
+    @discardableResult override public func clean() -> Bool {
         
         guard super.clean() else { return false }
         
-        for tile in tiles {
-            
-            tile.color = .systemYellow
-            tile.direction = segue.direction
-            
-            _ = tile.clean()
-        }
+        color = .systemIndigo
         
-        return true
+        return super.clean()
     }
 }

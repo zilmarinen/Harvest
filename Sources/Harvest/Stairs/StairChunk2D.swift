@@ -11,22 +11,25 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
-        case footprint = "f"
         case stairType = "t"
-        case direction = "d"
+        case width = "w"
+        case height = "h"
         case elevation = "e"
     }
     
-    var _footprint: Footprint
+    public override var footprint: Footprint {
+        
+        let bounds = GridBounds(start: coordinate, end: coordinate + Coordinate(x: width - 1, y: 0, z: height - 1))
+        
+        return Footprint(bounds: bounds)
+    }
+    
     public var stairType: StairType = .stone
-    public var direction: Cardinal = .north
+    public var width: Int = 0
+    public var height: Int = 0
     public var elevation = 1
     
-    public override var footprint: Footprint { _footprint }
-    
     required init(coordinate: Coordinate) {
-        
-        _footprint = Footprint(coordinate: coordinate)
         
         super.init(coordinate: coordinate)
     }
@@ -35,9 +38,9 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        _footprint = try container.decode(Footprint.self, forKey: .footprint)
         stairType = try container.decode(StairType.self, forKey: .stairType)
-        direction = try container.decode(Cardinal.self, forKey: .direction)
+        width = try container.decode(Int.self, forKey: .width)
+        height = try container.decode(Int.self, forKey: .height)
         elevation = try container.decode(Int.self, forKey: .elevation)
         
         try super.init(from: decoder)
@@ -54,9 +57,9 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(_footprint, forKey: .footprint)
         try container.encode(stairType, forKey: .stairType)
-        try container.encode(direction, forKey: .direction)
+        try container.encode(width, forKey: .width)
+        try container.encode(height, forKey: .height)
         try container.encode(elevation, forKey: .elevation)
     }
     

@@ -12,8 +12,7 @@ extension PortalType {
         
         switch self {
         
-        case .door: return "Door"
-        case .seam: return "Seam"
+        case .portal: return "Portal"
         case .spawn: return "Spawn"
         }
     }

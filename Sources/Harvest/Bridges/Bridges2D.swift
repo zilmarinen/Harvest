@@ -20,7 +20,9 @@ public class Bridges2D: FootprintGrid2D<BridgeChunk2D, BridgeTile2D> {
         
         return super.add(chunk: footprint) { bridge in
             
-            bridge._footprint = footprint
+            bridge.width = bounds.size.x
+            bridge.height = bounds.size.z
+            bridge.direction = (bridge.width < bridge.height ? .north : .east)
             
             configure?(bridge)
         }

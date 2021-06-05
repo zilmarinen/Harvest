@@ -19,7 +19,8 @@ public class Stairs2D: FootprintGrid2D<StairChunk2D, StairTile2D> {
         
         return super.add(chunk: footprint) { stairs in
             
-            stairs._footprint = footprint
+            stairs.width = bounds.size.x
+            stairs.height = bounds.size.z
             
             configure?(stairs)
         }

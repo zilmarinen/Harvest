@@ -17,6 +17,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         case foliage
         case footpath
         case portals
+        case seams
         case stairs
         case surface
         case walls
@@ -36,6 +37,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
     public let foliage: Foliage2D
     public let footpath: Footpath2D
     public let portals: Portals2D
+    public let seams: Seams2D
     public let stairs: Stairs2D
     public let surface: Surface2D
     public let walls: Wall2D
@@ -55,6 +57,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         foliage = Foliage2D()
         footpath = Footpath2D()
         portals = Portals2D()
+        seams = Seams2D()
         stairs = Stairs2D()
         surface = Surface2D()
         walls = Wall2D()
@@ -71,6 +74,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         addChild(foliage)
         addChild(footpath)
         addChild(portals)
+        addChild(seams)
         addChild(stairs)
         addChild(surface)
         addChild(walls)
@@ -89,6 +93,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         foliage = try container.decode(Foliage2D.self, forKey: .foliage)
         footpath = try container.decode(Footpath2D.self, forKey: .footpath)
         portals = try container.decode(Portals2D.self, forKey: .portals)
+        seams = try container.decode(Seams2D.self, forKey: .seams)
         stairs = try container.decode(Stairs2D.self, forKey: .stairs)
         surface = try container.decode(Surface2D.self, forKey: .surface)
         walls = try container.decode(Wall2D.self, forKey: .walls)
@@ -105,6 +110,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         addChild(foliage)
         addChild(footpath)
         addChild(portals)
+        addChild(seams)
         addChild(stairs)
         addChild(surface)
         addChild(walls)
@@ -128,6 +134,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
         try container.encode(foliage, forKey: .foliage)
         try container.encode(footpath, forKey: .footpath)
         try container.encode(portals, forKey: .portals)
+        try container.encode(seams, forKey: .seams)
         try container.encode(stairs, forKey: .stairs)
         try container.encode(surface, forKey: .surface)
         try container.encode(walls, forKey: .walls)
@@ -152,6 +159,7 @@ extension Harvest {
         foliage.clean()
         footpath.clean()
         portals.clean()
+        seams.clean()
         stairs.clean()
         surface.clean()
         walls.clean()
