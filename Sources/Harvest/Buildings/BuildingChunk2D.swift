@@ -26,6 +26,13 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
         }
     }
     
+    public override var footprint: Footprint {
+        
+        guard let model = harvest?.props.prop(prop: buildingType) else { fatalError("Missing prop model") }
+        
+        return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
+    }
+    
     required init(coordinate: Coordinate) {
         
         super.init(coordinate: coordinate)
@@ -59,7 +66,7 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
         guard super.clean(),
               let harvest = harvest else { return false }
         
-        let tilemap = harvest.foliage.tilemap
+        let tilemap = harvest.buildings.tilemap
         
         blendMode = .alpha
         color = buildingType.color.color

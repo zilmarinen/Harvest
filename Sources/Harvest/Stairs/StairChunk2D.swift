@@ -11,23 +11,38 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
-        case stairType = "t"
-        case width = "w"
-        case height = "h"
-        case elevation = "e"
+        case tileType = "t"
+        case material = "m"
+    }
+    
+    public var tileType: StairType = .sloped_1x1 {
+        
+        didSet {
+            
+            if oldValue != tileType {
+                
+                becomeDirty()
+            }
+        }
+    }
+    
+    public var material: StairMaterial = .stone {
+        
+        didSet {
+            
+            if oldValue != material {
+                
+                becomeDirty()
+            }
+        }
     }
     
     public override var footprint: Footprint {
         
-        let bounds = GridBounds(start: coordinate, end: coordinate + Coordinate(x: width - 1, y: 0, z: height - 1))
+        guard let model = harvest?.props.prop(stairs: tileType, material: material) else { fatalError("Missing prop model") }
         
-        return Footprint(bounds: bounds)
+        return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }
-    
-    public var stairType: StairType = .stone
-    public var width: Int = 0
-    public var height: Int = 0
-    public var elevation = 1
     
     required init(coordinate: Coordinate) {
         
@@ -38,10 +53,8 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        stairType = try container.decode(StairType.self, forKey: .stairType)
-        width = try container.decode(Int.self, forKey: .width)
-        height = try container.decode(Int.self, forKey: .height)
-        elevation = try container.decode(Int.self, forKey: .elevation)
+        tileType = try container.decode(StairType.self, forKey: .tileType)
+        material = try container.decode(StairMaterial.self, forKey: .material)
         
         try super.init(from: decoder)
     }
@@ -57,22 +70,27 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(stairType, forKey: .stairType)
-        try container.encode(width, forKey: .width)
-        try container.encode(height, forKey: .height)
-        try container.encode(elevation, forKey: .elevation)
+        try container.encode(tileType, forKey: .tileType)
+        try container.encode(material, forKey: .material)
     }
     
     @discardableResult public override func clean() -> Bool {
         
-        guard super.clean() else { return false }
+        guard super.clean(),
+              let harvest = harvest else { return false }
         
-        for tile in tiles {
-            
-            tile.color = .systemOrange
-            
-            _ = tile.clean()
-        }
+        let tilemap = harvest.buildings.tilemap
+        
+        blendMode = .alpha
+        color = material.color.color
+        shader = tilemap.shader
+        
+        let attribute = vector_float4(Float(material.color.red),
+                                      Float(material.color.green),
+                                      Float(material.color.blue),
+                                      Float(material.color.alpha))
+        
+        setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
         return true
     }

@@ -14,34 +14,69 @@ public class WallTile2D: Tile2D {
         
         case tileType = "t"
         case pattern = "p"
+        case material = "m"
+        case external = "e"
     }
     
-    public var tileType: FootpathTileType = .dirt {
+    public var tileType: WallTileType = .wall {
         
         didSet {
             
             if oldValue != tileType {
+                
+                becomeDirty(recursive: true)
+            }
+        }
+    }
+    
+    public var material: WallTileMaterial = .concrete {
+        
+        didSet {
+            
+            if oldValue != material {
                 
                 becomeDirty()
             }
         }
     }
     
-    var pattern: Int = 1
+    var pattern: WallPattern = .north
+    var external: Bool = false
+    
+    lazy var label: SKLabelNode = {
+        
+        let node = SKLabelNode()
+        
+        node.fontSize = 7
+        node.fontColor = .black
+        node.blendMode = .replace
+        node.verticalAlignmentMode = .center
+        node.xScale = 0.1
+        node.yScale = -0.1
+        node.zPosition = 1
+        
+        return node
+    }()
     
     required init(coordinate: Coordinate) {
             
         super.init(coordinate: coordinate)
+        
+        addChild(label)
     }
     
     required public init(from decoder: Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(FootpathTileType.self, forKey: .tileType)
-        pattern = try container.decode(Int.self, forKey: .pattern)
+        tileType = try container.decode(WallTileType.self, forKey: .tileType)
+        pattern = try container.decode(WallPattern.self, forKey: .pattern)
+        material = try container.decode(WallTileMaterial.self, forKey: .material)
+        external = try container.decode(Bool.self, forKey: .external)
         
         try super.init(from: decoder)
+        
+        addChild(label)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -57,6 +92,8 @@ public class WallTile2D: Tile2D {
         
         try container.encode(tileType, forKey: .tileType)
         try container.encode(pattern, forKey: .pattern)
+        try container.encode(material, forKey: .material)
+        try container.encode(external, forKey: .external)
     }
     
     @discardableResult override public func clean() -> Bool {
@@ -66,9 +103,22 @@ public class WallTile2D: Tile2D {
         
         let tilemap = harvest.footpath.tilemap
         
+        blendMode = .replace
         color = tileType.color.color
-        texture = tilemap.tileset["\(pattern)_\(tileType.rawValue)"]
-        shader = tilemap.shader
+        //texture = tilemap.tileset["\(pattern)_\(tileType.rawValue)"]
+        //shader = tilemap.shader
+        
+        switch harvest.walls.overlay {
+        
+        case .none:
+            
+            label.isHidden = true
+            
+        case .type:
+            
+            label.text = "\(pattern.rawValue)"
+            label.isHidden = false
+        }
         
         return super.clean()
     }
@@ -77,43 +127,89 @@ public class WallTile2D: Tile2D {
         
         super.collapse()
         
-        var pattern = GridPattern(value: false)
-        
-        for ordinal in Ordinal.allCases {
-            
-            let (c0, c1) = ordinal.cardinals
-            
-            guard let n0 = find(neighbour: c0),
-                  let n1 = find(neighbour: c1),
-                  let n2 = find(neighbour: ordinal),
-                  n0.tileType.rawValue == tileType.rawValue,
-                  n1.tileType.rawValue == tileType.rawValue,
-                  n2.tileType.rawValue == tileType.rawValue else { continue }
-            
-            switch ordinal {
-            
-            case .northWest: pattern.northWest = true
-            case .northEast: pattern.northEast = true
-            case .southEast: pattern.southEast = true
-            case .southWest: pattern.southWest = true
-            }
-        }
+        var surface = GridPattern(value: false)
         
         for cardinal in Cardinal.allCases {
-                    
-            guard let neighbour = find(neighbour: cardinal),
-                  neighbour.tileType.rawValue == tileType.rawValue else { continue }
             
-            switch cardinal {
+            guard let neighbour = harvest?.surface.find(tile: coordinate + cardinal.coordinate) else { continue }
             
-            case .north: pattern.north = true
-            case .east: pattern.east = true
-            case .south: pattern.south = true
-            case .west: pattern.west = true
-            }
+            surface.set(value: neighbour.coordinate.y == coordinate.y, cardinal: cardinal)
         }
         
-        self.pattern = GridPattern.index(of: pattern) + 1
+        let edge = neighbours.value(for: .north) == nil ? Cardinal.north : .east
+        
+        self.external = !surface.value(for: edge) || !surface.value(for: edge.opposite)
+        
+        guard !neighbours.isParallel else {
+            
+            var pattern = WallPattern(cardinal: edge)
+            
+            if external {
+                
+                for cardinal in Cardinal.allCases {
+                    
+                    if !surface.value(for: cardinal) {
+                        
+                        pattern = WallPattern(cardinal: cardinal)
+                        
+                        break
+                    }
+                }
+            }
+            
+            self.pattern = pattern
+            
+            switch tileType {
+            
+            case .wall,
+                 .edge:
+                
+                var edges: [Cardinal] = []
+                
+                for cardinal in Cardinal.allCases {
+                    
+                    guard let neighbour = find(neighbour: cardinal) else { continue }
+                 
+                    if !neighbour.neighbours.isParallel {
+                        
+                        edges.append(cardinal)
+                    }
+                }
+                
+                guard edges.count == 1,
+                        let cardinal = edges.first else {
+                    
+                    tileType = .wall
+                          
+                    break
+                }
+                
+                self.pattern = WallPattern(cardinal: cardinal)
+                
+                let (c0, _) = cardinal.cardinals
+                
+                tileType = .edge(left: surface.value(for: c0))
+                
+            default: break
+            }
+            
+            return
+        }
+        
+        tileType = (tileType != .door && tileType != .window) ? .corner : tileType
+        
+        var pattern: WallPattern? = nil
+        
+        for cardinal in Cardinal.allCases {
+            
+            guard neighbours.value(for: cardinal) != nil else { continue }
+            
+            let edge = WallPattern(cardinal: cardinal)
+            
+            pattern = pattern == nil ? edge : pattern!.union(edge)
+        }
+        
+        self.pattern = pattern ?? .north
     }
 }
 

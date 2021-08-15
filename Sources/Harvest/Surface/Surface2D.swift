@@ -15,6 +15,7 @@ public class Surface2D: Grid2D<SurfaceChunk2D, SurfaceTile2D> {
         case edge
         case elevation
         case material
+        case none
     }
     
     struct Tilemap {

@@ -25,7 +25,7 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
      
         guard let harvest = harvest else { return nil }
         
-        let model = harvest.props.prop(foliage: foliageType)
+        let model = harvest.props.prop(prop: foliageType)
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         

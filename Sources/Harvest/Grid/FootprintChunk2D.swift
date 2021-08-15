@@ -22,7 +22,15 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Footpr
     public var footprint: Footprint { Footprint(coordinate: coordinate) }
     
     public var coordinate: Coordinate
-    public var direction: Cardinal = .north
+    public var direction: Cardinal = .north {
+        
+        didSet {
+            
+            guard direction != oldValue else { return }
+                
+            becomeDirty()
+        }
+    }
     
     var tiles: [T] = []
     

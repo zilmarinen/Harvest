@@ -1,20 +1,12 @@
 //
-//  StairType.swift
+//  StairMaterial.swift
 //
 //  Created by Zack Brown on 19/05/2021.
 //
 
 import Meadow
 
-extension StairType {
-    
-    public var description: String {
-        
-        switch self {
-        
-        case .stone: return "Stone"
-        }
-    }
+extension StairMaterial {
     
     var color: Color {
         

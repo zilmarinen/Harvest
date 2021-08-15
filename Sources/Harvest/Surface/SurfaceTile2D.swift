@@ -130,6 +130,10 @@ public class SurfaceTile2D: Tile2D {
              .material:
             
             label.text = "\(coordinate.y)"
+            
+        case .none:
+            
+            label.text = nil
         }
         
         removeAllChildren()

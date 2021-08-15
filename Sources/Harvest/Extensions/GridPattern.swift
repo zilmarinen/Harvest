@@ -6,6 +6,33 @@
 
 import Meadow
 
+extension GridPattern where T == Tile2D? {
+    
+    public var count: Int { cardinalCount + ordinalCount }
+    
+    public var cardinalCount: Int {
+        
+        return (north == nil ? 0 : 1) +
+                (east == nil ? 0 : 1) +
+                (south == nil ? 0 : 1) +
+                (west == nil ? 0 : 1)
+    }
+    
+    public var ordinalCount: Int {
+        
+        return  (northEast == nil ? 0 : 1) +
+                (northWest == nil ? 0 : 1) +
+                (southWest == nil ? 0 : 1) +
+                (southEast == nil ? 0 : 1)
+    }
+    
+    var isParallel: Bool {
+        
+        return (north != nil && south != nil && east == nil && west == nil) ||
+               (north == nil && south == nil && east != nil && west != nil)
+    }
+}
+
 extension GridPattern where T == Int {
     
     func apex(for ordinal: Ordinal, edgeType: SurfaceEdgeType, elevation: Int) -> TileVolume.Apex {

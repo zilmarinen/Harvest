@@ -9,20 +9,24 @@ import SpriteKit
 
 public class Stairs2D: FootprintGrid2D<StairChunk2D, StairTile2D> {
     
-    public func add(stairs bounds: GridBounds, configure: ChunkConfiguration? = nil) -> StairChunk2D? {
+    public func add(stairs coordinate: Coordinate, rotation: Cardinal, tileType: StairType, material: StairMaterial, configure: ChunkConfiguration? = nil) -> StairChunk2D? {
         
         guard let harvest = harvest else { return nil }
         
-        let footprint = Footprint(bounds: bounds)
+        let model = harvest.props.prop(stairs: tileType, material: material)
         
-        guard harvest.validate(footprint: footprint, grid: .bridges) else { return nil }
+        let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
-        return super.add(chunk: footprint) { stairs in
-            
-            stairs.width = bounds.size.x
-            stairs.height = bounds.size.z
-            
-            configure?(stairs)
-        }
+        guard harvest.validate(footprint: footprint, grid: .stairs) else { return nil }
+        
+        guard let stairs = super.add(chunk: footprint) else { return nil }
+        
+        stairs.tileType = tileType
+        stairs.material = material
+        stairs.direction = rotation
+        
+        configure?(stairs)
+        
+        return stairs
     }
 }
