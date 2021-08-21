@@ -1,7 +1,7 @@
 //
-//  Building2D.fsh
+//  Grid2D.fsh
 //
-//  Created by Zack Brown on 31/03/2021.
+//  Created by Zack Brown on 27/03/2021.
 //
 
 void main()

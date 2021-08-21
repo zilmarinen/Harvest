@@ -29,9 +29,26 @@ public class FootpathTile2D: Tile2D {
     
     var pattern: Int = 1
     
+    lazy var label: SKLabelNode = {
+        
+        let node = SKLabelNode()
+        
+        node.fontSize = 7
+        node.fontColor = .black
+        node.blendMode = .replace
+        node.verticalAlignmentMode = .center
+        node.xScale = 0.1
+        node.yScale = -0.1
+        node.zPosition = 1
+        
+        return node
+    }()
+    
     required init(coordinate: Coordinate) {
             
         super.init(coordinate: coordinate)
+        
+        addChild(label)
     }
     
     required public init(from decoder: Decoder) throws {
@@ -42,6 +59,8 @@ public class FootpathTile2D: Tile2D {
         pattern = try container.decode(Int.self, forKey: .pattern)
         
         try super.init(from: decoder)
+        
+        addChild(label)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -64,11 +83,19 @@ public class FootpathTile2D: Tile2D {
         guard isDirty,
               let harvest = harvest else { return false }
         
-        let tilemap = harvest.footpath.tilemap
-        
         color = tileType.color.color
-        texture = tilemap.tileset["\(pattern)_\(tileType.rawValue)"]
-        shader = tilemap.shader
+        
+        switch harvest.footpath.overlay {
+        
+        case .none:
+            
+            label.isHidden = true
+            
+        case .pattern:
+            
+            label.text = "\(pattern)"
+            label.isHidden = false
+        }
         
         return super.clean()
     }

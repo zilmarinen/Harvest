@@ -15,7 +15,7 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
         case buildingType = "t"
     }
     
-    var buildingType: BuildingType = .house {
+    var buildingType: BuildingType = .bernina_z {
         
         didSet {
             
@@ -28,7 +28,7 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = harvest?.props.prop(prop: buildingType) else { fatalError("Missing prop model") }
+        guard let model = harvest?.props.prop(building: buildingType) else { fatalError("Missing prop model") }
         
         return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }

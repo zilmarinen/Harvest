@@ -9,27 +9,25 @@ import SpriteKit
 
 public class Footpath2D: Grid2D<FootpathChunk2D, FootpathTile2D> {
     
-    struct Tilemap {
+    public enum Overlay {
         
-        let tileset: [String : SKTexture]
-        let shader = SKShader(shader: .footpath)
-        
-        init() {
-        
-            guard let tilemap = try? FootpathTilemap() else { fatalError("Error loading surface tilemap") }
-            
-            var textures: [String : SKTexture] = [:]
-            
-            for tile in tilemap.tileset.tiles {
-                
-                textures["\(tile.pattern)_\(tile.tileType.rawValue)"] = SKTexture(image: tilemap.tileset.image(for: tile))
-            }
-            
-            tileset = textures
-        }
+        case none
+        case pattern
     }
     
-    let tilemap = Tilemap()
+    public var overlay: Overlay = .none {
+        
+        didSet {
+            
+            if oldValue != overlay {
+                
+                for tile in tiles {
+                    
+                    tile.becomeDirty()
+                }
+            }
+        }
+    }
     
     public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> FootpathTile2D? {
         

@@ -11,7 +11,7 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
     
     struct Tilemap {
         
-        let shader = SKShader(shader: .foliage)
+        let shader = SKShader(shader: .grid)
         
         init() {
             
@@ -25,7 +25,7 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
      
         guard let harvest = harvest else { return nil }
         
-        let model = harvest.props.prop(prop: foliageType)
+        let model = harvest.props.prop(foliage: foliageType)
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
@@ -34,6 +34,7 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
         return super.add(chunk: footprint) { foliage in
             
             foliage.foliageType = foliageType
+            foliage.direction = rotation
             
             configure?(foliage)
         }

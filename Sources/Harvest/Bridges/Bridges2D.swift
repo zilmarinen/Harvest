@@ -7,24 +7,53 @@
 import Meadow
 import SpriteKit
 
-public class Bridges2D: FootprintGrid2D<BridgeChunk2D, BridgeTile2D> {
+public class Bridges2D: Grid2D<BridgeChunk2D, BridgeTile2D> {
     
-    public func add(bridge bounds: GridBounds, configure: ChunkConfiguration? = nil) -> BridgeChunk2D? {
+    public enum Overlay {
         
-        guard bounds.size.x != bounds.size.z,
-              let harvest = harvest else { return nil }
+        case none
+        case tileType
+        case pattern
+    }
+    
+    public var overlay: Overlay = .none {
         
-        let footprint = Footprint(bounds: bounds)
-        
-        guard harvest.validate(footprint: footprint, grid: .bridges) else { return nil }
-        
-        return super.add(chunk: footprint) { bridge in
+        didSet {
             
-            bridge.width = bounds.size.x
-            bridge.height = bounds.size.z
-            bridge.direction = (bridge.width < bridge.height ? .north : .east)
-            
-            configure?(bridge)
+            if oldValue != overlay {
+                
+                for tile in tiles {
+                    
+                    tile.becomeDirty()
+                }
+            }
         }
+    }
+    
+    public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> BridgeTile2D? {
+        
+        guard let harvest = harvest,
+              harvest.validate(coordinate: coordinate, grid: .bridges) else { return nil }
+        
+        return super.add(tile: coordinate, configure: configure)
+    }
+    
+    @discardableResult override public func clean() -> Bool {
+        
+        guard isDirty else { return false }
+        
+        let (even, odd) = sortedTiles
+        
+        for tile in even {
+            
+            tile.collapse()
+        }
+        
+        for tile in odd {
+            
+            tile.collapse()
+        }
+        
+        return super.clean()
     }
 }

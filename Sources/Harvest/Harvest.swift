@@ -204,7 +204,7 @@ extension Harvest {
             
         case .bridges:
             
-            guard bridges.find(chunk: coordinate) == nil,
+            guard bridges.find(tile: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   footpath.find(tile: coordinate) == nil,
@@ -236,7 +236,7 @@ extension Harvest {
             
         case .footpath:
             
-            guard bridges.find(chunk: coordinate) == nil,
+            guard bridges.find(tile: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   stairs.find(chunk: coordinate) == nil,
@@ -256,7 +256,7 @@ extension Harvest {
         case .stairs:
             
             guard actors.find(actor: coordinate) == nil,
-                  bridges.find(chunk: coordinate) == nil,
+                  bridges.find(tile: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   footpath.find(tile: coordinate) == nil,
@@ -268,7 +268,7 @@ extension Harvest {
         case .walls:
             
             guard actors.find(actor: coordinate) == nil,
-                  bridges.find(chunk: coordinate) == nil,
+                  bridges.find(tile: coordinate) == nil,
                   buildings.find(chunk: coordinate) == nil,
                   foliage.find(chunk: coordinate) == nil,
                   footpath.find(tile: coordinate) == nil,

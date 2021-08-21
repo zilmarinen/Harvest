@@ -15,7 +15,7 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
         case foliageType = "t"
     }
     
-    public var foliageType: FoliageType = .treeSmall {
+    public var foliageType: FoliageType = .spruce {
         
         didSet {
             
@@ -28,7 +28,7 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = harvest?.props.prop(prop: foliageType) else { fatalError("Missing prop model") }
+        guard let model = harvest?.props.prop(foliage: foliageType) else { fatalError("Missing prop model") }
         
         return Footprint(coordinate: coordinate, rotation: .north, nodes: model.footprint.nodes)
     }

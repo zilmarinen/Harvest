@@ -11,7 +11,7 @@ public class Buildings2D: FootprintGrid2D<BuildingChunk2D, BuildingTile2D> {
     
     struct Tilemap {
         
-        let shader = SKShader(shader: .building)
+        let shader = SKShader(shader: .grid)
         
         init() {
             
@@ -25,7 +25,7 @@ public class Buildings2D: FootprintGrid2D<BuildingChunk2D, BuildingTile2D> {
         
         guard let harvest = harvest else { return nil }
         
-        let model = harvest.props.prop(prop: buildingType)
+        let model = harvest.props.prop(building: buildingType)
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         

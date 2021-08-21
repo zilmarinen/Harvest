@@ -24,12 +24,9 @@ let package = Package(
         .target(
             name: "Harvest",
             dependencies: ["Meadow"],
-            resources: [.process("Shaders/Building2D.fsh"),
-                        .process("Shaders/Foliage2D.fsh"),
-                        .process("Shaders/Footpath2D.fsh"),
-                        .process("Shaders/Graph2D.fsh"),
-                        .process("Shaders/Surface2D.fsh"),
-                        .process("Shaders/Water2D.fsh")]),
+            resources: [.process("Shaders/Graph2D.fsh"),
+                        .process("Shaders/Grid2D.fsh"),
+                        .process("Shaders/Surface2D.fsh")]),
         .testTarget(
             name: "HarvestTests",
             dependencies: ["Harvest", "Meadow"]),

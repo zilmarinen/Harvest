@@ -101,12 +101,8 @@ public class WallTile2D: Tile2D {
         guard isDirty,
               let harvest = harvest else { return false }
         
-        let tilemap = harvest.footpath.tilemap
-        
         blendMode = .replace
         color = tileType.color.color
-        //texture = tilemap.tileset["\(pattern)_\(tileType.rawValue)"]
-        //shader = tilemap.shader
         
         switch harvest.walls.overlay {
         

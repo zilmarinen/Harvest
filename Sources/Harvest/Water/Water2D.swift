@@ -18,7 +18,7 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     struct Tilemap {
         
         let tileset: [String : SKTexture]
-        let shader = SKShader(shader: .water)
+        let shader = SKShader(shader: .grid)
         
         init() {
         

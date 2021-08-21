@@ -10,12 +10,9 @@ extension SKShader {
     
     enum Shader: String {
         
-        case building = "Building2D"
-        case foliage = "Foliage2D"
-        case footpath = "Footpath2D"
         case graph = "Graph2D"
+        case grid = "Grid2D"
         case surface = "Surface2D"
-        case water = "Water2D"
     }
     
     convenience init(shader: Shader) {
