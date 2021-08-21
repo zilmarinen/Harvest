@@ -99,9 +99,9 @@ public class SurfaceTile2D: Tile2D {
     @discardableResult override public func clean() -> Bool {
         
         guard isDirty,
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
-        let tilemap = harvest.surface.tilemap
+        let tilemap = map.surface.tilemap
         
         let spriteColor = Color(red: Double(tileType.primary.rawValue), green: Double(tileType.secondary.rawValue), blue: 0, alpha: 1)
         
@@ -116,7 +116,7 @@ public class SurfaceTile2D: Tile2D {
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
-        switch harvest.surface.overlay {
+        switch map.surface.overlay {
         
         case .coordinate:
             

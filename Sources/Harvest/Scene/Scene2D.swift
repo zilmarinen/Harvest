@@ -39,18 +39,18 @@ public class Scene2D: SKScene, Codable, Soilable {
         return node
     }()
     
-    public let harvest: Harvest
+    public let map: Map2D
     
-    public init(size: CGSize, harvest: Harvest? = nil) {
+    public init(size: CGSize, map: Map2D? = nil) {
         
-        self.harvest = harvest ?? Harvest()
+        self.map = map ?? Map2D()
         
         super.init(size: size)
         
         name = "Harvest"
         
         addChild(graph)
-        addChild(self.harvest)
+        addChild(self.map)
         
         becomeDirty()
     }
@@ -59,7 +59,7 @@ public class Scene2D: SKScene, Codable, Soilable {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        harvest = try container.decode(Harvest.self, forKey: .map)
+        map = try container.decode(Map2D.self, forKey: .map)
         let size = try container.decode(CGSize.self, forKey: .size)
         
         super.init(size: size)
@@ -70,7 +70,7 @@ public class Scene2D: SKScene, Codable, Soilable {
         name = try container.decode(String.self, forKey: .name)
         
         addChild(graph)
-        addChild(harvest)
+        addChild(map)
         
         becomeDirty()
     }
@@ -86,7 +86,7 @@ public class Scene2D: SKScene, Codable, Soilable {
         
         try container.encode(name, forKey: .name)
         try container.encode(size, forKey: .size)
-        try container.encode(harvest, forKey: .map)
+        try container.encode(map, forKey: .map)
         
         let color = Color(red: Double(backgroundColor.redComponent), green: Double(backgroundColor.greenComponent), blue: Double(backgroundColor.blueComponent), alpha: Double(backgroundColor.alphaComponent))
         
@@ -115,7 +115,7 @@ extension Scene2D {
         
         graph.size = size
         
-        harvest.clean()
+        map.clean()
         
         isDirty = false
         

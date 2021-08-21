@@ -28,7 +28,7 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = harvest?.props.prop(foliage: foliageType) else { fatalError("Missing prop model") }
+        guard let model = map?.props.prop(foliage: foliageType) else { fatalError("Missing prop model") }
         
         return Footprint(coordinate: coordinate, rotation: .north, nodes: model.footprint.nodes)
     }
@@ -64,9 +64,9 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
     @discardableResult public override func clean() -> Bool {
         
         guard super.clean(),
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
-        let tilemap = harvest.foliage.tilemap
+        let tilemap = map.foliage.tilemap
         
         let attribute = vector_float4(Float(foliageType.color.red),
                                       Float(foliageType.color.green),

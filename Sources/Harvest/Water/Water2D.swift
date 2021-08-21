@@ -74,8 +74,8 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: Grid2D<WaterChunk2D, WaterTile2D>.TileConfiguration? = nil) -> WaterTile2D? {
         
-        guard let harvest = ancestor as? Harvest,
-              harvest.validate(coordinate: coordinate, grid: .water) else { return nil }
+        guard let map = ancestor as? Map2D,
+              map.validate(coordinate: coordinate, grid: .water) else { return nil }
         
         return super.add(tile: coordinate, configure: configure)
     }

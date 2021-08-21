@@ -23,13 +23,13 @@ public class Buildings2D: FootprintGrid2D<BuildingChunk2D, BuildingTile2D> {
     
     public func add(building coordinate: Coordinate, rotation: Cardinal, buildingType: BuildingType, configure: ChunkConfiguration? = nil) -> BuildingChunk2D? {
         
-        guard let harvest = harvest else { return nil }
+        guard let map = map else { return nil }
         
-        let model = harvest.props.prop(building: buildingType)
+        let model = map.props.prop(building: buildingType)
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
-        guard harvest.validate(footprint: footprint, grid: .buildings) else { return nil }
+        guard map.validate(footprint: footprint, grid: .buildings) else { return nil }
         
         guard let building = super.add(chunk: footprint) else { return nil }
         

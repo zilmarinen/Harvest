@@ -23,13 +23,13 @@ public class Foliage2D: FootprintGrid2D<FoliageChunk2D, FoliageTile2D> {
     
     public func add(foliage foliageType: FoliageType, coordinate: Coordinate, rotation: Cardinal, configure: ChunkConfiguration? = nil) -> FoliageChunk2D? {
      
-        guard let harvest = harvest else { return nil }
+        guard let map = map else { return nil }
         
-        let model = harvest.props.prop(foliage: foliageType)
+        let model = map.props.prop(foliage: foliageType)
         
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
         
-        guard harvest.validate(footprint: footprint, grid: .foliage) else { return nil }
+        guard map.validate(footprint: footprint, grid: .foliage) else { return nil }
         
         return super.add(chunk: footprint) { foliage in
             

@@ -28,7 +28,7 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = harvest?.props.prop(building: buildingType) else { fatalError("Missing prop model") }
+        guard let model = map?.props.prop(building: buildingType) else { fatalError("Missing prop model") }
         
         return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }
@@ -64,9 +64,9 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
     @discardableResult public override func clean() -> Bool {
         
         guard super.clean(),
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
-        let tilemap = harvest.buildings.tilemap
+        let tilemap = map.buildings.tilemap
         
         blendMode = .alpha
         color = buildingType.color.color

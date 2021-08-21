@@ -99,12 +99,12 @@ public class WallTile2D: Tile2D {
     @discardableResult override public func clean() -> Bool {
         
         guard isDirty,
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
         blendMode = .replace
         color = tileType.color.color
         
-        switch harvest.walls.overlay {
+        switch map.walls.overlay {
         
         case .none:
             
@@ -127,7 +127,7 @@ public class WallTile2D: Tile2D {
         
         for cardinal in Cardinal.allCases {
             
-            guard let neighbour = harvest?.surface.find(tile: coordinate + cardinal.coordinate) else { continue }
+            guard let neighbour = map?.surface.find(tile: coordinate + cardinal.coordinate) else { continue }
             
             surface.set(value: neighbour.coordinate.y == coordinate.y, cardinal: cardinal)
         }

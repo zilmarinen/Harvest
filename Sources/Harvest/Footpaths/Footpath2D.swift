@@ -31,9 +31,9 @@ public class Footpath2D: Grid2D<FootpathChunk2D, FootpathTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> FootpathTile2D? {
         
-        guard let harvest = harvest,
-              harvest.validate(coordinate: coordinate, grid: .footpath),
-              let surfaceTile = harvest.surface.find(tile: coordinate) else { return nil }
+        guard let map = map,
+              map.validate(coordinate: coordinate, grid: .footpath),
+              let surfaceTile = map.surface.find(tile: coordinate) else { return nil }
         
         return super.add(tile: surfaceTile.coordinate, configure: configure)
     }

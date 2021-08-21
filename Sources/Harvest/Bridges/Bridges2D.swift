@@ -32,8 +32,8 @@ public class Bridges2D: Grid2D<BridgeChunk2D, BridgeTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> BridgeTile2D? {
         
-        guard let harvest = harvest,
-              harvest.validate(coordinate: coordinate, grid: .bridges) else { return nil }
+        guard let map = map,
+              map.validate(coordinate: coordinate, grid: .bridges) else { return nil }
         
         return super.add(tile: coordinate, configure: configure)
     }

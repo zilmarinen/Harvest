@@ -31,9 +31,9 @@ public class Wall2D: Grid2D<WallChunk2D, WallTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> WallTile2D? {
         
-        guard let harvest = harvest,
-              harvest.validate(coordinate: coordinate, grid: .walls),
-              let surfaceTile = harvest.surface.find(tile: coordinate) else { return nil }
+        guard let map = map,
+              map.validate(coordinate: coordinate, grid: .walls),
+              let surfaceTile = map.surface.find(tile: coordinate) else { return nil }
         
         return super.add(tile: surfaceTile.coordinate, configure: configure)
     }

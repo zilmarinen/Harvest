@@ -85,9 +85,9 @@ public class WaterTile2D: Tile2D {
     @discardableResult override public func clean() -> Bool {
         
         guard super.clean(),
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
-        let tilemap = harvest.water.tilemap
+        let tilemap = map.water.tilemap
         
         blendMode = .alpha
         color = tileType.color.color
@@ -100,7 +100,7 @@ public class WaterTile2D: Tile2D {
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
-        switch harvest.water.overlay {
+        switch map.water.overlay {
         
         case .none:
             

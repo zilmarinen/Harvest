@@ -95,12 +95,12 @@ public class BridgeTile2D: Tile2D {
     @discardableResult override public func clean() -> Bool {
         
         guard isDirty,
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
         blendMode = .replace
         color = material.color.color
         
-        switch harvest.bridges.overlay {
+        switch map.bridges.overlay {
         
         case .none:
             
@@ -135,7 +135,7 @@ public class BridgeTile2D: Tile2D {
                 
                 guard neighbours.value(for: cardinal) != nil else { continue }
                 
-                let surface = harvest?.surface.find(tile: coordinate + cardinal.coordinate)?.coordinate.y ?? World.Constants.floor
+                let surface = map?.surface.find(tile: coordinate + cardinal.coordinate)?.coordinate.y ?? World.Constants.floor
                 
                 if surface != coordinate.y {
                     
@@ -168,7 +168,7 @@ public class BridgeTile2D: Tile2D {
                 
                 if neighbour == nil {
                 
-                    let surface = harvest?.surface.find(tile: coordinate + cardinal.coordinate)?.coordinate.y ?? World.Constants.floor
+                    let surface = map?.surface.find(tile: coordinate + cardinal.coordinate)?.coordinate.y ?? World.Constants.floor
                     
                     if surface != coordinate.y {
                         

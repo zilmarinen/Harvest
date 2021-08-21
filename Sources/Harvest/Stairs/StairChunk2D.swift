@@ -39,7 +39,7 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = harvest?.props.prop(stairs: tileType, material: material) else { fatalError("Missing prop model") }
+        guard let model = map?.props.prop(stairs: tileType, material: material) else { fatalError("Missing prop model") }
         
         return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }
@@ -77,9 +77,9 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     @discardableResult public override func clean() -> Bool {
         
         guard super.clean(),
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
-        let tilemap = harvest.buildings.tilemap
+        let tilemap = map.buildings.tilemap
         
         blendMode = .alpha
         color = material.color.color

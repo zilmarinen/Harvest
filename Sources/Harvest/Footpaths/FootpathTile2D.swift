@@ -81,11 +81,11 @@ public class FootpathTile2D: Tile2D {
     @discardableResult override public func clean() -> Bool {
         
         guard isDirty,
-              let harvest = harvest else { return false }
+              let map = map else { return false }
         
         color = tileType.color.color
         
-        switch harvest.footpath.overlay {
+        switch map.footpath.overlay {
         
         case .none:
             

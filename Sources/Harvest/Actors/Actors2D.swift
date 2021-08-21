@@ -73,8 +73,8 @@ public class Actors2D: SKNode, Codable, Responder2D, Soilable {
         
     public func add(actor coordinate: Coordinate, configure: ActorConfiguration? = nil) -> Actor2D? {
         
-        guard let harvest = harvest,
-              harvest.validate(coordinate: coordinate, grid: .actors) else { return nil }
+        guard let map = map,
+              map.validate(coordinate: coordinate, grid: .actors) else { return nil }
         
         let actor = Actor2D(coordinate: coordinate)
         

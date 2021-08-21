@@ -1,5 +1,5 @@
 //
-//  Harvest.swift
+//  Map2D.swift
 //
 //  Created by Zack Brown on 26/04/2021.
 //
@@ -7,7 +7,7 @@
 import SpriteKit
 import Meadow
 
-public class Harvest: SKNode, Codable, Responder2D, Soilable {
+public class Map2D: SKNode, Codable, Responder2D, Soilable {
     
     enum CodingKeys: String, CodingKey {
         
@@ -47,7 +47,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
     
     public var identifier: String = ""
     
-    var harvest: Harvest? { self }
+    var map: Map2D? { self }
     
     override init() {
         
@@ -145,7 +145,7 @@ public class Harvest: SKNode, Codable, Responder2D, Soilable {
     }
 }
 
-extension Harvest {
+extension Map2D {
     
     @discardableResult public func clean() -> Bool {
         
@@ -173,7 +173,7 @@ extension Harvest {
     }
 }
 
-extension Harvest {
+extension Map2D {
     
     func validate(footprint: Footprint, grid: CodingKeys) -> Bool {
         
