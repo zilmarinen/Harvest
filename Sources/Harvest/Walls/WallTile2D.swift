@@ -40,7 +40,7 @@ public class WallTile2D: Tile2D {
         }
     }
     
-    var pattern: WallPattern = .north
+    var pattern: Cardinal = .north
     var external: Bool = false
     
     lazy var label: SKLabelNode = {
@@ -70,7 +70,7 @@ public class WallTile2D: Tile2D {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         tileType = try container.decode(WallTileType.self, forKey: .tileType)
-        pattern = try container.decode(WallPattern.self, forKey: .pattern)
+        pattern = try container.decode(Cardinal.self, forKey: .pattern)
         material = try container.decode(WallTileMaterial.self, forKey: .material)
         external = try container.decode(Bool.self, forKey: .external)
         
@@ -102,7 +102,7 @@ public class WallTile2D: Tile2D {
               let map = map else { return false }
         
         blendMode = .replace
-        color = tileType.color.color
+        color = tileType.color.osColor
         
         switch map.walls.overlay {
         
@@ -121,8 +121,6 @@ public class WallTile2D: Tile2D {
     
     override func collapse() {
         
-        super.collapse()
-        
         var surface = GridPattern(value: false)
         
         for cardinal in Cardinal.allCases {
@@ -138,7 +136,7 @@ public class WallTile2D: Tile2D {
         
         guard !neighbours.isParallel else {
             
-            var pattern = WallPattern(cardinal: edge)
+            var pattern = edge
             
             if external {
                 
@@ -146,7 +144,7 @@ public class WallTile2D: Tile2D {
                     
                     if !surface.value(for: cardinal) {
                         
-                        pattern = WallPattern(cardinal: cardinal)
+                        pattern = cardinal
                         
                         break
                     }
@@ -180,7 +178,7 @@ public class WallTile2D: Tile2D {
                     break
                 }
                 
-                self.pattern = WallPattern(cardinal: cardinal)
+                self.pattern = cardinal
                 
                 let (c0, _) = cardinal.cardinals
                 
@@ -194,13 +192,13 @@ public class WallTile2D: Tile2D {
         
         tileType = (tileType != .door && tileType != .window) ? .corner : tileType
         
-        var pattern: WallPattern? = nil
+        var pattern: Cardinal? = nil
         
         for cardinal in Cardinal.allCases {
             
             guard neighbours.value(for: cardinal) != nil else { continue }
             
-            let edge = WallPattern(cardinal: cardinal)
+            let edge = cardinal
             
             pattern = pattern == nil ? edge : pattern!.union(edge)
         }

@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 11/03/2021.
 //
 
+import Euclid
 import Meadow
 
 extension SurfaceTileType {
@@ -13,11 +14,9 @@ extension SurfaceTileType {
         switch self {
         
         case .dirt: return "D"
-        case .grass: return "G"
         case .sand: return "Sa"
         case .stone: return "St"
-        case .undergrowth: return "U"
-        case .water: return "W"
+        case .wood: return "W"
         }
     }
     
@@ -26,23 +25,19 @@ extension SurfaceTileType {
         switch self {
         
         case .dirt: return "Dirt"
-        case .grass: return "Grass"
         case .sand: return "Sand"
         case .stone: return "Stone"
-        case .undergrowth: return "Undergrowth"
-        case .water: return "Water"
+        case .wood: return "Wood"
         }
     }
     
     var color: Color {
         
         switch  self {
-        case .dirt: return Color(red: 0.81, green: 0.68, blue: 0.51)
-        case .grass: return Color(red: 0.85, green: 0.85, blue: 0.69)
-        case .sand: return Color(red: 0.96, green: 0.84, blue: 0.52)
-        case .stone: return Color(red: 0.91, green: 0.91, blue: 0.91)
-        case .undergrowth: return Color(red: 0.30, green: 0.55, blue: 0.48)
-        case .water: return Color(red: 0.81, green: 0.90, blue: 0.94)
+        case .dirt: return Color(0.1, 0.5, 0.9, 1.0)
+        case .sand: return Color(0.5, 0.9, 0.1, 1.0)
+        case .stone: return Color(0.9, 0.1, 0.5, 1.0)
+        case .wood: return Color(0.1, 0.9, 0.5, 1.0)
         }
     }
 }

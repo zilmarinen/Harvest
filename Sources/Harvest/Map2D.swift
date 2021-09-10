@@ -286,7 +286,7 @@ extension Map2D {
                   portals.find(chunk: coordinate) == nil,
                   stairs.find(chunk: coordinate) == nil,
                   walls.find(tile: coordinate) == nil,
-                  coordinate.y > surfaceTile.volumes.apex().min() ?? 0 else { return false }
+                  coordinate.y > surfaceTile.coordinate.y else { return false }
             
         default: break
         }

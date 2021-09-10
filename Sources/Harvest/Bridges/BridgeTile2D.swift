@@ -39,7 +39,7 @@ public class BridgeTile2D: Tile2D {
         }
     }
     
-    var pattern: WallPattern = .north
+    var pattern: Cardinal = .north
     
     lazy var label: SKLabelNode = {
         
@@ -68,7 +68,7 @@ public class BridgeTile2D: Tile2D {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         tileType = try container.decode(BridgeTileType.self, forKey: .tileType)
-        pattern = try container.decode(WallPattern.self, forKey: .pattern)
+        pattern = try container.decode(Cardinal.self, forKey: .pattern)
         material = try container.decode(BridgeMaterial.self, forKey: .material)
         
         try super.init(from: decoder)
@@ -98,7 +98,7 @@ public class BridgeTile2D: Tile2D {
               let map = map else { return false }
         
         blendMode = .replace
-        color = material.color.color
+        color = material.color.osColor
         
         switch map.bridges.overlay {
         
@@ -122,8 +122,6 @@ public class BridgeTile2D: Tile2D {
     
     override func collapse() {
         
-        super.collapse()
-        
         switch neighbours.cardinalCount {
             
         case 2:
@@ -141,7 +139,7 @@ public class BridgeTile2D: Tile2D {
                     
                     let (c0, _) = cardinal.cardinals
                  
-                    pattern.insert(WallPattern(cardinal: cardinal))
+                    pattern.insert(cardinal)
                     lhs = neighbours.value(for: c0) == nil
                 }
             }
@@ -173,7 +171,7 @@ public class BridgeTile2D: Tile2D {
                     if surface != coordinate.y {
                         
                         tileType = .wall
-                        pattern = WallPattern(cardinal: cardinal)
+                        pattern = cardinal
                         
                         let (c0, _) = cardinal.cardinals
                         

@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 15/08/2021.
 //
 
+import Euclid
 import Meadow
 
 extension BridgeMaterial {
@@ -11,7 +12,7 @@ extension BridgeMaterial {
     var color: Color {
         
         switch  self {
-        case .stone: return Color(red: 0.73, green: 0.53, blue: 0.16, alpha: 0.7)
+        case .stone: return Color(0.73, 0.53, 0.16)
         }
     }
 }

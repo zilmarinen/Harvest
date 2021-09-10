@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, FootprintDataSource, Responder2D, Soilable {
+public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         

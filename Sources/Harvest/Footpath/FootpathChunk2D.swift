@@ -1,14 +1,14 @@
 //
-//  WaterChunk2D.swift
+//  FootpathChunk2D.swift
 //
-//  Created by Zack Brown on 21/03/2021.
+//  Created by Zack Brown on 16/03/2021.
 //
 
 import Euclid
 import Meadow
 import SpriteKit
 
-public class WaterChunk2D: Chunk2D<WaterTile2D> {
+public class FootpathChunk2D: Chunk2D<FootpathTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -40,7 +40,7 @@ public class WaterChunk2D: Chunk2D<WaterTile2D> {
     }
 }
 
-extension WaterChunk2D {
+extension FootpathChunk2D {
     
     var mesh: Mesh {
         
@@ -50,7 +50,7 @@ extension WaterChunk2D {
         
         for tile in tiles where !tile.isHidden {
             
-            let vector = Vector(Double(tile.coordinate.x - bounds.start.x), 0, Double(tile.coordinate.z - bounds.start.z))
+            let vector = Vector(Double(tile.coordinate.x - bounds.start.x), 0.001, Double(tile.coordinate.z - bounds.start.z))
             
             polygons.append(contentsOf: tile.render(position: vector, corners: corners.map { $0 + vector }))
         }

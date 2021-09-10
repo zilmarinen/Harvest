@@ -28,9 +28,9 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = map?.props.prop(foliage: foliageType) else { fatalError("Missing prop model") }
+        guard let model = map?.props.prop(foliage: foliageType) else { fatalError("Error loading prop model \(foliageType)") }
         
-        return Footprint(coordinate: coordinate, rotation: .north, nodes: model.footprint.nodes)
+        return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }
     
     required init(coordinate: Coordinate) {
@@ -68,14 +68,14 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
         
         let tilemap = map.foliage.tilemap
         
-        let attribute = vector_float4(Float(foliageType.color.red),
-                                      Float(foliageType.color.green),
-                                      Float(foliageType.color.blue),
-                                      Float(foliageType.color.alpha))
+        let attribute = vector_float4(Float(foliageType.color.r),
+                                      Float(foliageType.color.g),
+                                      Float(foliageType.color.b),
+                                      Float(foliageType.color.a))
         
         for tile in tiles {
             
-            tile.color = foliageType.color.color
+            tile.color = foliageType.color.osColor
             tile.shader = tilemap.shader
             tile.setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
             

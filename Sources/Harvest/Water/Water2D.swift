@@ -15,30 +15,6 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
         case elevation
     }
     
-    struct Tilemap {
-        
-        let tileset: [String : SKTexture]
-        let shader = SKShader(shader: .grid)
-        
-        init() {
-        
-            guard let tilemap = try? SurfaceTilemap() else { fatalError("Error loading water tilemap") }
-            
-            var textures: [String : SKTexture] = [:]
-            
-            for tile in tilemap.tileset.tiles {
-                
-                textures["\(tile.pattern)"] = SKTexture(image: tilemap.tileset.image(for: tile))
-            }
-            
-            tileset = textures
-            
-            shader.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
-        }
-    }
-    
-    let tilemap = Tilemap()
-    
     public var overlay: Overlay = .none {
         
         didSet {

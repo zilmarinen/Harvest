@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 21/03/2021.
 //
 
+import Euclid
 import Meadow
 
 extension WaterTileType {
@@ -20,7 +21,7 @@ extension WaterTileType {
         
         switch self {
         
-        case .water: return Color(red: 0.73, green: 0.94, blue: 0.98, alpha: 0.7)
+        case .water: return Color(0.73, 0.94, 0.98, 0.7)
         }
     }
 }

@@ -33,71 +33,30 @@ extension GridPattern where T == Tile2D? {
     }
 }
 
-extension GridPattern where T == Int {
+extension GridPattern where T == SurfaceMaterial? {
     
-    func apex(for ordinal: Ordinal, edgeType: SurfaceEdgeType, elevation: Int) -> TileVolume.Apex {
-        
-        let h0 = value(for: ordinal)
-        
-        let c0 = Math.quantize(value: Double(h0) * World.Constants.yScalar)
-        
-        switch edgeType {
-        
-        case .cutaway:
-            
-            return TileVolume.Apex(corners: Double(elevation) * World.Constants.yScalar)
-        
-        case .sloped:
-            
-            let (o0, o1) = ordinal.ordinals
-            
-            let c1 = Double(value(for: o1)) * World.Constants.yScalar
-            let c2 = Double(value(for: ordinal.opposite)) * World.Constants.yScalar
-            let c3 = Double(value(for: o0)) * World.Constants.yScalar
-            
-            let a1 = Math.quantize(value: max(c0, c1) - (abs(c0 - c1) / 2.0))
-            let a2 = Math.quantize(value: (c0 + c1 + c2 + c3) / 4.0)
-            let a3 = Math.quantize(value: max(c0, c3) - (abs(c0 - c3) / 2.0))
-            
-            switch ordinal {
-            
-            case .northWest: return TileVolume.Apex(corners: [c0, a1, a2, a3])
-            case .northEast: return TileVolume.Apex(corners: [a3, c0, a1, a2])
-            case .southEast: return TileVolume.Apex(corners: [a2, a3, c0, a1])
-            case .southWest: return TileVolume.Apex(corners: [a1, a2, a3, c0])
-            }
-            
-        case .terraced:
-            
-            return TileVolume.Apex(corners: c0)
-        }
-    }
-}
-
-extension GridPattern where T == Int? {
-    
-    func pattern(for tileType: Int) -> GridPattern<Bool> {
+    func pattern(for material: SurfaceMaterial) -> GridPattern<Bool> {
         
         var result = GridPattern<Bool>(value: true)
         
         for ordinal in Ordinal.allCases {
             
-            guard let neighbourTileType = value(for: ordinal),
-                  neighbourTileType > tileType else { continue }
+            guard let neighbour = value(for: ordinal),
+                  neighbour.rawValue > material.rawValue else { continue }
                 
             switch ordinal {
             
             case .northWest: result.northWest = false
             case .northEast: result.northEast = false
             case .southEast: result.southEast = false
-            case .southWest: result.southWest = false
+            default: result.southWest = false
             }
         }
         
         for cardinal in Cardinal.allCases {
             
-            guard let neighbourTileType = value(for: cardinal),
-                  neighbourTileType > tileType else { continue }
+            guard let neighbour = value(for: cardinal),
+                  neighbour.rawValue > material.rawValue else { continue }
                 
             switch cardinal {
             
@@ -119,7 +78,7 @@ extension GridPattern where T == Int? {
                 result.southEast = false
                 result.southWest = false
                 
-            case .west:
+            default:
                 
                 result.west = false
                 result.northWest = false
@@ -130,7 +89,7 @@ extension GridPattern where T == Int? {
         return result
     }
     
-    func edgePattern(for tileType: SurfaceTile.TileType, cardinal: Cardinal) -> GridPattern<Bool> {
+    func edgePattern(for material: SurfaceMaterial, cardinal: Cardinal) -> GridPattern<Bool> {
         
         var result = GridPattern<Bool>(value: true)
         
@@ -138,7 +97,7 @@ extension GridPattern where T == Int? {
         let (n0, n1) = (value(for: c0), value(for: c1))
         
         if let n0 = n0,
-           n0 > tileType.primary.rawValue {
+           n0.rawValue > material.rawValue {
             
             result.northWest = false
             result.west = false
@@ -146,7 +105,7 @@ extension GridPattern where T == Int? {
         }
         
         if let n1 = n1,
-           n1 > tileType.primary.rawValue {
+           n1.rawValue > material.rawValue {
             
             result.northEast = false
             result.east = false

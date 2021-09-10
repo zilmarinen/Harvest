@@ -28,7 +28,7 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = map?.props.prop(building: buildingType) else { fatalError("Missing prop model") }
+        guard let model = map?.props.prop(building: buildingType) else { fatalError("Error loading prop model \(buildingType)") }
         
         return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }
@@ -66,16 +66,13 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
         guard super.clean(),
               let map = map else { return false }
         
-        let tilemap = map.buildings.tilemap
-        
         blendMode = .alpha
-        color = buildingType.color.color
-        shader = tilemap.shader
+        color = buildingType.color.osColor
         
-        let attribute = vector_float4(Float(buildingType.color.red),
-                                      Float(buildingType.color.green),
-                                      Float(buildingType.color.blue),
-                                      Float(buildingType.color.alpha))
+        let attribute = vector_float4(Float(buildingType.color.r),
+                                      Float(buildingType.color.g),
+                                      Float(buildingType.color.b),
+                                      Float(buildingType.color.a))
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         

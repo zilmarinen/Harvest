@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 26/04/2021.
 //
 
+import Euclid
 import SpriteKit
 import Meadow
 
@@ -66,7 +67,7 @@ public class Scene2D: SKScene, Codable, Soilable {
         
         let color = try container.decode(Color.self, forKey: .backgroundColor)
         
-        backgroundColor = color.color
+        backgroundColor = color.osColor
         name = try container.decode(String.self, forKey: .name)
         
         addChild(graph)
@@ -88,7 +89,7 @@ public class Scene2D: SKScene, Codable, Soilable {
         try container.encode(size, forKey: .size)
         try container.encode(map, forKey: .map)
         
-        let color = Color(red: Double(backgroundColor.redComponent), green: Double(backgroundColor.greenComponent), blue: Double(backgroundColor.blueComponent), alpha: Double(backgroundColor.alphaComponent))
+        let color = Color(Double(backgroundColor.redComponent), Double(backgroundColor.greenComponent), Double(backgroundColor.blueComponent), Double(backgroundColor.alphaComponent))
         
         try container.encode(color, forKey: .backgroundColor)
     }

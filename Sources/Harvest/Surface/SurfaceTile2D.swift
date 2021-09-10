@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 10/03/2021.
 //
 
+import Euclid
 import Foundation
 import Meadow
 import SpriteKit
@@ -13,13 +14,11 @@ public class SurfaceTile2D: Tile2D {
     private enum CodingKeys: String, CodingKey {
         
         case tileType = "tt"
-        case edgeType = "et"
-        case apexPattern = "ap"
-        case edgePatterns = "ep"
-        case volumes = "v"
+        case material = "m"
+        case surfaceType = "st"
     }
     
-    public var tileType: SurfaceTile.TileType = SurfaceTile.TileType() {
+    public var tileType: SurfaceTileType = .dirt {
         
         didSet {
             
@@ -30,11 +29,22 @@ public class SurfaceTile2D: Tile2D {
         }
     }
     
-    public var edgeType: SurfaceEdgeType = .terraced {
+    public var material: SurfaceMaterial? {
         
         didSet {
             
-            if oldValue != edgeType {
+            if oldValue != material {
+                
+                becomeDirty(recursive: true)
+            }
+        }
+    }
+    
+    public var surfaceType: SurfaceType = .terraced {
+        
+        didSet {
+            
+            if oldValue != surfaceType {
                 
                 becomeDirty(recursive: true)
             }
@@ -43,7 +53,6 @@ public class SurfaceTile2D: Tile2D {
     
     var apexPattern: Int = 0
     var edgePatterns: [Cardinal : Int] = [:]
-    var volumes: [Ordinal : TileVolume] = [:]
     
     lazy var label: SKLabelNode = {
        
@@ -69,11 +78,9 @@ public class SurfaceTile2D: Tile2D {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(SurfaceTile.TileType.self, forKey: .tileType)
-        edgeType = try container.decode(SurfaceEdgeType.self, forKey: .edgeType)
-        apexPattern = try container.decode(Int.self, forKey: .apexPattern)
-        edgePatterns = try container.decode([Cardinal : Int].self, forKey: .edgePatterns)
-        volumes = try container.decode([Ordinal : TileVolume].self, forKey: .volumes)
+        tileType = try container.decode(SurfaceTileType.self, forKey: .tileType)
+        material = try container.decodeIfPresent(SurfaceMaterial.self, forKey: .material)
+        surfaceType = try container.decode(SurfaceType.self, forKey: .surfaceType)
         
         try super.init(from: decoder)
     }
@@ -90,10 +97,8 @@ public class SurfaceTile2D: Tile2D {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(tileType, forKey: .tileType)
-        try container.encode(edgeType, forKey: .edgeType)
-        try container.encode(apexPattern, forKey: .apexPattern)
-        try container.encode(edgePatterns, forKey: .edgePatterns)
-        try container.encode(volumes, forKey: .volumes)
+        try container.encode(material, forKey: .material)
+        try container.encode(surfaceType, forKey: .surfaceType)
     }
     
     @discardableResult override public func clean() -> Bool {
@@ -101,18 +106,14 @@ public class SurfaceTile2D: Tile2D {
         guard isDirty,
               let map = map else { return false }
         
-        let tilemap = map.surface.tilemap
+        color = tileType.color.osColor
+        shader = SKShader(shader: .surface)
+        shader?.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
         
-        let spriteColor = Color(red: Double(tileType.primary.rawValue), green: Double(tileType.secondary.rawValue), blue: 0, alpha: 1)
-        
-        color = spriteColor.color
-        texture = tilemap.tileset["\(apexPattern)"]
-        shader = tilemap.shader
-        
-        let attribute = vector_float4(Float(spriteColor.red),
-                                      Float(spriteColor.green),
-                                      Float(spriteColor.blue),
-                                      Float(spriteColor.alpha))
+        let attribute = vector_float4(Float(tileType.color.r),
+                                      Float(tileType.color.g),
+                                      Float(tileType.color.b),
+                                      Float(tileType.color.a))
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
@@ -124,12 +125,15 @@ public class SurfaceTile2D: Tile2D {
             
         case .edge:
             
-            label.text = edgeType.abbreviation
+            label.text = surfaceType.abbreviation
             
-        case .elevation,
-             .material:
+        case .elevation:
             
             label.text = "\(coordinate.y)"
+            
+        case .material:
+            
+            label.text = "\(material?.abbreviation ?? "")"
             
         case .none:
             
@@ -162,8 +166,7 @@ public class SurfaceTile2D: Tile2D {
                 nodeSize.height = stroke
                 nodePosition.y = (cardinal == .south ? 1 : -1) * (halfSize.height + nodeSize.height / 2.0)
                 
-            case .east,
-                 .west:
+            default:
                 
                 nodeSize.width = stroke
                 nodePosition.x = (cardinal == .east ? 1 : -1) * (halfSize.width + nodeSize.width / 2.0)
@@ -182,92 +185,13 @@ public class SurfaceTile2D: Tile2D {
     
     override func collapse() {
         
-        super.collapse()
+        apexPattern = 0
         
-        tileType.secondary = tileType.primary
+        guard let material = material else { return }
+
+        let sample = sample()
         
-        volumes.removeAll()
-        
-        let sample = sampleNeighbours()
-        
-        var apices: [TileVolume.Apex] = []
-        
-        for ordinal in Ordinal.allCases {
-            
-            //
-            /// Generate apex for ordinal volume
-            //
-            
-            apices.append(sample.elevation.apex(for: ordinal, edgeType: edgeType, elevation: coordinate.y))
-            
-            //
-            /// Determine transition between tile types along the ordinal
-            //
-            
-            guard let neighbourTileType = sample.tileType.value(for: ordinal),
-                  neighbourTileType > tileType.primary.rawValue,
-                  let secondaryTileType = SurfaceTileType(rawValue: neighbourTileType) else { continue }
-            
-            tileType.secondary = (neighbourTileType > tileType.secondary.rawValue ? secondaryTileType : tileType.secondary)
-        }
-        
-        for ordinal in Ordinal.allCases {
-            
-            //
-            /// Check internal and external edges of each volume to create edges
-            //
-            
-            let (o0, o1) = ordinal.ordinals
-            let (c0, c1) = ordinal.cardinals
-            let (c2, c3) = ordinal.opposite.cardinals
-            
-            let apex = apices[ordinal.rawValue]
-            let a0 = self.apex(for: o1, cardinal: c0)
-            let a1 = self.apex(for: o0, cardinal: c1)
-            let a2 = apices[o1.rawValue]
-            let a3 = apices[o0.rawValue]
-            
-            var adjacent: [Cardinal : TileVolume.Apex] = [:]
-            
-            adjacent[c0] = a0
-            adjacent[c1] = a1
-            adjacent[c2] = a2
-            adjacent[c3] = a3
-            
-            var edges: [Cardinal : [Ordinal : Double]] = [:]
-            
-            for cardinal in Cardinal.allCases {
-             
-                guard let neighbour = adjacent[cardinal] else { continue }
-                
-                let (o2, o3) = cardinal.ordinals
-                let (o4, o5) = cardinal.opposite.ordinals
-                
-                let h0 = apex.corners[o2.rawValue]
-                let h1 = apex.corners[o3.rawValue]
-                let h2 = neighbour.corners[o4.rawValue]
-                let h3 = neighbour.corners[o5.rawValue]
-                
-                var corners: [Ordinal : Double] = [:]
-                
-                if h0 - h3 > Math.epsilon {
-                    
-                    corners[o2] = h3
-                }
-                
-                if h1 - h2 > Math.epsilon {
-                    
-                    corners[o3] = h2
-                }
-                
-                if !corners.isEmpty {
-                    
-                    edges[cardinal] = corners
-                }
-            }
-            
-            volumes[ordinal] = TileVolume(apex: apex, edges: edges)
-        }
+        apexPattern = GridPattern.index(of: sample.material.pattern(for: material)) + 1
         
         //
         /// Determine transition between tile types along the cardinal
@@ -275,64 +199,87 @@ public class SurfaceTile2D: Tile2D {
         
         for cardinal in Cardinal.allCases {
             
-            edgePatterns[cardinal] = GridPattern.index(of: sample.tileType.edgePattern(for: tileType, cardinal: cardinal)) + 1
-            
-            guard let neighbourTileType = sample.tileType.value(for: cardinal),
-                  neighbourTileType > tileType.primary.rawValue,
-                  let secondaryTileType = SurfaceTileType(rawValue: neighbourTileType) else { continue }
-            
-            tileType.secondary = (neighbourTileType > tileType.secondary.rawValue ? secondaryTileType : tileType.secondary)
+            edgePatterns[cardinal] = GridPattern.index(of: sample.material.edgePattern(for: material, cardinal: cardinal)) + 1
         }
-        
-        apexPattern = GridPattern.index(of: sample.tileType.pattern(for: tileType.primary.rawValue)) + 1
     }
 }
 
 extension SurfaceTile2D {
     
-    typealias TileNeighbours = (elevation: GridPattern<Int>, tileType: GridPattern<Int?>)
+    typealias Sample = (elevation: GridPattern<Double>, tileType: GridPattern<SurfaceTileType?>, material: GridPattern<SurfaceMaterial?>)
     
-    func apex(for ordinal: Ordinal, cardinal: Cardinal) -> TileVolume.Apex {
+    func sample() -> Sample {
         
-        guard let neighbour = find(neighbour: cardinal) else {
-            
-            return TileVolume.Apex(corners: Double(coordinate.y) * World.Constants.yScalar)
-        }
-        
-        return neighbour.sampleNeighbours().elevation.apex(for: ordinal, edgeType: neighbour.edgeType, elevation: neighbour.coordinate.y)
-    }
-    
-    func sampleNeighbours() -> TileNeighbours {
-        
-        var elevation = GridPattern<Int>(value: 0)
-        var tileType = GridPattern<Int?>(value: nil)
+        var elevation = GridPattern<Double>(value: Double(coordinate.y))
+        var tileType = GridPattern<SurfaceTileType?>(value: tileType)
+        var material = GridPattern<SurfaceMaterial?>(value: nil)
         
         for cardinal in Cardinal.allCases {
             
             let neighbour = find(neighbour: cardinal)
             
-            elevation.set(value: neighbour?.coordinate.y ?? coordinate.y , cardinal: cardinal)
+            material.set(value: neighbour?.material, cardinal: cardinal)
             
-            tileType.set(value: neighbour?.tileType.primary.rawValue, cardinal: cardinal)
+            if let neighbour = neighbour,
+               neighbour.tileType.rawValue > self.tileType.rawValue {
+                
+                tileType.set(value: neighbour.tileType, cardinal: cardinal)
+            }
+            
+            guard surfaceType == .sloped,
+                  neighbour?.surfaceType == .sloped,
+                  let n0 = neighbour?.coordinate.y else { continue }
+                
+            let edge = Double(n0 + coordinate.y) / 2.0
+            
+            elevation.set(value: edge, cardinal: cardinal)
         }
         
         for ordinal in Ordinal.allCases {
             
-            let neighbour = find(neighbour: ordinal)
-            
             let (c0, c1) = ordinal.cardinals
             
-            let n0 = elevation.value(for: c0)
-            let n1 = elevation.value(for: c1)
+            let neighbour = find(neighbour: ordinal)
+            let (n0, n1) = (find(neighbour: c0), find(neighbour: c1))
             
-            let corner = max(n0, n1, neighbour?.coordinate.y ?? coordinate.y, coordinate.y)
+            material.set(value: neighbour?.material, ordinal: ordinal)
             
-            elevation.set(value: corner, ordinal: ordinal)
+            let types = [self.tileType,
+                         neighbour?.tileType,
+                         n0?.tileType,
+                         n1?.tileType].sorted { $0?.rawValue ?? 0 > $1?.rawValue ?? 0 }
             
-            tileType.set(value: neighbour?.tileType.primary.rawValue, ordinal: ordinal)
+            guard let type = types.first else { continue }
+            
+            tileType.set(value: type, ordinal: ordinal)
+            
+            guard surfaceType == .sloped else { continue }
+            
+            let tiles = [self, neighbour, n0, n1]
+            
+            let heights = [coordinate.y,
+                           neighbour?.coordinate.y ?? coordinate.y,
+                           n0?.coordinate.y ?? coordinate.y,
+                           n1?.coordinate.y ?? coordinate.y]
+            
+            var result = 0.0
+            var count = 0
+            
+            for index in tiles.indices {
+                
+                let tile = tiles[index]
+                
+                guard tile?.surfaceType == .sloped else { continue }
+                
+                result += Double(heights[index])
+                
+                count += 1
+            }
+            
+            elevation.set(value: result / Double(count), ordinal: ordinal)
         }
         
-        return (elevation, tileType)
+        return (elevation, tileType, material)
     }
 }
 
@@ -341,5 +288,168 @@ extension SurfaceTile2D {
     public static func == (lhs: SurfaceTile2D, rhs: SurfaceTile2D) -> Bool {
         
         return lhs.coordinate == rhs.coordinate && lhs.tileType == rhs.tileType
+    }
+}
+
+extension SurfaceTile2D {
+    
+    func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
+        
+        guard let map = map else { return [] }
+        
+        collapse()
+        
+        let sample = sample()
+        let neighbours = Cardinal.allCases.map { find(neighbour: $0)?.sample() ?? sample }
+        let edges = Ordinal.allCases.map { corners[$0.corner].lerp(corners[($0.corner + 1) % 4], 0.5) }
+        let upperCorners = corners.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
+        let upperEdges = edges.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
+        
+        let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
+        let ttc0 = tileType.color
+        
+        let apexTile = map.surface.tilemap.tileset.tiles(with: apexPattern).randomElement(using: &rng)
+        let apexUVs = apexTile?.uvs ?? UVs(start: .zero, end: .zero)
+        
+        var polygons: [Euclid.Polygon] = []
+        
+        for ordinal in Ordinal.allCases {
+            
+            let (c0, c1) = ordinal.cardinals
+            let (o0, o1) = ordinal.ordinals
+            let (n0, n1) = (neighbours[c0.edge], neighbours[c1.edge])
+            
+            let (ep0, ep1) = (edgePatterns[c0] ?? 0, edgePatterns[c1] ?? 0)
+            let (et0, et1) = (map.surface.tilemap.edgeset.edges(with: ep0).randomElement(using: &rng),
+                              map.surface.tilemap.edgeset.edges(with: ep1).randomElement(using: &rng))
+            
+            let ae1 = sample.elevation.value(for: c0)
+            let ae2 = sample.elevation.value(for: c1)
+            let ae3 = sample.elevation.value(for: ordinal)
+            
+            let be1 = n0.elevation.value(for: c0.opposite)
+            let be2 = n1.elevation.value(for: c1.opposite)
+            let n0be3 = n0.elevation.value(for: o1)
+            let n1be3 = n1.elevation.value(for: o0)
+            
+            let av1 = edges[c0.edge].lerp(upperEdges[c0.edge], World.Constants.yScalar * ae1)
+            let av2 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * ae2)
+            let av3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * ae3)
+            
+            let ttc1 = sample.tileType.value(for: c0)?.color ?? ttc0
+            let ttc2 = sample.tileType.value(for: c1)?.color ?? ttc0
+            let ttc3 = sample.tileType.value(for: ordinal)?.color ?? ttc0
+            
+            let auv0 = apexUVs.center
+            let auv1 = apexUVs.edges[c0.edge]
+            let auv2 = apexUVs.edges[c1.edge]
+            let auv3 = apexUVs.corners[ordinal.corner]
+            
+            var faces: [[Vector]] = []
+            var colors: [[Color]] = []
+            var uvs: [[Vector]] = []
+            
+            switch ordinal {
+                
+            case .northWest:
+                
+                faces.append(contentsOf: [[av3, av2, av1], [av2, v0, av1]])
+                colors.append(contentsOf: [[ttc3, ttc2, ttc1], [ttc2, ttc0, ttc1]])
+                uvs.append(contentsOf: [[auv3, auv2, auv1], [auv2, auv0, auv1]])
+                
+            case .northEast:
+                
+                faces.append(contentsOf: [[av1, av3, av2], [av1, av2, v0]])
+                colors.append(contentsOf: [[ttc1, ttc3, ttc2], [ttc1, ttc2, ttc0]])
+                uvs.append(contentsOf: [[auv1, auv3, auv2], [auv1, auv2, auv0]])
+                
+            case .southEast:
+                
+                faces.append(contentsOf: [[v0, av1, av2], [av1, av3, av2]])
+                colors.append(contentsOf: [[ttc0, ttc1, ttc2], [ttc1, ttc3, ttc2]])
+                uvs.append(contentsOf: [[auv0, auv1, auv2], [auv1, auv3, auv2]])
+                
+            default:
+                
+                faces.append(contentsOf: [[av2, v0, av1], [av2, av1, av3]])
+                colors.append(contentsOf: [[ttc2, ttc0, ttc1], [ttc2, ttc1, ttc3]])
+                uvs.append(contentsOf: [[auv2, auv0, auv1], [auv2, auv1, auv3]])
+            }
+            
+            if n0be3 < ae3 {
+                
+                let euvs = et0?.uvs ?? UVs(start: .zero, end: .zero)
+                
+                let euv0 = euvs.corners[1]
+                let euv1 = euvs.edges[0]
+                let euv2 = euvs.edges[2]
+                let euv3 = euvs.corners[2]
+                
+                let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n0be3)
+                
+                faces.append(contentsOf: [[av3, av1, bv3]])
+                colors.append(contentsOf: [[ttc3, ttc1, ttc3]])
+                uvs.append(contentsOf: [[euv0, euv1, euv3]])
+                
+                if be1 < ae1 {
+                    
+                    let bv1 = edges[c0.edge].lerp(upperEdges[c0.edge], World.Constants.yScalar * be1)
+                    
+                    faces.append(contentsOf: [[av1, bv1, bv3]])
+                    colors.append(contentsOf: [[ttc1, ttc1, ttc3]])
+                    uvs.append(contentsOf: [[euv1, euv2, euv3]])
+                }
+            }
+            
+            if n1be3 < ae3 {
+                
+                let euvs = et1?.uvs ?? UVs(start: .zero, end: .zero)
+                
+                let euv0 = euvs.edges[0]
+                let euv1 = euvs.corners[0]
+                let euv2 = euvs.corners[3]
+                let euv3 = euvs.edges[2]
+                
+                let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n1be3)
+                
+                faces.append(contentsOf: [[av2, av3, bv3]])
+                colors.append(contentsOf: [[ttc2, ttc3, ttc3]])
+                uvs.append(contentsOf: [[euv0, euv1, euv2]])
+                
+                if be2 < ae2 {
+                    
+                    let bv1 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * be2)
+                    
+                    faces.append(contentsOf: [[av2, bv3, bv1]])
+                    colors.append(contentsOf: [[ttc2, ttc3, ttc2]])
+                    uvs.append(contentsOf: [[euv0, euv2, euv3]])
+                }
+            }
+            
+            for faceIndex in faces.indices {
+             
+                let face = faces[faceIndex]
+                let normal = face.normal()
+                let faceColors = colors[faceIndex]
+                let faceUVs = uvs[faceIndex]
+                
+                var vertices: [Vertex] = []
+                
+                for vertexIndex in face.indices {
+                    
+                    let position = face[vertexIndex]
+                    let color = faceColors[vertexIndex]
+                    let uv = faceUVs[vertexIndex]
+                    
+                    vertices.append(Vertex(position, normal, uv, color))
+                }
+                
+                guard let polygon = Polygon(vertices.reversed()) else { continue }
+                
+                polygons.append(polygon)
+            }
+        }
+        
+        return polygons
     }
 }

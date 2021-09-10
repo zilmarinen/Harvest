@@ -38,8 +38,7 @@ public class PortalTile2D: FootprintTile2D {
             nodeSize.height /= 2
             nodePosition.y = (direction == .south ? nodePosition.y : nodeSize.height)
             
-        case .east,
-             .west:
+        default:
             
             nodeSize.width /= 2
             nodePosition.x = (direction == .east ? nodePosition.x : nodeSize.width)

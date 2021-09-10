@@ -36,7 +36,7 @@ vec4 tileColorLookup(int value) {
 
 void main()
 {
-    vec4 color = texture2D(u_texture, v_tex_coord);
+    /*vec4 color = texture2D(u_texture, v_tex_coord);
     vec4 grid = vec4(0.0, 0.0, 0.0, 1.0);
     
     float value = (color.r + color.g + color.b) / 3;
@@ -59,5 +59,7 @@ void main()
     
     color = mix(color, grid, saturation);
     
-    gl_FragColor = color * v_color_mix.a;
+    gl_FragColor = color * v_color_mix.a;*/
+    
+    gl_FragColor = a_color;
 }

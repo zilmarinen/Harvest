@@ -18,29 +18,12 @@ public class Surface2D: Grid2D<SurfaceChunk2D, SurfaceTile2D> {
         case none
     }
     
-    struct Tilemap {
+    lazy var tilemap: SurfaceTilemap = {
         
-        let tileset: [String : SKTexture]
-        let shader = SKShader(shader: .surface)
+        guard let tilemap = try? SurfaceTilemap() else { fatalError("Error loading surface tilemap") }
         
-        init() {
-        
-            guard let tilemap = try? SurfaceTilemap() else { fatalError("Error loading surface tilemap") }
-            
-            var textures: [String : SKTexture] = [:]
-            
-            for tile in tilemap.tileset.tiles {
-                
-                textures["\(tile.pattern)"] = SKTexture(image: tilemap.tileset.image(for: tile))
-            }
-            
-            tileset = textures
-            
-            shader.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
-        }
-    }
-    
-    let tilemap = Tilemap()
+        return tilemap
+    }()
     
     public var overlay: Overlay = .material {
         

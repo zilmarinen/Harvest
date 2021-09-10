@@ -9,18 +9,6 @@ import SpriteKit
 
 public class Buildings2D: FootprintGrid2D<BuildingChunk2D, BuildingTile2D> {
     
-    struct Tilemap {
-        
-        let shader = SKShader(shader: .grid)
-        
-        init() {
-            
-            shader.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
-        }
-    }
-    
-    let tilemap = Tilemap()
-    
     public func add(building coordinate: Coordinate, rotation: Cardinal, buildingType: BuildingType, configure: ChunkConfiguration? = nil) -> BuildingChunk2D? {
         
         guard let map = map else { return nil }

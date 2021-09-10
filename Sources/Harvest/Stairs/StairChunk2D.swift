@@ -39,7 +39,7 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     
     public override var footprint: Footprint {
         
-        guard let model = map?.props.prop(stairs: tileType, material: material) else { fatalError("Missing prop model") }
+        guard let model = map?.props.prop(stairs: tileType, material: material) else { fatalError("Error loading prop model \(tileType)") }
         
         return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
     }
@@ -79,16 +79,13 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
         guard super.clean(),
               let map = map else { return false }
         
-        let tilemap = map.buildings.tilemap
-        
         blendMode = .alpha
-        color = material.color.color
-        shader = tilemap.shader
+        color = material.color.osColor
         
-        let attribute = vector_float4(Float(material.color.red),
-                                      Float(material.color.green),
-                                      Float(material.color.blue),
-                                      Float(material.color.alpha))
+        let attribute = vector_float4(Float(material.color.r),
+                                      Float(material.color.g),
+                                      Float(material.color.b),
+                                      Float(material.color.a))
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         

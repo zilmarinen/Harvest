@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 16/03/2021.
 //
 
+import Euclid
 import Meadow
 
 extension FootpathTileType {
@@ -24,11 +25,11 @@ extension FootpathTileType {
         
         switch self {
         
-        case .cobble: return Color(red: 0.8, green: 0.89, blue: 0.45, alpha: 1.0)
-        case .dirt: return Color(red: 0.92, green: 0.78, blue: 0.53, alpha: 1.0)
-        case .gravel: return Color(red: 0.8, green: 0.78, blue: 0.53, alpha: 1.0)
-        case .stone: return Color(red: 0.95, green: 0.57, blue: 0.2, alpha: 1.0)
-        case .wood: return Color(red: 0.54, green: 0.8, blue: 0.8, alpha: 1.0)
+        case .cobble: return Color(0.8, 0.89, 0.45, 1.0)
+        case .dirt: return Color(0.92, 0.78, 0.53, 1.0)
+        case .gravel: return Color(0.8, 0.78, 0.53, 1.0)
+        case .stone: return Color(0.95, 0.57, 0.2, 1.0)
+        case .wood: return Color(0.54, 0.8, 0.8, 1.0)
         }
     }
 }
