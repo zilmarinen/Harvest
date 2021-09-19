@@ -89,29 +89,4 @@ extension GridPattern where T == SurfaceMaterial? {
         return result
     }
     
-    func edgePattern(for material: SurfaceMaterial, cardinal: Cardinal) -> GridPattern<Bool> {
-        
-        var result = GridPattern<Bool>(value: true)
-        
-        let (c0, c1) = cardinal.cardinals
-        let (n0, n1) = (value(for: c0), value(for: c1))
-        
-        if let n0 = n0,
-           n0.rawValue > material.rawValue {
-            
-            result.northWest = false
-            result.west = false
-            result.southWest = false
-        }
-        
-        if let n1 = n1,
-           n1.rawValue > material.rawValue {
-            
-            result.northEast = false
-            result.east = false
-            result.southEast = false
-        }
-        
-        return result
-    }
 }

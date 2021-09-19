@@ -76,8 +76,7 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
     
     @discardableResult public override func clean() -> Bool {
         
-        guard super.clean(),
-              let map = map else { return false }
+        guard super.clean() else { return false }
         
         blendMode = .alpha
         color = material.color.osColor

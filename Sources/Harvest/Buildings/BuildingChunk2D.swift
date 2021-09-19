@@ -63,8 +63,7 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
     
     @discardableResult public override func clean() -> Bool {
         
-        guard super.clean(),
-              let map = map else { return false }
+        guard super.clean() else { return false }
         
         blendMode = .alpha
         color = buildingType.color.osColor

@@ -51,8 +51,7 @@ public class SurfaceTile2D: Tile2D {
         }
     }
     
-    var apexPattern: Int = 0
-    var edgePatterns: [Cardinal : Int] = [:]
+    var pattern: Int = 0
     
     lazy var label: SKLabelNode = {
        
@@ -185,22 +184,13 @@ public class SurfaceTile2D: Tile2D {
     
     override func collapse() {
         
-        apexPattern = 0
+        pattern = 0
         
         guard let material = material else { return }
 
         let sample = sample()
         
-        apexPattern = GridPattern.index(of: sample.material.pattern(for: material)) + 1
-        
-        //
-        /// Determine transition between tile types along the cardinal
-        //
-        
-        for cardinal in Cardinal.allCases {
-            
-            edgePatterns[cardinal] = GridPattern.index(of: sample.material.edgePattern(for: material, cardinal: cardinal)) + 1
-        }
+        pattern = GridPattern.index(of: sample.material.pattern(for: material)) + 1
     }
 }
 
@@ -308,8 +298,9 @@ extension SurfaceTile2D {
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
         let ttc0 = tileType.color
         
-        let apexTile = map.surface.tilemap.tileset.tiles(with: apexPattern).randomElement(using: &rng)
+        let apexTile = map.surface.tilemap.tileset.tiles(with: pattern).randomElement(using: &rng)
         let apexUVs = apexTile?.uvs ?? UVs(start: .zero, end: .zero)
+        let edgeUVs = UVs.corners
         
         var polygons: [Euclid.Polygon] = []
         
@@ -318,10 +309,6 @@ extension SurfaceTile2D {
             let (c0, c1) = ordinal.cardinals
             let (o0, o1) = ordinal.ordinals
             let (n0, n1) = (neighbours[c0.edge], neighbours[c1.edge])
-            
-            let (ep0, ep1) = (edgePatterns[c0] ?? 0, edgePatterns[c1] ?? 0)
-            let (et0, et1) = (map.surface.tilemap.edgeset.edges(with: ep0).randomElement(using: &rng),
-                              map.surface.tilemap.edgeset.edges(with: ep1).randomElement(using: &rng))
             
             let ae1 = sample.elevation.value(for: c0)
             let ae2 = sample.elevation.value(for: c1)
@@ -378,12 +365,10 @@ extension SurfaceTile2D {
             
             if n0be3 < ae3 {
                 
-                let euvs = et0?.uvs ?? UVs(start: .zero, end: .zero)
-                
-                let euv0 = euvs.corners[1]
-                let euv1 = euvs.edges[0]
-                let euv2 = euvs.edges[2]
-                let euv3 = euvs.corners[2]
+                let euv0 = edgeUVs.corners[1]
+                let euv1 = edgeUVs.edges[0]
+                let euv2 = edgeUVs.edges[2]
+                let euv3 = edgeUVs.corners[2]
                 
                 let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n0be3)
                 
@@ -403,12 +388,10 @@ extension SurfaceTile2D {
             
             if n1be3 < ae3 {
                 
-                let euvs = et1?.uvs ?? UVs(start: .zero, end: .zero)
-                
-                let euv0 = euvs.edges[0]
-                let euv1 = euvs.corners[0]
-                let euv2 = euvs.corners[3]
-                let euv3 = euvs.edges[2]
+                let euv0 = edgeUVs.edges[0]
+                let euv1 = edgeUVs.corners[0]
+                let euv2 = edgeUVs.corners[3]
+                let euv3 = edgeUVs.edges[2]
                 
                 let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n1be3)
                 
