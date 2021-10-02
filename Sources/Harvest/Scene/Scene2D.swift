@@ -8,19 +8,15 @@ import Euclid
 import SpriteKit
 import Meadow
 
-public class Scene2D: SKScene, Codable, Soilable {
-    
-    private enum CodingKeys: String, CodingKey {
-        
-        case name = "n"
-        case backgroundColor = "c"
-        case map = "m"
-        case size = "s"
-    }
+public class Scene2D: SKScene, Soilable {
     
     public var ancestor: SoilableParent? { parent as? SoilableParent }
     
-    public var isDirty: Bool = false
+    public var isDirty: Bool {
+        
+        get { map.isDirty }
+        set { }
+    }
     
     public lazy var graph: SKSpriteNode = {
         
@@ -42,9 +38,9 @@ public class Scene2D: SKScene, Codable, Soilable {
     
     public let map: Map2D
     
-    public init(size: CGSize, map: Map2D? = nil) {
+    public required init(size: CGSize, map: Map2D) {
         
-        self.map = map ?? Map2D()
+        self.map = map
         
         super.init(size: size)
         
@@ -56,42 +52,9 @@ public class Scene2D: SKScene, Codable, Soilable {
         becomeDirty()
     }
     
-    required public init(from decoder: Decoder) throws {
-        
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        map = try container.decode(Map2D.self, forKey: .map)
-        let size = try container.decode(CGSize.self, forKey: .size)
-        
-        super.init(size: size)
-        
-        let color = try container.decode(Color.self, forKey: .backgroundColor)
-        
-        backgroundColor = color.osColor
-        name = try container.decode(String.self, forKey: .name)
-        
-        addChild(graph)
-        addChild(map)
-        
-        becomeDirty()
-    }
-    
     required init?(coder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(name, forKey: .name)
-        try container.encode(size, forKey: .size)
-        try container.encode(map, forKey: .map)
-        
-        let color = Color(Double(backgroundColor.redComponent), Double(backgroundColor.greenComponent), Double(backgroundColor.blueComponent), Double(backgroundColor.alphaComponent))
-        
-        try container.encode(color, forKey: .backgroundColor)
     }
     
     public override func didMove(to view: SKView) {
