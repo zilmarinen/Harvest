@@ -161,10 +161,12 @@ extension WaterTile2D {
 extension WaterTile2D {
     
     func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
-        
-        guard let map = map else { return [] }
+        return []
+        /*guard let scene = scene as? Scene2D else { return [] }
         
         collapse()
+        
+        let tileset = scene.tilesets.surface
         
         let sample = sample()
         let neighbours = Cardinal.allCases.map { find(neighbour: $0)?.sample() ?? sample }
@@ -175,7 +177,7 @@ extension WaterTile2D {
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
         let ttc0 = tileType.color
         
-        let apexTile = map.surface.tilemap.tileset.tiles(with: apexPattern).randomElement(using: &rng)
+        let apexTile = tileset.tiles(with: apexPattern).randomElement(using: &rng)
         let apexUVs = apexTile?.uvs ?? UVs.corners
         
         var polygons: [Euclid.Polygon] = []
@@ -299,6 +301,6 @@ extension WaterTile2D {
             }
         }
         
-        return polygons
+        return polygons*/
     }
 }

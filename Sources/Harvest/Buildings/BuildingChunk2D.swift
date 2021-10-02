@@ -8,14 +8,14 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
+public class BuildingChunk2D: PropChunk2D<BuildingTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
         case buildingType = "t"
     }
     
-    var buildingType: BuildingType = .bernina_z {
+    public var buildingType: BuildingType = .bernina_z {
         
         didSet {
             
@@ -26,16 +26,9 @@ public class BuildingChunk2D: FootprintChunk2D<BuildingTile2D> {
         }
     }
     
-    public override var footprint: Footprint {
+    required init(coordinate: Coordinate, direction: Cardinal) {
         
-        guard let model = map?.props.prop(building: buildingType) else { fatalError("Error loading prop model \(buildingType)") }
-        
-        return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
-    }
-    
-    required init(coordinate: Coordinate) {
-        
-        super.init(coordinate: coordinate)
+        super.init(coordinate: coordinate, direction: direction)
     }
     
     required public init(from decoder: Decoder) throws {

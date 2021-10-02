@@ -1,5 +1,5 @@
 //
-//  FootprintTile2D.swift
+//  PropTile2D.swift
 //
 //  Created by Zack Brown on 03/05/2021.
 //
@@ -8,7 +8,7 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class FootprintTile2D: SKSpriteNode, Responder2D, Soilable {
+public class PropTile2D: SKSpriteNode, Responder2D, Soilable {
     
     public var ancestor: SoilableParent? { parent as? SoilableParent }
     

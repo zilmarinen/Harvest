@@ -18,13 +18,6 @@ public class Surface2D: Grid2D<SurfaceChunk2D, SurfaceTile2D> {
         case none
     }
     
-    lazy var tilemap: SurfaceTilemap = {
-        
-        guard let tilemap = try? SurfaceTilemap() else { fatalError("Error loading surface tilemap") }
-        
-        return tilemap
-    }()
-    
     public var overlay: Overlay = .material {
         
         didSet {

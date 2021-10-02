@@ -7,26 +7,6 @@
 import Meadow
 import SpriteKit
 
-public class Stairs2D: FootprintGrid2D<StairChunk2D, StairTile2D> {
-    
-    public func add(stairs coordinate: Coordinate, rotation: Cardinal, tileType: StairType, material: StairMaterial, configure: ChunkConfiguration? = nil) -> StairChunk2D? {
-        
-        guard let map = map else { return nil }
-        
-        let model = map.props.prop(stairs: tileType, material: material)
-        
-        let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: model.footprint.nodes)
-        
-        guard map.validate(footprint: footprint, grid: .stairs) else { return nil }
-        
-        guard let stairs = super.add(chunk: footprint) else { return nil }
-        
-        stairs.tileType = tileType
-        stairs.material = material
-        stairs.direction = rotation
-        
-        configure?(stairs)
-        
-        return stairs
-    }
+public class Stairs2D: PropGrid2D<StairChunk2D, StairTile2D> {
+
 }

@@ -13,10 +13,8 @@ extension SurfaceTileType {
         
         switch self {
         
-        case .dirt: return "D"
-        case .sand: return "Sa"
-        case .stone: return "St"
-        case .wood: return "W"
+        case .sloped: return "S"
+        case .terraced: return "T"
         }
     }
     
@@ -24,20 +22,8 @@ extension SurfaceTileType {
         
         switch self {
         
-        case .dirt: return "Dirt"
-        case .sand: return "Sand"
-        case .stone: return "Stone"
-        case .wood: return "Wood"
-        }
-    }
-    
-    var color: Color {
-        
-        switch  self {
-        case .dirt: return Color(0.1, 0.5, 0.9, 1.0)
-        case .sand: return Color(0.5, 0.9, 0.1, 1.0)
-        case .stone: return Color(0.9, 0.1, 0.5, 1.0)
-        case .wood: return Color(0.1, 0.9, 0.5, 1.0)
+        case .sloped: return "Sloped"
+        case .terraced: return "Terraced"
         }
     }
 }

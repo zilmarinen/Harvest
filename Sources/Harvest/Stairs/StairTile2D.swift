@@ -8,6 +8,6 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class StairTile2D: FootprintTile2D {
+public class StairTile2D: PropTile2D {
     
 }

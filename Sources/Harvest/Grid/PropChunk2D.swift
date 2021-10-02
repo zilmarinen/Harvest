@@ -1,5 +1,5 @@
 //
-//  FootprintChunk2D.swift
+//  PropChunk2D.swift
 //
 //  Created by Zack Brown on 27/03/2021.
 //
@@ -7,11 +7,11 @@
 import Meadow
 import SpriteKit
 
-public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Responder2D, Soilable {
+public class PropChunk2D<T: PropTile2D>: SKSpriteNode, Codable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
-        case coordinate = "co"
+        case coordinate = "c"
         case direction = "d"
     }
     
@@ -21,22 +21,15 @@ public class FootprintChunk2D<T: FootprintTile2D>: SKSpriteNode, Codable, Respon
     
     public var footprint: Footprint { Footprint(coordinate: coordinate) }
     
-    public var coordinate: Coordinate
-    public var direction: Cardinal = .north {
-        
-        didSet {
-            
-            guard direction != oldValue else { return }
-                
-            becomeDirty()
-        }
-    }
+    public let coordinate: Coordinate
+    public let direction: Cardinal
     
     var tiles: [T] = []
     
-    required init(coordinate: Coordinate) {
+    required init(coordinate: Coordinate, direction: Cardinal) {
         
         self.coordinate = coordinate
+        self.direction = direction
         
         super.init(texture: nil, color: .black, size: .zero)
         

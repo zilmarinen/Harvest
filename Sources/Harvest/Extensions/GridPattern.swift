@@ -12,81 +12,58 @@ extension GridPattern where T == Tile2D? {
     
     public var cardinalCount: Int {
         
-        return (north == nil ? 0 : 1) +
-                (east == nil ? 0 : 1) +
-                (south == nil ? 0 : 1) +
-                (west == nil ? 0 : 1)
+        return [north, east, south, west].compactMap { $0 }.count
     }
     
     public var ordinalCount: Int {
         
-        return  (northEast == nil ? 0 : 1) +
-                (northWest == nil ? 0 : 1) +
-                (southWest == nil ? 0 : 1) +
-                (southEast == nil ? 0 : 1)
+        return [northWest, northEast, southEast, southWest].compactMap { $0 }.count
     }
     
     var isParallel: Bool {
         
-        return (north != nil && south != nil && east == nil && west == nil) ||
-               (north == nil && south == nil && east != nil && west != nil)
+        return ((north != nil && east == nil) || (north == nil && east != nil) && north == south && east == west)
     }
 }
 
-extension GridPattern where T == SurfaceMaterial? {
+extension GridPattern where T == SurfaceOverlay? {
     
-    func pattern(for material: SurfaceMaterial) -> GridPattern<Bool> {
+    func pattern(for overlay: SurfaceOverlay) -> GridPattern<Bool> {
         
-        var result = GridPattern<Bool>(value: true)
-        
-        for ordinal in Ordinal.allCases {
-            
-            guard let neighbour = value(for: ordinal),
-                  neighbour.rawValue > material.rawValue else { continue }
-                
-            switch ordinal {
-            
-            case .northWest: result.northWest = false
-            case .northEast: result.northEast = false
-            case .southEast: result.southEast = false
-            default: result.southWest = false
-            }
-        }
+        var result = GridPattern<Bool>(value: false)
         
         for cardinal in Cardinal.allCases {
             
             guard let neighbour = value(for: cardinal),
-                  neighbour.rawValue > material.rawValue else { continue }
+                  neighbour.rawValue == overlay.rawValue else { continue }
                 
             switch cardinal {
             
-            case .north:
+            case .north: result.north = true
+            case .east: result.east = true
+            case .south: result.south = true
+            default: result.west = true
+            }
+        }
+        
+        for ordinal in Ordinal.allCases {
+            
+            let (c0, c1) = ordinal.cardinals
+            
+            guard let neighbour = value(for: ordinal),
+                  neighbour.rawValue == overlay.rawValue,
+                  result.value(for: c0),
+                  result.value(for: c1) else { continue }
                 
-                result.north = false
-                result.northWest = false
-                result.northEast = false
-                
-            case .east:
-                
-                result.east = false
-                result.northEast = false
-                result.southEast = false
-                
-            case .south:
-                
-                result.south = false
-                result.southEast = false
-                result.southWest = false
-                
-            default:
-                
-                result.west = false
-                result.northWest = false
-                result.southWest = false
+            switch ordinal {
+            
+            case .northWest: result.northWest = true
+            case .northEast: result.northEast = true
+            case .southEast: result.southEast = true
+            default: result.southWest = true
             }
         }
         
         return result
     }
-    
 }

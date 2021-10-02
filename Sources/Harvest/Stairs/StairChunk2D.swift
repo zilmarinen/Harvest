@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class StairChunk2D: FootprintChunk2D<StairTile2D> {
+public class StairChunk2D: PropChunk2D<StairTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -37,16 +37,9 @@ public class StairChunk2D: FootprintChunk2D<StairTile2D> {
         }
     }
     
-    public override var footprint: Footprint {
+    required init(coordinate: Coordinate, direction: Cardinal) {
         
-        guard let model = map?.props.prop(stairs: tileType, material: material) else { fatalError("Error loading prop model \(tileType)") }
-        
-        return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
-    }
-    
-    required init(coordinate: Coordinate) {
-        
-        super.init(coordinate: coordinate)
+        super.init(coordinate: coordinate, direction: direction)
     }
     
     required public init(from decoder: Decoder) throws {

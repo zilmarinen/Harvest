@@ -8,7 +8,7 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class PortalTile2D: FootprintTile2D {
+public class PortalTile2D: PropTile2D {
     
     var direction: Cardinal = .north {
         

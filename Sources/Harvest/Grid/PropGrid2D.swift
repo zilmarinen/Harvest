@@ -1,5 +1,5 @@
 //
-//  FootprintGrid2D.swift
+//  PropGrid2D.swift
 //
 //  Created by Zack Brown on 27/03/2021.
 //
@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class FootprintGrid2D<C: FootprintChunk2D<T>, T: FootprintTile2D>: SKNode, Codable, Responder2D, Soilable {
+public class PropGrid2D<C: PropChunk2D<T>, T: PropTile2D>: SKNode, Codable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -70,18 +70,22 @@ public class FootprintGrid2D<C: FootprintChunk2D<T>, T: FootprintTile2D>: SKNode
     }
     
     public typealias ChunkConfiguration = ((C) -> Void)
+    
+    public func add(prop: Prop, coordinate: Coordinate, rotation: Cardinal, configure: ChunkConfiguration? = nil) -> C? {
         
-    public func add(chunk footprint: Footprint, configure: ChunkConfiguration? = nil) -> C? {
+        guard let scene = scene as? Scene2D else { return nil }
         
-        guard find(chunk: footprint) == nil else { return nil }
+        let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: prop.footprint.nodes)
         
-        let chunk = C(coordinate: footprint.coordinate)
+        guard scene.map.validate(footprint: footprint, grid: prop.grid) else { return nil }
+        
+        let chunk = C(coordinate: coordinate, direction: rotation)
+        
+        configure?(chunk)
         
         chunks.append(chunk)
         
         addChild(chunk)
-        
-        configure?(chunk)
         
         becomeDirty()
         
@@ -89,7 +93,7 @@ public class FootprintGrid2D<C: FootprintChunk2D<T>, T: FootprintTile2D>: SKNode
     }
 }
 
-extension FootprintGrid2D {
+extension PropGrid2D {
     
     public func find(chunk coordinate: Coordinate) -> C? {
         

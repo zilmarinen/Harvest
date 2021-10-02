@@ -13,28 +13,20 @@ extension SurfaceMaterial {
         
         switch self {
         
-        case .grass: return "G"
-        case .undergrowth: return "U"
-        case .water: return "W"
-        }
-    }
-    
-    public var description: String {
-        
-        switch self {
-        
-        case .grass: return "Grass"
-        case .undergrowth: return "Undergrowth"
-        case .water: return "Water"
+        case .dirt: return "D"
+        case .sand: return "S"
+        case .stone: return "S"
+        case .wood: return "W"
         }
     }
     
     var color: Color {
         
         switch  self {
-        case .grass: return Color(0.85, 0.85, 0.69)
-        case .undergrowth: return Color(0.30, 0.55, 0.48)
-        case .water: return Color(0.81, 0.90, 0.94)
+        case .dirt: return .red
+        case .sand: return .green
+        case .stone: return .blue
+        case .wood: return .black
         }
     }
 }

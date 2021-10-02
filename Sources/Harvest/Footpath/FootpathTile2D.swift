@@ -28,7 +28,7 @@ public class FootpathTile2D: Tile2D {
         }
     }
     
-    var pattern: Int = 1
+    var pattern: Int = 0
     
     lazy var label: SKLabelNode = {
         
@@ -139,7 +139,7 @@ public class FootpathTile2D: Tile2D {
             }
         }
         
-        self.pattern = GridPattern.index(of: pattern) + 1
+        self.pattern = pattern.id
     }
 }
 
@@ -154,11 +154,14 @@ extension FootpathTile2D {
 extension FootpathTile2D {
     
     func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
-        
-        guard let map = map,
-              let tile = map.surface.find(tile: coordinate) else { return [] }
+        return []
+        /*
+        guard let scene = scene as? Scene2D,
+              let tile = scene.map.surface.find(tile: coordinate) else { return [] }
         
         collapse()
+        
+        let tileset = scene.tilesets.footpath
         
         let sample = tile.sample()
         let edges = Ordinal.allCases.map { corners[$0.corner].lerp(corners[($0.corner + 1) % 4], 0.5) }
@@ -167,7 +170,7 @@ extension FootpathTile2D {
         
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
         
-        let apexTile = map.footpath.tilemap.tileset.tiles(with: pattern, tileType: tileType).randomElement(using: &rng)
+        let apexTile = tileset.tiles(with: pattern, tileType: tileType).randomElement(using: &rng)
         let apexUVs = apexTile?.uvs ?? UVs.corners
         
         var polygons: [Euclid.Polygon] = []
@@ -240,6 +243,6 @@ extension FootpathTile2D {
             }
         }
         
-        return polygons
+        return polygons*/
     }
 }

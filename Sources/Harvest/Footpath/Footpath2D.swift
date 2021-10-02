@@ -29,13 +29,6 @@ public class Footpath2D: Grid2D<FootpathChunk2D, FootpathTile2D> {
         }
     }
     
-    lazy var tilemap: FootpathTilemap = {
-        
-        guard let tilemap = try? FootpathTilemap() else { fatalError("Error loading footpath tilemap") }
-        
-        return tilemap
-    }()
-    
     public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> FootpathTile2D? {
         
         guard let map = map,

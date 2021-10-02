@@ -1,0 +1,25 @@
+//
+//  Tileset.swift
+//
+//  Created by Zack Brown on 15/12/2020.
+//
+
+import Foundation
+import Meadow
+
+#if os(macOS)
+
+    import AppKit
+
+#else
+
+    import UIKit
+
+#endif
+
+public protocol Tileset {
+    
+    associatedtype T = TilesetTile
+    
+    var tiles: [T] { get }
+}

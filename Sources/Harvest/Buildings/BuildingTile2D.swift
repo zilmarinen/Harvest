@@ -7,6 +7,6 @@
 import Foundation
 import SpriteKit
 
-public class BuildingTile2D: FootprintTile2D {
+public class BuildingTile2D: PropTile2D {
     
 }

@@ -7,6 +7,6 @@
 import Foundation
 import SpriteKit
 
-public class FoliageTile2D: FootprintTile2D {
+public class FoliageTile2D: PropTile2D {
     
 }

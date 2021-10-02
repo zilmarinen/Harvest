@@ -8,7 +8,7 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
+public class FoliageChunk2D: PropChunk2D<FoliageTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -26,16 +26,9 @@ public class FoliageChunk2D: FootprintChunk2D<FoliageTile2D> {
         }
     }
     
-    public override var footprint: Footprint {
+    required init(coordinate: Coordinate, direction: Cardinal) {
         
-        guard let model = map?.props.prop(foliage: foliageType) else { fatalError("Error loading prop model \(foliageType)") }
-        
-        return Footprint(coordinate: coordinate, rotation: direction, nodes: model.footprint.nodes)
-    }
-    
-    required init(coordinate: Coordinate) {
-        
-        super.init(coordinate: coordinate)
+        super.init(coordinate: coordinate, direction: direction)
     }
     
     required public init(from decoder: Decoder) throws {

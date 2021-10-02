@@ -8,7 +8,7 @@ import Foundation
 import Meadow
 import SpriteKit
 
-public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
+public class PortalChunk2D: PropChunk2D<PortalTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -21,9 +21,9 @@ public class PortalChunk2D: FootprintChunk2D<PortalTile2D> {
     public var segue = PortalSegue(direction: .north, scene: "", identifier: "")
     public var portalType: PortalType = .portal
     
-    required init(coordinate: Coordinate) {
+    required init(coordinate: Coordinate, direction: Cardinal) {
         
-        super.init(coordinate: coordinate)
+        super.init(coordinate: coordinate, direction: direction)
     }
     
     required public init(from decoder: Decoder) throws {

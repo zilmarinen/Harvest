@@ -15,10 +15,10 @@ public class SurfaceTile2D: Tile2D {
         
         case tileType = "tt"
         case material = "m"
-        case surfaceType = "st"
+        case overlay = "o"
     }
     
-    public var tileType: SurfaceTileType = .dirt {
+    public var tileType: SurfaceTileType = .sloped {
         
         didSet {
             
@@ -29,7 +29,7 @@ public class SurfaceTile2D: Tile2D {
         }
     }
     
-    public var material: SurfaceMaterial? {
+    public var material: SurfaceMaterial = .dirt {
         
         didSet {
             
@@ -40,11 +40,11 @@ public class SurfaceTile2D: Tile2D {
         }
     }
     
-    public var surfaceType: SurfaceType = .terraced {
+    public var overlay: SurfaceOverlay? {
         
         didSet {
             
-            if oldValue != surfaceType {
+            if oldValue != overlay {
                 
                 becomeDirty(recursive: true)
             }
@@ -78,8 +78,8 @@ public class SurfaceTile2D: Tile2D {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         tileType = try container.decode(SurfaceTileType.self, forKey: .tileType)
-        material = try container.decodeIfPresent(SurfaceMaterial.self, forKey: .material)
-        surfaceType = try container.decode(SurfaceType.self, forKey: .surfaceType)
+        material = try container.decode(SurfaceMaterial.self, forKey: .material)
+        overlay = try container.decodeIfPresent(SurfaceOverlay.self, forKey: .overlay)
         
         try super.init(from: decoder)
     }
@@ -97,26 +97,25 @@ public class SurfaceTile2D: Tile2D {
         
         try container.encode(tileType, forKey: .tileType)
         try container.encode(material, forKey: .material)
-        try container.encode(surfaceType, forKey: .surfaceType)
+        try container.encodeIfPresent(overlay, forKey: .overlay)
     }
     
     @discardableResult override public func clean() -> Bool {
         
         guard isDirty,
-              let map = map else { return false }
+              let scene = scene as? Scene2D else { return false }
         
-        color = tileType.color.osColor
         shader = SKShader(shader: .surface)
         shader?.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
         
-        let attribute = vector_float4(Float(tileType.color.r),
-                                      Float(tileType.color.g),
-                                      Float(tileType.color.b),
-                                      Float(tileType.color.a))
+        let attribute = vector_float4(Float(material.color.r),
+                                      Float(material.color.g),
+                                      Float(material.color.b),
+                                      Float(material.color.a))
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
-        switch map.surface.overlay {
+        switch scene.map.surface.overlay {
         
         case .coordinate:
             
@@ -124,7 +123,7 @@ public class SurfaceTile2D: Tile2D {
             
         case .edge:
             
-            label.text = surfaceType.abbreviation
+            label.text = tileType.abbreviation
             
         case .elevation:
             
@@ -132,7 +131,7 @@ public class SurfaceTile2D: Tile2D {
             
         case .material:
             
-            label.text = "\(material?.abbreviation ?? "")"
+            label.text = overlay != nil ? "\(pattern)" : material.abbreviation
             
         case .none:
             
@@ -186,38 +185,38 @@ public class SurfaceTile2D: Tile2D {
         
         pattern = 0
         
-        guard let material = material else { return }
+        guard let overlay = overlay else { return }
 
         let sample = sample()
         
-        pattern = GridPattern.index(of: sample.material.pattern(for: material)) + 1
+        pattern = sample.overlay.pattern(for: overlay).id
     }
 }
 
 extension SurfaceTile2D {
     
-    typealias Sample = (elevation: GridPattern<Double>, tileType: GridPattern<SurfaceTileType?>, material: GridPattern<SurfaceMaterial?>)
+    typealias Sample = (elevation: GridPattern<Double>, material: GridPattern<SurfaceMaterial?>, overlay: GridPattern<SurfaceOverlay?>)
     
     func sample() -> Sample {
         
         var elevation = GridPattern<Double>(value: Double(coordinate.y))
-        var tileType = GridPattern<SurfaceTileType?>(value: tileType)
-        var material = GridPattern<SurfaceMaterial?>(value: nil)
+        var material = GridPattern<SurfaceMaterial?>(value: self.material)
+        var overlay = GridPattern<SurfaceOverlay?>(value: nil)
         
         for cardinal in Cardinal.allCases {
             
             let neighbour = find(neighbour: cardinal)
             
-            material.set(value: neighbour?.material, cardinal: cardinal)
+            overlay.set(value: neighbour?.coordinate.y == coordinate.y ? neighbour?.overlay : nil, cardinal: cardinal)
             
             if let neighbour = neighbour,
-               neighbour.tileType.rawValue > self.tileType.rawValue {
+               neighbour.material.rawValue > self.material.rawValue {
                 
-                tileType.set(value: neighbour.tileType, cardinal: cardinal)
+                material.set(value: neighbour.material, cardinal: cardinal)
             }
             
-            guard surfaceType == .sloped,
-                  neighbour?.surfaceType == .sloped,
+            guard tileType == .sloped,
+                  neighbour?.tileType == .sloped,
                   let n0 = neighbour?.coordinate.y else { continue }
                 
             let edge = Double(n0 + coordinate.y) / 2.0
@@ -232,18 +231,18 @@ extension SurfaceTile2D {
             let neighbour = find(neighbour: ordinal)
             let (n0, n1) = (find(neighbour: c0), find(neighbour: c1))
             
-            material.set(value: neighbour?.material, ordinal: ordinal)
+            overlay.set(value: neighbour?.coordinate.y == coordinate.y ? neighbour?.overlay : nil, ordinal: ordinal)
             
-            let types = [self.tileType,
-                         neighbour?.tileType,
-                         n0?.tileType,
-                         n1?.tileType].sorted { $0?.rawValue ?? 0 > $1?.rawValue ?? 0 }
+            let materials = [self.material,
+                             neighbour?.material,
+                             n0?.material,
+                             n1?.material].sorted { $0?.rawValue ?? 0 > $1?.rawValue ?? 0 }
             
-            guard let type = types.first else { continue }
+            guard let neighbourMaterial = materials.first else { continue }
             
-            tileType.set(value: type, ordinal: ordinal)
+            material.set(value: neighbourMaterial, ordinal: ordinal)
             
-            guard surfaceType == .sloped else { continue }
+            guard tileType == .sloped else { continue }
             
             let tiles = [self, neighbour, n0, n1]
             
@@ -259,7 +258,7 @@ extension SurfaceTile2D {
                 
                 let tile = tiles[index]
                 
-                guard tile?.surfaceType == .sloped else { continue }
+                guard tile?.tileType == .sloped else { continue }
                 
                 result += Double(heights[index])
                 
@@ -269,7 +268,7 @@ extension SurfaceTile2D {
             elevation.set(value: result / Double(count), ordinal: ordinal)
         }
         
-        return (elevation, tileType, material)
+        return (elevation, material, overlay)
     }
 }
 
@@ -284,10 +283,12 @@ extension SurfaceTile2D {
 extension SurfaceTile2D {
     
     func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
-        
-        guard let map = map else { return [] }
+        return []
+        /*guard let scene = scene as? Scene2D else { return [] }
         
         collapse()
+        
+        let tileset = scene.tilesets.surface
         
         let sample = sample()
         let neighbours = Cardinal.allCases.map { find(neighbour: $0)?.sample() ?? sample }
@@ -296,9 +297,9 @@ extension SurfaceTile2D {
         let upperEdges = edges.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
         
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
-        let ttc0 = tileType.color
+        let mc0 = material.color
         
-        let apexTile = map.surface.tilemap.tileset.tiles(with: pattern).randomElement(using: &rng)
+        let apexTile = tileset.tiles(with: pattern).randomElement(using: &rng)
         let apexUVs = apexTile?.uvs ?? UVs(start: .zero, end: .zero)
         let edgeUVs = UVs.corners
         
@@ -323,9 +324,9 @@ extension SurfaceTile2D {
             let av2 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * ae2)
             let av3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * ae3)
             
-            let ttc1 = sample.tileType.value(for: c0)?.color ?? ttc0
-            let ttc2 = sample.tileType.value(for: c1)?.color ?? ttc0
-            let ttc3 = sample.tileType.value(for: ordinal)?.color ?? ttc0
+            let mc1 = sample.material.value(for: c0)?.color ?? mc0
+            let mc2 = sample.material.value(for: c1)?.color ?? mc0
+            let mc3 = sample.material.value(for: ordinal)?.color ?? mc0
             
             let auv0 = apexUVs.center
             let auv1 = apexUVs.edges[c0.edge]
@@ -341,25 +342,25 @@ extension SurfaceTile2D {
             case .northWest:
                 
                 faces.append(contentsOf: [[av3, av2, av1], [av2, v0, av1]])
-                colors.append(contentsOf: [[ttc3, ttc2, ttc1], [ttc2, ttc0, ttc1]])
+                colors.append(contentsOf: [[mc3, mc2, mc1], [mc2, mc0, mc1]])
                 uvs.append(contentsOf: [[auv3, auv2, auv1], [auv2, auv0, auv1]])
                 
             case .northEast:
                 
                 faces.append(contentsOf: [[av1, av3, av2], [av1, av2, v0]])
-                colors.append(contentsOf: [[ttc1, ttc3, ttc2], [ttc1, ttc2, ttc0]])
+                colors.append(contentsOf: [[mc1, mc3, mc2], [mc1, mc2, mc0]])
                 uvs.append(contentsOf: [[auv1, auv3, auv2], [auv1, auv2, auv0]])
                 
             case .southEast:
                 
                 faces.append(contentsOf: [[v0, av1, av2], [av1, av3, av2]])
-                colors.append(contentsOf: [[ttc0, ttc1, ttc2], [ttc1, ttc3, ttc2]])
+                colors.append(contentsOf: [[mc0, mc1, mc2], [mc1, mc3, mc2]])
                 uvs.append(contentsOf: [[auv0, auv1, auv2], [auv1, auv3, auv2]])
                 
             default:
                 
                 faces.append(contentsOf: [[av2, v0, av1], [av2, av1, av3]])
-                colors.append(contentsOf: [[ttc2, ttc0, ttc1], [ttc2, ttc1, ttc3]])
+                colors.append(contentsOf: [[mc2, mc0, mc1], [mc2, mc1, mc3]])
                 uvs.append(contentsOf: [[auv2, auv0, auv1], [auv2, auv1, auv3]])
             }
             
@@ -373,7 +374,7 @@ extension SurfaceTile2D {
                 let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n0be3)
                 
                 faces.append(contentsOf: [[av3, av1, bv3]])
-                colors.append(contentsOf: [[ttc3, ttc1, ttc3]])
+                colors.append(contentsOf: [[mc3, mc1, mc3]])
                 uvs.append(contentsOf: [[euv0, euv1, euv3]])
                 
                 if be1 < ae1 {
@@ -381,7 +382,7 @@ extension SurfaceTile2D {
                     let bv1 = edges[c0.edge].lerp(upperEdges[c0.edge], World.Constants.yScalar * be1)
                     
                     faces.append(contentsOf: [[av1, bv1, bv3]])
-                    colors.append(contentsOf: [[ttc1, ttc1, ttc3]])
+                    colors.append(contentsOf: [[mc1, mc1, mc3]])
                     uvs.append(contentsOf: [[euv1, euv2, euv3]])
                 }
             }
@@ -396,7 +397,7 @@ extension SurfaceTile2D {
                 let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n1be3)
                 
                 faces.append(contentsOf: [[av2, av3, bv3]])
-                colors.append(contentsOf: [[ttc2, ttc3, ttc3]])
+                colors.append(contentsOf: [[mc2, mc3, mc3]])
                 uvs.append(contentsOf: [[euv0, euv1, euv2]])
                 
                 if be2 < ae2 {
@@ -404,7 +405,7 @@ extension SurfaceTile2D {
                     let bv1 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * be2)
                     
                     faces.append(contentsOf: [[av2, bv3, bv1]])
-                    colors.append(contentsOf: [[ttc2, ttc3, ttc2]])
+                    colors.append(contentsOf: [[mc2, mc3, mc2]])
                     uvs.append(contentsOf: [[euv0, euv2, euv3]])
                 }
             }
@@ -433,6 +434,6 @@ extension SurfaceTile2D {
             }
         }
         
-        return polygons
+        return polygons*/
     }
 }
