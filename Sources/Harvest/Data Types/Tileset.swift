@@ -7,16 +7,6 @@
 import Foundation
 import Meadow
 
-#if os(macOS)
-
-    import AppKit
-
-#else
-
-    import UIKit
-
-#endif
-
 public protocol Tileset {
     
     associatedtype T = TilesetTile
