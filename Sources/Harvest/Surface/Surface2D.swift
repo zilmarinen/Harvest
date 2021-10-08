@@ -12,13 +12,12 @@ public class Surface2D: Grid2D<SurfaceChunk2D, SurfaceTile2D> {
     public enum Overlay {
         
         case coordinate
-        case edge
         case elevation
-        case material
+        case tileType
         case none
     }
     
-    public var overlay: Overlay = .material {
+    public var overlay: Overlay = .elevation {
         
         didSet {
             

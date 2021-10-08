@@ -1,5 +1,5 @@
 //
-//  FootpathTileType.swift
+//  FootpathMaterial.swift
 //
 //  Created by Zack Brown on 16/03/2021.
 //
@@ -7,19 +7,7 @@
 import Euclid
 import Meadow
 
-extension FootpathTileType {
-    
-    public var description: String {
-        
-        switch self {
-        
-        case .cobble: return "Cobble"
-        case .dirt: return "Dirt"
-        case .gravel: return "Gravel"
-        case .stone: return "Stone"
-        case .wood: return "Wood"
-        }
-    }
+extension FootpathMaterial {
     
     var color: Color {
         

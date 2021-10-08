@@ -12,14 +12,28 @@ public class BuildingChunk2D: PropChunk2D<BuildingTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
-        case buildingType = "t"
+        case architecture = "a"
+        case polyomino = "p"
     }
     
-    public var buildingType: BuildingType = .bernina_z {
+    public override var footprint: Footprint { Footprint(coordinate: coordinate, rotation: direction, nodes: polyomino.footprint.nodes) }
+    
+    public var architecture: BuildingArchitecture = .bernina {
         
         didSet {
             
-            if oldValue != buildingType {
+            if oldValue != architecture {
+                
+                becomeDirty()
+            }
+        }
+    }
+    
+    public var polyomino: Polyomino = .z {
+        
+        didSet {
+            
+            if oldValue != polyomino {
                 
                 becomeDirty()
             }
@@ -35,7 +49,8 @@ public class BuildingChunk2D: PropChunk2D<BuildingTile2D> {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        buildingType = try container.decode(BuildingType.self, forKey: .buildingType)
+        architecture = try container.decode(BuildingArchitecture.self, forKey: .architecture)
+        polyomino = try container.decode(Polyomino.self, forKey: .polyomino)
         
         try super.init(from: decoder)
     }
@@ -51,7 +66,8 @@ public class BuildingChunk2D: PropChunk2D<BuildingTile2D> {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(buildingType, forKey: .buildingType)
+        try container.encode(architecture, forKey: .architecture)
+        try container.encode(polyomino, forKey: .polyomino)
     }
     
     @discardableResult public override func clean() -> Bool {
@@ -59,12 +75,12 @@ public class BuildingChunk2D: PropChunk2D<BuildingTile2D> {
         guard super.clean() else { return false }
         
         blendMode = .alpha
-        color = buildingType.color.osColor
+        color = architecture.color.osColor
         
-        let attribute = vector_float4(Float(buildingType.color.r),
-                                      Float(buildingType.color.g),
-                                      Float(buildingType.color.b),
-                                      Float(buildingType.color.a))
+        let attribute = vector_float4(Float(architecture.color.r),
+                                      Float(architecture.color.g),
+                                      Float(architecture.color.b),
+                                      Float(architecture.color.a))
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         

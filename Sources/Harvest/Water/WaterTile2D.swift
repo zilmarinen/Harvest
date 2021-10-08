@@ -13,22 +13,19 @@ public class WaterTile2D: Tile2D {
     
     private enum CodingKeys: String, CodingKey {
         
-        case tileType = "t"
-        case apexPattern = "ap"
+        case material = "m"
     }
     
-    public var tileType: WaterTileType = .water {
+    public var material: WaterMaterial = .water {
         
         didSet {
             
-            if oldValue != tileType {
+            if oldValue != material {
                 
                 becomeDirty()
             }
         }
     }
-    
-    var apexPattern: Int = 0
     
     lazy var label: SKLabelNode = {
         
@@ -56,8 +53,7 @@ public class WaterTile2D: Tile2D {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(WaterTileType.self, forKey: .tileType)
-        apexPattern = try container.decode(Int.self, forKey: .apexPattern)
+        material = try container.decode(WaterMaterial.self, forKey: .material)
         
         try super.init(from: decoder)
         
@@ -75,8 +71,7 @@ public class WaterTile2D: Tile2D {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(tileType, forKey: .tileType)
-        try container.encode(apexPattern, forKey: .apexPattern)
+        try container.encode(material, forKey: .material)
     }
     
     @discardableResult override public func clean() -> Bool {
@@ -85,14 +80,14 @@ public class WaterTile2D: Tile2D {
               let map = map else { return false }
         
         blendMode = .alpha
-        color = tileType.color.osColor
+        color = material.color.osColor
         shader = SKShader(shader: .surface)
         shader?.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
         
-        let attribute = vector_float4(Float(tileType.color.r),
-                                      Float(tileType.color.g),
-                                      Float(tileType.color.b),
-                                      Float(tileType.color.a))
+        let attribute = vector_float4(Float(material.color.r),
+                                      Float(material.color.g),
+                                      Float(material.color.b),
+                                      Float(material.color.a))
         
         setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
         
@@ -110,23 +105,16 @@ public class WaterTile2D: Tile2D {
         
         return true
     }
-    
-    override func collapse() {
-        
-        let sample = sample()
-        
-        //apexPattern = GridPattern.index(of: sample.tileType.pattern(for: tileType)) + 1
-    }
 }
 
 extension WaterTile2D {
     
-    typealias Sample = (elevation: GridPattern<Double>, tileType: GridPattern<WaterTileType?>)
+    typealias Sample = (elevation: GridPattern<Double>, material: GridPattern<WaterMaterial?>)
     
     func sample() -> Sample {
         
         var elevation = GridPattern<Double>(value: Double(coordinate.y))
-        var tileType = GridPattern<WaterTileType?>(value: nil)
+        var material = GridPattern<WaterMaterial?>(value: nil)
         
         for cardinal in Cardinal.allCases {
             
@@ -134,7 +122,7 @@ extension WaterTile2D {
             
             elevation.set(value: Double(neighbour?.coordinate.y ?? coordinate.y) , cardinal: cardinal)
             
-            tileType.set(value: neighbour?.tileType, cardinal: cardinal)
+            material.set(value: neighbour?.material, cardinal: cardinal)
         }
         
         for ordinal in Ordinal.allCases {
@@ -143,10 +131,10 @@ extension WaterTile2D {
             
             elevation.set(value: Double(neighbour?.coordinate.y ?? coordinate.y), ordinal: ordinal)
             
-            tileType.set(value: neighbour?.tileType, ordinal: ordinal)
+            material.set(value: neighbour?.material, ordinal: ordinal)
         }
         
-        return (elevation, tileType)
+        return (elevation, material)
     }
 }
 
@@ -154,19 +142,13 @@ extension WaterTile2D {
     
     public static func == (lhs: WaterTile2D, rhs: WaterTile2D) -> Bool {
         
-        return lhs.coordinate == rhs.coordinate && lhs.tileType == rhs.tileType
+        return lhs.coordinate == rhs.coordinate && lhs.material == rhs.material
     }
 }
 
 extension WaterTile2D {
     
     func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
-        return []
-        /*guard let scene = scene as? Scene2D else { return [] }
-        
-        collapse()
-        
-        let tileset = scene.tilesets.surface
         
         let sample = sample()
         let neighbours = Cardinal.allCases.map { find(neighbour: $0)?.sample() ?? sample }
@@ -175,10 +157,7 @@ extension WaterTile2D {
         let upperEdges = edges.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
         
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
-        let ttc0 = tileType.color
-        
-        let apexTile = tileset.tiles(with: apexPattern).randomElement(using: &rng)
-        let apexUVs = apexTile?.uvs ?? UVs.corners
+        let mc0 = material.color
         
         var polygons: [Euclid.Polygon] = []
         
@@ -201,44 +180,34 @@ extension WaterTile2D {
             let av2 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * ae2)
             let av3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * ae3)
             
-            let ttc1 = sample.tileType.value(for: c0)?.color ?? ttc0
-            let ttc2 = sample.tileType.value(for: c1)?.color ?? ttc0
-            let ttc3 = sample.tileType.value(for: ordinal)?.color ?? ttc0
-            
-            let auv0 = apexUVs.center
-            let auv1 = apexUVs.edges[c0.edge]
-            let auv2 = apexUVs.edges[c1.edge]
-            let auv3 = apexUVs.corners[ordinal.corner]
+            let mc1 = sample.material.value(for: c0)?.color ?? mc0
+            let mc2 = sample.material.value(for: c1)?.color ?? mc0
+            let mc3 = sample.material.value(for: ordinal)?.color ?? mc0
             
             var faces: [[Vector]] = []
             var colors: [[Color]] = []
-            var uvs: [[Vector]] = []
             
             switch ordinal {
                 
             case .northWest:
                 
                 faces.append(contentsOf: [[av3, av2, av1], [av2, v0, av1]])
-                colors.append(contentsOf: [[ttc3, ttc2, ttc1], [ttc2, ttc0, ttc1]])
-                uvs.append(contentsOf: [[auv3, auv2, auv1], [auv2, auv0, auv1]])
+                colors.append(contentsOf: [[mc3, mc2, mc1], [mc2, mc0, mc1]])
                 
             case .northEast:
                 
                 faces.append(contentsOf: [[av1, av3, av2], [av1, av2, v0]])
-                colors.append(contentsOf: [[ttc1, ttc3, ttc2], [ttc1, ttc2, ttc0]])
-                uvs.append(contentsOf: [[auv1, auv3, auv2], [auv1, auv2, auv0]])
+                colors.append(contentsOf: [[mc1, mc3, mc2], [mc1, mc2, mc0]])
                 
             case .southEast:
                 
                 faces.append(contentsOf: [[v0, av1, av2], [av1, av3, av2]])
-                colors.append(contentsOf: [[ttc0, ttc1, ttc2], [ttc1, ttc3, ttc2]])
-                uvs.append(contentsOf: [[auv0, auv1, auv2], [auv1, auv3, auv2]])
+                colors.append(contentsOf: [[mc0, mc1, mc2], [mc1, mc3, mc2]])
                 
             default:
                 
                 faces.append(contentsOf: [[av2, v0, av1], [av2, av1, av3]])
-                colors.append(contentsOf: [[ttc2, ttc0, ttc1], [ttc2, ttc1, ttc3]])
-                uvs.append(contentsOf: [[auv2, auv0, auv1], [auv2, auv1, auv3]])
+                colors.append(contentsOf: [[mc2, mc0, mc1], [mc2, mc1, mc3]])
             }
             
             if n0be3 < ae3 {
@@ -246,16 +215,14 @@ extension WaterTile2D {
                 let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n0be3)
                 
                 faces.append(contentsOf: [[av3, av1, bv3]])
-                colors.append(contentsOf: [[ttc3, ttc1, ttc3]])
-                uvs.append(contentsOf: [[.zero, .zero, .zero]])
+                colors.append(contentsOf: [[mc3, mc1, mc3]])
                 
                 if be1 < ae1 {
                     
                     let bv1 = edges[c0.edge].lerp(upperEdges[c0.edge], World.Constants.yScalar * be1)
                     
                     faces.append(contentsOf: [[av1, bv1, bv3]])
-                    colors.append(contentsOf: [[ttc1, ttc1, ttc3]])
-                    uvs.append(contentsOf: [[.zero, .zero, .zero]])
+                    colors.append(contentsOf: [[mc1, mc1, mc3]])
                 }
             }
             
@@ -264,16 +231,14 @@ extension WaterTile2D {
                 let bv3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * n1be3)
                 
                 faces.append(contentsOf: [[av2, av3, bv3]])
-                colors.append(contentsOf: [[ttc2, ttc3, ttc3]])
-                uvs.append(contentsOf: [[.zero, .zero, .zero]])
+                colors.append(contentsOf: [[mc2, mc3, mc3]])
                 
                 if be2 < ae2 {
                     
                     let bv1 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * be2)
                     
                     faces.append(contentsOf: [[av2, bv3, bv1]])
-                    colors.append(contentsOf: [[ttc2, ttc3, ttc2]])
-                    uvs.append(contentsOf: [[.zero, .zero, .zero]])
+                    colors.append(contentsOf: [[mc2, mc3, mc2]])
                 }
             }
             
@@ -282,7 +247,6 @@ extension WaterTile2D {
                 let face = faces[faceIndex]
                 let normal = face.normal()
                 let faceColors = colors[faceIndex]
-                let faceUVs = uvs[faceIndex]
                 
                 var vertices: [Vertex] = []
                 
@@ -290,9 +254,9 @@ extension WaterTile2D {
                     
                     let position = face[vertexIndex]
                     let color = faceColors[vertexIndex]
-                    let uv = faceUVs[vertexIndex]
+                    let uv = UVs.corners.corners[vertexIndex]
                     
-                    vertices.append(Vertex(position, normal))//, uv, color))
+                    vertices.append(Vertex(position, normal, uv, color))
                 }
                 
                 guard let polygon = Polygon(vertices.reversed()) else { continue }
@@ -301,6 +265,6 @@ extension WaterTile2D {
             }
         }
         
-        return polygons*/
+        return polygons
     }
 }

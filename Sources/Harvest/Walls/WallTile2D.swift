@@ -18,7 +18,7 @@ public class WallTile2D: Tile2D {
         case external = "e"
     }
     
-    public var tileType: WallTileType = .wall {
+    public var tileType: WallType = .wall {
         
         didSet {
             
@@ -29,7 +29,7 @@ public class WallTile2D: Tile2D {
         }
     }
     
-    public var material: WallTileMaterial = .concrete {
+    public var material: WallMaterial = .concrete {
         
         didSet {
             
@@ -69,9 +69,9 @@ public class WallTile2D: Tile2D {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(WallTileType.self, forKey: .tileType)
+        tileType = try container.decode(WallType.self, forKey: .tileType)
         pattern = try container.decode(Cardinal.self, forKey: .pattern)
-        material = try container.decode(WallTileMaterial.self, forKey: .material)
+        material = try container.decode(WallMaterial.self, forKey: .material)
         external = try container.decode(Bool.self, forKey: .external)
         
         try super.init(from: decoder)

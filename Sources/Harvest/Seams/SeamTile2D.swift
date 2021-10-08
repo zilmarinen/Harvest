@@ -17,7 +17,7 @@ public class SeamTile2D: Tile2D {
     }
     
     public var identifier: String = ""
-    public var segue = PortalSegue(direction: .north, scene: "", identifier: "")
+    public var segue = PortalSegue(direction: .north, map: "", identifier: "")
     
     required init(coordinate: Coordinate) {
             

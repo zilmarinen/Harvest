@@ -23,7 +23,7 @@ extension SurfaceMaterial {
     var color: Color {
         
         switch  self {
-        case .dirt: return .red
+        case .dirt: return Color(0.35, 0.69, 0.14)
         case .sand: return .green
         case .stone: return .blue
         case .wood: return .black

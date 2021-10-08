@@ -120,18 +120,14 @@ public class SurfaceTile2D: Tile2D {
         case .coordinate:
             
             label.text = "\(coordinate.x),\(coordinate.z)"
-            
-        case .edge:
-            
-            label.text = tileType.abbreviation
-            
+        
         case .elevation:
             
             label.text = "\(coordinate.y)"
             
-        case .material:
+        case .tileType:
             
-            label.text = overlay != nil ? "\(pattern)" : material.abbreviation
+            label.text = tileType.abbreviation
             
         case .none:
             
@@ -283,12 +279,12 @@ extension SurfaceTile2D {
 extension SurfaceTile2D {
     
     func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
-        return []
-        /*guard let scene = scene as? Scene2D else { return [] }
+        
+        guard let scene = scene as? Scene2D else { return [] }
         
         collapse()
         
-        let tileset = scene.tilesets.surface
+        let tileset = scene.tileset.surface
         
         let sample = sample()
         let neighbours = Cardinal.allCases.map { find(neighbour: $0)?.sample() ?? sample }
@@ -434,6 +430,6 @@ extension SurfaceTile2D {
             }
         }
         
-        return polygons*/
+        return polygons
     }
 }

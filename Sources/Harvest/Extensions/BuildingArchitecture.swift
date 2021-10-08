@@ -1,6 +1,5 @@
 //
-//  BuildingType.swift
-//  Orchard
+//  BuildingArchitecture.swift
 //
 //  Created by Zack Brown on 09/04/2021.
 //
@@ -8,7 +7,7 @@
 import Euclid
 import Meadow
 
-extension BuildingType {
+extension BuildingArchitecture {
     
     var color: Color {
         

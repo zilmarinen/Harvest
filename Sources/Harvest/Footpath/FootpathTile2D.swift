@@ -13,15 +13,15 @@ public class FootpathTile2D: Tile2D {
     
     private enum CodingKeys: String, CodingKey {
         
-        case tileType = "t"
+        case material = "m"
         case pattern = "p"
     }
     
-    public var tileType: FootpathTileType = .dirt {
+    public var material: FootpathMaterial = .dirt {
         
         didSet {
             
-            if oldValue != tileType {
+            if oldValue != material {
                 
                 becomeDirty()
             }
@@ -56,7 +56,7 @@ public class FootpathTile2D: Tile2D {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(FootpathTileType.self, forKey: .tileType)
+        material = try container.decode(FootpathMaterial.self, forKey: .material)
         pattern = try container.decode(Int.self, forKey: .pattern)
         
         try super.init(from: decoder)
@@ -75,7 +75,7 @@ public class FootpathTile2D: Tile2D {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(tileType, forKey: .tileType)
+        try container.encode(material, forKey: .material)
         try container.encode(pattern, forKey: .pattern)
     }
     
@@ -84,7 +84,7 @@ public class FootpathTile2D: Tile2D {
         guard isDirty,
               let map = map else { return false }
         
-        color = tileType.color.osColor
+        color = material.color.osColor
         
         switch map.footpath.overlay {
         
@@ -112,9 +112,9 @@ public class FootpathTile2D: Tile2D {
             guard let n0 = find(neighbour: c0),
                   let n1 = find(neighbour: c1),
                   let n2 = find(neighbour: ordinal),
-                  n0.tileType.rawValue == tileType.rawValue,
-                  n1.tileType.rawValue == tileType.rawValue,
-                  n2.tileType.rawValue == tileType.rawValue else { continue }
+                  n0.material.rawValue == material.rawValue,
+                  n1.material.rawValue == material.rawValue,
+                  n2.material.rawValue == material.rawValue else { continue }
             
             switch ordinal {
             
@@ -128,7 +128,7 @@ public class FootpathTile2D: Tile2D {
         for cardinal in Cardinal.allCases {
                     
             guard let neighbour = find(neighbour: cardinal),
-                  neighbour.tileType.rawValue == tileType.rawValue else { continue }
+                  neighbour.material.rawValue == material.rawValue else { continue }
             
             switch cardinal {
             
@@ -147,21 +147,20 @@ extension FootpathTile2D {
     
     public static func == (lhs: FootpathTile2D, rhs: FootpathTile2D) -> Bool {
         
-        return lhs.coordinate == rhs.coordinate && lhs.tileType == rhs.tileType
+        return lhs.coordinate == rhs.coordinate && lhs.material == rhs.material
     }
 }
 
 extension FootpathTile2D {
     
     func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
-        return []
-        /*
+        
         guard let scene = scene as? Scene2D,
               let tile = scene.map.surface.find(tile: coordinate) else { return [] }
         
         collapse()
         
-        let tileset = scene.tilesets.footpath
+        let tileset = scene.tileset.footpath
         
         let sample = tile.sample()
         let edges = Ordinal.allCases.map { corners[$0.corner].lerp(corners[($0.corner + 1) % 4], 0.5) }
@@ -170,7 +169,7 @@ extension FootpathTile2D {
         
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
         
-        let apexTile = tileset.tiles(with: pattern, tileType: tileType).randomElement(using: &rng)
+        let apexTile = tileset.tiles(with: pattern, material: material).randomElement(using: &rng)
         let apexUVs = apexTile?.uvs ?? UVs.corners
         
         var polygons: [Euclid.Polygon] = []
@@ -193,7 +192,7 @@ extension FootpathTile2D {
             let auv3 = apexUVs.corners[ordinal.corner]
             
             var faces: [[Vector]] = []
-            let colors: [[Color]] = Array(repeating: Array(repeating: tileType.color, count: 3), count: 2)
+            let colors: [[Color]] = Array(repeating: Array(repeating: material.color, count: 3), count: 2)
             var uvs: [[Vector]] = []
             
             switch ordinal {
@@ -243,6 +242,6 @@ extension FootpathTile2D {
             }
         }
         
-        return polygons*/
+        return polygons
     }
 }

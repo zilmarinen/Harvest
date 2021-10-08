@@ -18,7 +18,7 @@ public class PortalChunk2D: PropChunk2D<PortalTile2D> {
     }
     
     public var identifier: String = ""
-    public var segue = PortalSegue(direction: .north, scene: "", identifier: "")
+    public var segue = PortalSegue(direction: .north, map: "", identifier: "")
     public var portalType: PortalType = .portal
     
     required init(coordinate: Coordinate, direction: Cardinal) {

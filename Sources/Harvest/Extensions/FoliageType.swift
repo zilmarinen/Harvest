@@ -12,9 +12,9 @@ extension FoliageType {
     var color: Color {
         
         switch  self {
-        case .palm,
-             .pine,
-             .spruce: return Color(0.09, 0.3, 0.27, 0.7)
+        case .bush,
+             .rock,
+             .tree: return Color(0.09, 0.3, 0.27, 0.7)
         }
     }
 }

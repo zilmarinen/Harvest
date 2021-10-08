@@ -11,15 +11,15 @@ public class StairChunk2D: PropChunk2D<StairTile2D> {
     
     private enum CodingKeys: String, CodingKey {
         
-        case tileType = "t"
+        case stairType = "t"
         case material = "m"
     }
     
-    public var tileType: StairType = .sloped_1x1 {
+    public var stairType: StairType = .sloped_1x1 {
         
         didSet {
             
-            if oldValue != tileType {
+            if oldValue != stairType {
                 
                 becomeDirty()
             }
@@ -46,7 +46,7 @@ public class StairChunk2D: PropChunk2D<StairTile2D> {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(StairType.self, forKey: .tileType)
+        stairType = try container.decode(StairType.self, forKey: .stairType)
         material = try container.decode(StairMaterial.self, forKey: .material)
         
         try super.init(from: decoder)
@@ -63,7 +63,7 @@ public class StairChunk2D: PropChunk2D<StairTile2D> {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(tileType, forKey: .tileType)
+        try container.encode(stairType, forKey: .stairType)
         try container.encode(material, forKey: .material)
     }
     

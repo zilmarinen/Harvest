@@ -1,5 +1,5 @@
 //
-//  WaterTileType.swift
+//  WaterMaterial.swift
 //
 //  Created by Zack Brown on 21/03/2021.
 //
@@ -7,15 +7,7 @@
 import Euclid
 import Meadow
 
-extension WaterTileType {
-    
-    public var description: String {
-        
-        switch self {
-        
-        case .water: return "Water"
-        }
-    }
+extension WaterMaterial {
     
     var color: Color {
         

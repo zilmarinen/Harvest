@@ -11,16 +11,16 @@ public class FootpathTilesetTile: TilesetTile {
     
     private enum CodingKeys: String, CodingKey {
         
-        case tileType = "tt"
+        case material = "m"
     }
     
-    public let tileType: FootpathTileType
+    public let material: FootpathMaterial
     
     required init(pattern: Int, uvs: UVs, rawType: Int) throws {
         
-        guard let tileType = FootpathTileType(rawValue: rawType) else { fatalError() }
+        guard let material = FootpathMaterial(rawValue: rawType) else { fatalError() }
         
-        self.tileType = tileType
+        self.material = material
         
         try super.init(pattern: pattern, uvs: uvs, rawType: rawType)
     }
@@ -29,7 +29,7 @@ public class FootpathTilesetTile: TilesetTile {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        tileType = try container.decode(FootpathTileType.self, forKey: .tileType)
+        material = try container.decode(FootpathMaterial.self, forKey: .material)
         
         try super.init(from: decoder)
     }
@@ -38,7 +38,7 @@ public class FootpathTilesetTile: TilesetTile {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(tileType, forKey: .tileType)
+        try container.encode(material, forKey: .material)
         
         try super.encode(to: encoder)
     }

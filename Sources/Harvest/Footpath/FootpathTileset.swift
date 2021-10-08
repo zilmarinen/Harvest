@@ -31,8 +31,8 @@ public struct FootpathTileset: Tileset {
 
 extension FootpathTileset {
     
-    public func tiles(with pattern: Int, tileType: FootpathTileType) -> [FootpathTilesetTile] {
+    public func tiles(with pattern: Int, material: FootpathMaterial) -> [FootpathTilesetTile] {
         
-        return tiles.filter { $0.pattern == pattern && $0.tileType == tileType }
+        return tiles.filter { $0.pattern == pattern && $0.material == material }
     }
 }

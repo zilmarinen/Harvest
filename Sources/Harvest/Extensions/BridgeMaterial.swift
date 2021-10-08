@@ -13,6 +13,7 @@ extension BridgeMaterial {
         
         switch  self {
         case .stone: return Color(0.73, 0.53, 0.16)
+        case .wood: return Color(0.16, 0.53, 0.73)
         }
     }
 }

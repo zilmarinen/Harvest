@@ -15,7 +15,7 @@ public class FoliageChunk2D: PropChunk2D<FoliageTile2D> {
         case foliageType = "t"
     }
     
-    public var foliageType: FoliageType = .spruce {
+    public var foliageType: FoliageType = .tree(species: .spruce) {
         
         didSet {
             
@@ -56,10 +56,7 @@ public class FoliageChunk2D: PropChunk2D<FoliageTile2D> {
     
     @discardableResult public override func clean() -> Bool {
         
-        guard super.clean(),
-              let map = map else { return false }
-        
-        let tilemap = map.foliage.tilemap
+        guard super.clean() else { return false }
         
         let attribute = vector_float4(Float(foliageType.color.r),
                                       Float(foliageType.color.g),
@@ -69,7 +66,6 @@ public class FoliageChunk2D: PropChunk2D<FoliageTile2D> {
         for tile in tiles {
             
             tile.color = foliageType.color.osColor
-            tile.shader = tilemap.shader
             tile.setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
             
             _ = tile.clean()

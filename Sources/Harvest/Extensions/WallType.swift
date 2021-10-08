@@ -1,5 +1,5 @@
 //
-//  WallTileType.swift
+//  WallType.swift
 //
 //  Created by Zack Brown on 09/08/2021.
 //
@@ -7,19 +7,7 @@
 import Euclid
 import Meadow
 
-extension WallTileType {
-    
-    public var description: String {
-        
-        switch self {
-        
-        case .corner: return "Corner"
-        case .door: return "Door"
-        case .edge: return "Edge"
-        case .wall: return "Wall"
-        case .window: return "Window"
-        }
-    }
+extension WallType {
     
     var color: Color {
         

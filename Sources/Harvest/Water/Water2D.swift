@@ -29,25 +29,6 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
         }
     }
     
-    @discardableResult override public func clean() -> Bool {
-        
-        guard isDirty else { return false }
-        
-        let (even, odd) = sortedTiles
-        
-        for tile in even {
-            
-            tile.collapse()
-        }
-        
-        for tile in odd {
-            
-            tile.collapse()
-        }
-        
-        return super.clean()
-    }
-    
     public override func add(tile coordinate: Coordinate, configure: Grid2D<WaterChunk2D, WaterTile2D>.TileConfiguration? = nil) -> WaterTile2D? {
         
         guard let map = ancestor as? Map2D,
