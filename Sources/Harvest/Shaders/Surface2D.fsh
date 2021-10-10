@@ -62,4 +62,5 @@ void main()
     gl_FragColor = color * v_color_mix.a;*/
     
     gl_FragColor = a_color;
+    //gl_FragColor = texture2D(u_texture, v_tex_coord);
 }

@@ -10,7 +10,14 @@ extension Prop {
     
     var footprint: Footprint {
         
-        return Footprint(coordinate: .zero)
+        switch self {
+        
+        case .bridge: return Footprint(coordinate: .zero)
+        case .building(_, let polyomino): return polyomino.footprint
+        case .foliage: return Footprint(coordinate: .zero)
+        case .stairs: return Footprint(coordinate: .zero)
+        case .wall: return Footprint(coordinate: .zero)
+        }
     }
     
     var grid: Map2D.CodingKeys {

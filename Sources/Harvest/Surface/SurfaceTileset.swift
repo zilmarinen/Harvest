@@ -31,8 +31,8 @@ public struct SurfaceTileset: Tileset {
 
 extension SurfaceTileset {
     
-    public func tiles(with pattern: Int) -> [SurfaceTilesetTile] {
+    public func tiles(with pattern: Int, overlay: SurfaceOverlay? = nil) -> [SurfaceTilesetTile] {
         
-        return tiles.filter { $0.pattern == pattern }
+        return tiles.filter { $0.pattern == pattern && (overlay != nil ? $0.overlay == overlay : true) }
     }
 }

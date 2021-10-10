@@ -16,11 +16,11 @@ public class TilesetLoadingOperation: ConcurrentOperation, ConsumesResult, Produ
         
         do {
             
-            let atlast = try input.get()
+            let atlas = try input.get()
             
             let tileset = try Tilesets()
             
-            output = .success((atlast, tileset))
+            output = .success((atlas, tileset))
         }
         catch {
             

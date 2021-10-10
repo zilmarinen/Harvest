@@ -221,7 +221,7 @@ extension FootpathTile2D {
             for faceIndex in faces.indices {
                 
                 let face = faces[faceIndex]
-                let normal = face.normal()
+                let normal = -face.normal()
                 let faceColors = colors[faceIndex]
                 let faceUVs = uvs[faceIndex]
                 

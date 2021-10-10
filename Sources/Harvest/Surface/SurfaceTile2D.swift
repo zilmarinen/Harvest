@@ -108,12 +108,24 @@ public class SurfaceTile2D: Tile2D {
         shader = SKShader(shader: .surface)
         shader?.attributes = [SKAttribute(name: SKAttribute.Attribute.color.rawValue, type: .vectorFloat4)]
         
-        let attribute = vector_float4(Float(material.color.r),
-                                      Float(material.color.g),
-                                      Float(material.color.b),
-                                      Float(material.color.a))
+        if let overlay = overlay {
+            
+            let attribute = vector_float4(Float(overlay.spriteColor.r),
+                                          Float(overlay.spriteColor.g),
+                                          Float(overlay.spriteColor.b),
+                                          Float(overlay.spriteColor.a))
         
-        setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
+            setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
+        }
+        else {
+            
+            let attribute = vector_float4(Float(material.spriteColor.r),
+                                          Float(material.spriteColor.g),
+                                          Float(material.spriteColor.b),
+                                          Float(material.spriteColor.a))
+        
+            setValue(SKAttributeValue(vectorFloat4: attribute), forAttribute: SKAttribute.Attribute.color.rawValue)
+        }
         
         switch scene.map.surface.overlay {
         
@@ -293,9 +305,9 @@ extension SurfaceTile2D {
         let upperEdges = edges.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
         
         let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
-        let mc0 = material.color
+        let mc0 = material.vertexColor
         
-        let apexTile = tileset.tiles(with: pattern).randomElement(using: &rng)
+        let apexTile = tileset.tiles(with: pattern, overlay: overlay).randomElement(using: &rng)
         let apexUVs = apexTile?.uvs ?? UVs(start: .zero, end: .zero)
         let edgeUVs = UVs.corners
         
@@ -320,9 +332,9 @@ extension SurfaceTile2D {
             let av2 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * ae2)
             let av3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * ae3)
             
-            let mc1 = sample.material.value(for: c0)?.color ?? mc0
-            let mc2 = sample.material.value(for: c1)?.color ?? mc0
-            let mc3 = sample.material.value(for: ordinal)?.color ?? mc0
+            let mc1 = sample.material.value(for: c0)?.vertexColor ?? mc0
+            let mc2 = sample.material.value(for: c1)?.vertexColor ?? mc0
+            let mc3 = sample.material.value(for: ordinal)?.vertexColor ?? mc0
             
             let auv0 = apexUVs.center
             let auv1 = apexUVs.edges[c0.edge]
@@ -409,7 +421,7 @@ extension SurfaceTile2D {
             for faceIndex in faces.indices {
              
                 let face = faces[faceIndex]
-                let normal = face.normal()
+                let normal = -face.normal()
                 let faceColors = colors[faceIndex]
                 let faceUVs = uvs[faceIndex]
                 
