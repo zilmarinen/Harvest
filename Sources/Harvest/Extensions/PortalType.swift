@@ -6,9 +6,9 @@
 
 import Meadow
 
-extension PortalType {
+extension PortalType: Identifiable {
     
-    public var description: String {
+    public var id: String {
         
         switch self {
         

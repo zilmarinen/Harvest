@@ -153,95 +153,11 @@ extension FootpathTile2D {
 
 extension FootpathTile2D {
     
-    func render(position: Vector, corners: [Vector]) -> [Euclid.Polygon] {
+    func render(position: Position, corners: [Position]) -> [Euclid.Polygon] {
         
         guard let scene = scene as? Scene2D,
               let tile = scene.map.surface.find(tile: coordinate) else { return [] }
         
-        collapse()
-        
-        let tileset = scene.tileset.footpath
-        
-        let sample = tile.sample()
-        let edges = Ordinal.allCases.map { corners[$0.corner].lerp(corners[($0.corner + 1) % 4], 0.5) }
-        let upperCorners = corners.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
-        let upperEdges = edges.map { $0 + Coordinate(x: 0, y: World.Constants.ceiling, z: 0).world }
-        
-        let v0 = position + Coordinate(x: 0, y: coordinate.y, z: 0).world
-        
-        let apexTile = tileset.tiles(with: pattern, material: material).randomElement(using: &rng)
-        let apexUVs = apexTile?.uvs ?? UVs.corners
-        
-        var polygons: [Euclid.Polygon] = []
-        
-        for ordinal in Ordinal.allCases {
-            
-            let (c0, c1) = ordinal.cardinals
-            
-            let ae1 = sample.elevation.value(for: c0)
-            let ae2 = sample.elevation.value(for: c1)
-            let ae3 = sample.elevation.value(for: ordinal)
-            
-            let av1 = edges[c0.edge].lerp(upperEdges[c0.edge], World.Constants.yScalar * ae1)
-            let av2 = edges[c1.edge].lerp(upperEdges[c1.edge], World.Constants.yScalar * ae2)
-            let av3 = corners[ordinal.corner].lerp(upperCorners[ordinal.corner], World.Constants.yScalar * ae3)
-            
-            let auv0 = apexUVs.center
-            let auv1 = apexUVs.edges[c0.edge]
-            let auv2 = apexUVs.edges[c1.edge]
-            let auv3 = apexUVs.corners[ordinal.corner]
-            
-            var faces: [[Vector]] = []
-            let colors: [[Color]] = Array(repeating: Array(repeating: material.color, count: 3), count: 2)
-            var uvs: [[Vector]] = []
-            
-            switch ordinal {
-                
-            case .northWest:
-                
-                faces.append(contentsOf: [[av3, av2, av1], [av2, v0, av1]])
-                uvs.append(contentsOf: [[auv3, auv2, auv1], [auv2, auv0, auv1]])
-                
-            case .northEast:
-                
-                faces.append(contentsOf: [[av1, av3, av2], [av1, av2, v0]])
-                uvs.append(contentsOf: [[auv1, auv3, auv2], [auv1, auv2, auv0]])
-                
-            case .southEast:
-                
-                faces.append(contentsOf: [[v0, av1, av2], [av1, av3, av2]])
-                uvs.append(contentsOf: [[auv0, auv1, auv2], [auv1, auv3, auv2]])
-                
-            default:
-                
-                faces.append(contentsOf: [[av2, v0, av1], [av2, av1, av3]])
-                uvs.append(contentsOf: [[auv2, auv0, auv1], [auv2, auv1, auv3]])
-            }
-            
-            for faceIndex in faces.indices {
-                
-                let face = faces[faceIndex]
-                let normal = -face.normal()
-                let faceColors = colors[faceIndex]
-                let faceUVs = uvs[faceIndex]
-                
-                var vertices: [Vertex] = []
-                
-                for vertexIndex in face.indices {
-                    
-                    let position = face[vertexIndex]
-                    let color = faceColors[vertexIndex]
-                    let uv = faceUVs[vertexIndex]
-                    
-                    vertices.append(Vertex(position, normal, uv, color))
-                }
-                
-                guard let polygon = Polygon(vertices.reversed()) else { continue }
-                
-                polygons.append(polygon)
-            }
-        }
-        
-        return polygons
+        return []
     }
 }

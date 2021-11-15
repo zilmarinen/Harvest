@@ -46,14 +46,7 @@ extension FootpathChunk2D {
         
         var polygons: [Euclid.Polygon] = []
         
-        let corners = Ordinal.Coordinates.map { $0.world * World.Constants.volumeSize }
-        
-        for tile in tiles where !tile.isHidden {
-            
-            let vector = Vector(Double(tile.coordinate.x - bounds.start.x), 0.001, Double(tile.coordinate.z - bounds.start.z))
-            
-            polygons.append(contentsOf: tile.render(position: vector, corners: corners.map { $0 + vector }))
-        }
+        //
         
         return Mesh(polygons)
     }

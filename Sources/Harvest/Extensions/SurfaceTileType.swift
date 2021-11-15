@@ -9,21 +9,5 @@ import Meadow
 
 extension SurfaceTileType {
     
-    var abbreviation: String {
-        
-        switch self {
-        
-        case .sloped: return "S"
-        case .terraced: return "T"
-        }
-    }
-    
-    public var description: String {
-        
-        switch self {
-        
-        case .sloped: return "Sloped"
-        case .terraced: return "Terraced"
-        }
-    }
+    var abbreviation: String { id.prefix(1).uppercased() }
 }
