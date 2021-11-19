@@ -73,8 +73,7 @@ public class Actors2D: SKNode, Codable, Responder2D, Soilable {
         
     public func add(actor coordinate: Coordinate, configure: ActorConfiguration? = nil) -> Actor2D? {
         
-        guard let map = map,
-              map.validate(coordinate: coordinate, grid: .actors) else { return nil }
+        guard validate(coordinate: coordinate) else { return nil }
         
         let actor = Actor2D(coordinate: coordinate)
         
@@ -87,6 +86,19 @@ public class Actors2D: SKNode, Codable, Responder2D, Soilable {
         becomeDirty()
         
         return actor
+    }
+    
+    func validate(coordinate: Coordinate) -> Bool {
+        
+        guard let map = map,
+              map.buildings.find(chunk: coordinate) == nil,
+              map.foliage.find(chunk: coordinate) == nil,
+              map.portals.find(chunk: coordinate) == nil,
+              map.stairs.find(chunk: coordinate) == nil,
+              map.surface.find(tile: coordinate) != nil,
+              map.water.find(tile: coordinate) == nil else { return false }
+        
+        return true
     }
 }
 

@@ -42,4 +42,9 @@ extension SurfaceMaterial {
         case .undergrowth: return .black
         }
     }
+    
+    func max(other: SurfaceMaterial) -> SurfaceMaterial {
+        
+        return rawValue > other.rawValue ? self : other
+    }
 }

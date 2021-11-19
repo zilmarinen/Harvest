@@ -4,10 +4,11 @@
 //  Created by Zack Brown on 16/03/2021.
 //
 
+import Euclid
 import Meadow
 import SpriteKit
 
-public class Chunk2D<T: Tile2D>: SKNode, Codable, Responder2D, Soilable {
+public class Chunk2D<T: Tile2D>: SKNode, Codable, Collapsible, Renderable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -21,6 +22,8 @@ public class Chunk2D<T: Tile2D>: SKNode, Codable, Responder2D, Soilable {
     
     let bounds: GridBounds
     public var tiles: [T] = []
+    
+    var mesh: Mesh { fatalError("mesh has not been implemented") }
     
     required init(coordinate: Coordinate) {
             
@@ -77,6 +80,11 @@ public class Chunk2D<T: Tile2D>: SKNode, Codable, Responder2D, Soilable {
         isDirty = false
 
         return true
+    }
+    
+    func collapse() {
+        
+        print("Collapsing: \(self) -> \(bounds.start)")
     }
 }
 

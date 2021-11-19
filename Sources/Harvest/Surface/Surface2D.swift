@@ -11,9 +11,7 @@ public class Surface2D: Grid2D<SurfaceChunk2D, SurfaceTile2D> {
     
     public enum Overlay {
         
-        case coordinate
         case elevation
-        case tileType
         case none
     }
     
@@ -29,24 +27,5 @@ public class Surface2D: Grid2D<SurfaceChunk2D, SurfaceTile2D> {
                 }
             }
         }
-    }
-    
-    @discardableResult override public func clean() -> Bool {
-        
-        guard isDirty else { return false }
-        
-        let (even, odd) = sortedTiles
-        
-        for tile in even {
-            
-            tile.collapse()
-        }
-        
-        for tile in odd {
-            
-            tile.collapse()
-        }
-        
-        return super.clean()
     }
 }

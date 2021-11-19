@@ -39,15 +39,3 @@ public class WaterChunk2D: Chunk2D<WaterTile2D> {
         try container.encode(mesh, forKey: .mesh)
     }
 }
-
-extension WaterChunk2D {
-    
-    var mesh: Mesh {
-        
-        var polygons: [Euclid.Polygon] = []
-        
-        //
-        
-        return Mesh(polygons)
-    }
-}

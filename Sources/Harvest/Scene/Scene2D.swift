@@ -38,15 +38,13 @@ public class Scene2D: SKScene, Soilable {
         return node
     }()
     
-    public let altas: TextureAtlas
     public let tileset: Tilesets
     
     public let map: Map2D
     
-    public required init(size: CGSize, map: Map2D, atlas: TextureAtlas, tileset: Tilesets) {
+    public required init(size: CGSize, map: Map2D, tileset: Tilesets) {
         
         self.map = map
-        self.altas = atlas
         self.tileset = tileset
         
         super.init(size: size)

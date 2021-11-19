@@ -7,39 +7,26 @@
 import Foundation
 import Meadow
 
-public class SurfaceTilesetTile: TilesetTile {
+public class SurfaceTilesetTile: Codable {
     
     private enum CodingKeys: String, CodingKey {
         
-        case overlay = "o"
+        case sockets = "s"
     }
     
-    public let overlay: SurfaceOverlay
-    
-    required init(pattern: Int, uvs: UVs, rawType: Int) throws {
-        
-        guard let overlay = SurfaceOverlay(rawValue: rawType) else { fatalError() }
-        
-        self.overlay = overlay
-        
-        try super.init(pattern: pattern, uvs: uvs, rawType: rawType)
-    }
+    public let sockets: Int
     
     public required init(from decoder: Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        overlay = try container.decode(SurfaceOverlay.self, forKey: .overlay)
-        
-        try super.init(from: decoder)
+        sockets = try container.decode(Int.self, forKey: .sockets)
     }
     
-    public override func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(overlay, forKey: .overlay)
-        
-        try super.encode(to: encoder)
+        try container.encode(sockets, forKey: .sockets)
     }
 }

@@ -4,11 +4,12 @@
 //  Created by Zack Brown on 16/03/2021.
 //
 
+import Euclid
 import Foundation
 import Meadow
 import SpriteKit
 
-public class Tile2D: SKSpriteNode, Codable, Responder2D, Soilable {
+public class Tile2D: SKNode, Codable, Collapsible, Renderable, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -38,11 +39,30 @@ public class Tile2D: SKSpriteNode, Codable, Responder2D, Soilable {
         }
     }
     
+    internal lazy var label: SKLabelNode = {
+        
+        let node = SKLabelNode()
+        
+        node.fontSize = 7
+        node.fontColor = .black
+        node.blendMode = .replace
+        node.verticalAlignmentMode = .center
+        node.xScale = 0.1
+        node.yScale = -0.1
+        node.zPosition = 1
+        
+        return node
+    }()
+    
+    var mesh: Mesh { fatalError("mesh has not been implemented") }
+    
     required init(coordinate: Coordinate) {
             
         self.coordinate = coordinate
         
-        super.init(texture: nil, color: .black, size: CGSize(width: 1, height: 1))
+        super.init()
+        
+        addChild(label)
         
         becomeDirty()
     }
@@ -53,7 +73,9 @@ public class Tile2D: SKSpriteNode, Codable, Responder2D, Soilable {
         
         coordinate = try container.decode(Coordinate.self, forKey: .coordinate)
         
-        super.init(texture: nil, color: .black, size: CGSize(width: 1, height: 1))
+        super.init()
+        
+        addChild(label)
         
         becomeDirty()
     }
@@ -104,8 +126,6 @@ public class Tile2D: SKSpriteNode, Codable, Responder2D, Soilable {
               let parent = parent as? Chunk2D<Self> else { return false }
         
         position = CGPoint(x: coordinate.x - parent.bounds.start.x, y: coordinate.z - parent.bounds.start.z)
-        
-        blendMode = .replace
         
         isDirty = false
         

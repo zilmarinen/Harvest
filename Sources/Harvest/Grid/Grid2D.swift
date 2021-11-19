@@ -7,7 +7,7 @@
 import Meadow
 import SpriteKit
 
-public class Grid2D<C: Chunk2D<T>, T: Tile2D>: SKNode, Codable, Responder2D, Soilable {
+public class Grid2D<C: Chunk2D<T>, T: Tile2D>: SKNode, Codable, Collapsible, Responder2D, Soilable {
     
     private enum CodingKeys: String, CodingKey {
         
@@ -64,6 +64,8 @@ public class Grid2D<C: Chunk2D<T>, T: Tile2D>: SKNode, Codable, Responder2D, Soi
         
         guard isDirty else { return false }
         
+        collapse()
+        
         for chunk in chunks {
             
             chunk.clean()
@@ -117,6 +119,16 @@ public class Grid2D<C: Chunk2D<T>, T: Tile2D>: SKNode, Codable, Responder2D, Soi
         }
         
         chunks = []
+    }
+    
+    func collapse() {
+        
+        print("Collapsing: \(self)")
+        
+        for chunk in chunks {
+            
+            chunk.collapse()
+        }
     }
 }
 

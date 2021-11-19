@@ -39,15 +39,3 @@ public class SurfaceChunk2D: Chunk2D<SurfaceTile2D> {
         try container.encode(mesh, forKey: .mesh)
     }
 }
-
-extension SurfaceChunk2D {
-    
-    var mesh: Mesh {
-        
-        var polygons: [Euclid.Polygon] = []
-        
-        //
-        
-        return Mesh(polygons)
-    }
-}

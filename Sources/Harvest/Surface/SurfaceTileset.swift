@@ -8,7 +8,7 @@ import AppKit
 import Foundation
 import Meadow
 
-public struct SurfaceTileset: Tileset {
+public struct SurfaceTileset {
     
     public let tiles: [SurfaceTilesetTile]
     
@@ -16,7 +16,7 @@ public struct SurfaceTileset: Tileset {
         
         do {
         
-            let tilemap = try NSDataAsset.asset(named: "surface_spring_tilemap", in: .module)
+            let tilemap = try NSDataAsset.asset(named: "surface_tilemap", in: .module)
         
             let decoder = JSONDecoder()
         
@@ -31,8 +31,8 @@ public struct SurfaceTileset: Tileset {
 
 extension SurfaceTileset {
     
-    public func tiles(with pattern: Int, overlay: SurfaceOverlay? = nil) -> [SurfaceTilesetTile] {
+    public func tiles(with sockets: Int) -> [SurfaceTilesetTile] {
         
-        return tiles.filter { $0.pattern == pattern && (overlay != nil ? $0.overlay == overlay : true) }
+        return tiles.filter { $0.sockets == sockets }
     }
 }

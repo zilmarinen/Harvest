@@ -31,9 +31,24 @@ public class Water2D: Grid2D<WaterChunk2D, WaterTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: Grid2D<WaterChunk2D, WaterTile2D>.TileConfiguration? = nil) -> WaterTile2D? {
         
-        guard let map = ancestor as? Map2D,
-              map.validate(coordinate: coordinate, grid: .water) else { return nil }
+        guard validate(coordinate: coordinate) else { return nil }
         
         return super.add(tile: coordinate, configure: configure)
+    }
+    
+    func validate(coordinate: Coordinate) -> Bool {
+        
+        guard let map = map,
+              let surfaceTile = map.surface.find(tile: coordinate),
+              map.actors.find(actor: coordinate) == nil,
+              map.buildings.find(chunk: coordinate) == nil,
+              map.foliage.find(chunk: coordinate) == nil,
+              map.footpath.find(tile: coordinate) == nil,
+              map.portals.find(chunk: coordinate) == nil,
+              map.stairs.find(chunk: coordinate) == nil,
+              map.walls.find(tile: coordinate) == nil,
+              coordinate.y > surfaceTile.coordinate.y else { return false }
+        
+        return true
     }
 }

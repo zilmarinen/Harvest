@@ -39,15 +39,3 @@ public class FootpathChunk2D: Chunk2D<FootpathTile2D> {
         try container.encode(mesh, forKey: .mesh)
     }
 }
-
-extension FootpathChunk2D {
-    
-    var mesh: Mesh {
-        
-        var polygons: [Euclid.Polygon] = []
-        
-        //
-        
-        return Mesh(polygons)
-    }
-}

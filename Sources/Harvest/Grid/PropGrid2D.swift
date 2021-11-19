@@ -73,11 +73,9 @@ public class PropGrid2D<C: PropChunk2D<T>, T: PropTile2D>: SKNode, Codable, Resp
     
     public func add(prop: Prop, coordinate: Coordinate, rotation: Cardinal, configure: ChunkConfiguration? = nil) -> C? {
         
-        guard let scene = scene as? Scene2D else { return nil }
-        
         let footprint = Footprint(coordinate: coordinate, rotation: rotation, nodes: prop.footprint.nodes)
         
-        guard scene.map.validate(footprint: footprint, grid: prop.grid) else { return nil }
+        guard validate(footprint: footprint) else { return nil }
         
         let chunk = C(coordinate: coordinate, direction: rotation)
         
@@ -90,6 +88,23 @@ public class PropGrid2D<C: PropChunk2D<T>, T: PropTile2D>: SKNode, Codable, Resp
         becomeDirty()
         
         return chunk
+    }
+    
+    func validate(footprint: Footprint) -> Bool {
+        
+        for coordinate in footprint.nodes {
+            //TODO: check prop does not intersect with walls and other non-prop types
+            guard let map = map,
+                  map.buildings.find(chunk: coordinate) == nil,
+                  map.foliage.find(chunk: coordinate) == nil,
+                  map.footpath.find(tile: coordinate) == nil,
+                  map.portals.find(chunk: coordinate) == nil,
+                  map.stairs.find(chunk: coordinate) == nil,
+                  map.surface.find(tile: coordinate) != nil,
+                  map.water.find(tile: coordinate) == nil else { return false }
+        }
+        
+        return true
     }
 }
 

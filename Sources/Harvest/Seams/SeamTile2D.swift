@@ -48,13 +48,4 @@ public class SeamTile2D: Tile2D {
         try container.encode(segue, forKey: .segue)
         try container.encode(identifier, forKey: .identifier)
     }
-    
-    @discardableResult override public func clean() -> Bool {
-        
-        guard super.clean() else { return false }
-        
-        color = .systemIndigo
-        
-        return super.clean()
-    }
 }

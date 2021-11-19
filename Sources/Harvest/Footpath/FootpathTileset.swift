@@ -8,7 +8,7 @@ import AppKit
 import Foundation
 import Meadow
 
-public struct FootpathTileset: Tileset {
+public struct FootpathTileset {
 
     public let tiles: [FootpathTilesetTile]
     
@@ -16,7 +16,7 @@ public struct FootpathTileset: Tileset {
 
         do {
         
-            let tilemap = try NSDataAsset.asset(named: "footpath_spring_tilemap", in: .module)
+            let tilemap = try NSDataAsset.asset(named: "footpath_tilemap", in: .module)
             
             let decoder = JSONDecoder()
             
@@ -31,8 +31,8 @@ public struct FootpathTileset: Tileset {
 
 extension FootpathTileset {
     
-    public func tiles(with pattern: Int, material: FootpathMaterial) -> [FootpathTilesetTile] {
+    public func tiles(with material: FootpathMaterial) -> [FootpathTilesetTile] {
         
-        return tiles.filter { $0.pattern == pattern && $0.material == material }
+        return tiles.filter { $0.material == material }
     }
 }

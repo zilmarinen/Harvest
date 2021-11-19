@@ -12,8 +12,7 @@ public class Bridges2D: Grid2D<BridgeChunk2D, BridgeTile2D> {
     public enum Overlay {
         
         case none
-        case tileType
-        case pattern
+        case material
     }
     
     public var overlay: Overlay = .none {
@@ -32,28 +31,23 @@ public class Bridges2D: Grid2D<BridgeChunk2D, BridgeTile2D> {
     
     public override func add(tile coordinate: Coordinate, configure: TileConfiguration? = nil) -> BridgeTile2D? {
         
-        guard let map = map,
-              map.validate(coordinate: coordinate, grid: .bridges) else { return nil }
+        guard validate(coordinate: coordinate) else { return nil }
         
         return super.add(tile: coordinate, configure: configure)
     }
     
-    @discardableResult override public func clean() -> Bool {
+    func validate(coordinate: Coordinate) -> Bool {
         
-        guard isDirty else { return false }
+        guard let map = map,
+              map.bridges.find(tile: coordinate) == nil,
+              map.buildings.find(chunk: coordinate) == nil,
+              map.foliage.find(chunk: coordinate) == nil,
+              map.footpath.find(tile: coordinate) == nil,
+              map.portals.find(chunk: coordinate) == nil,
+              map.stairs.find(chunk: coordinate) == nil,
+              map.surface.find(tile: coordinate) != nil,
+              map.walls.find(tile: coordinate) == nil else { return false }
         
-        let (even, odd) = sortedTiles
-        
-        for tile in even {
-            
-            tile.collapse()
-        }
-        
-        for tile in odd {
-            
-            tile.collapse()
-        }
-        
-        return super.clean()
+        return true
     }
 }
