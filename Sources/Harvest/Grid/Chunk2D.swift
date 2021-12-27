@@ -23,7 +23,19 @@ public class Chunk2D<T: Tile2D>: SKNode, Codable, Collapsible, Renderable, Respo
     let bounds: GridBounds
     public var tiles: [T] = []
     
-    var mesh: Mesh { fatalError("mesh has not been implemented") }
+    var mesh: Mesh {
+    
+        var result = Mesh([])
+        
+        for tile in tiles {
+            
+            let offset = tile.coordinate - bounds.start
+            
+            result = result.union(tile.mesh.translated(by: offset.xz.distance))
+        }
+        
+        return result
+    }
     
     required init(coordinate: Coordinate) {
             
@@ -84,7 +96,10 @@ public class Chunk2D<T: Tile2D>: SKNode, Codable, Collapsible, Renderable, Respo
     
     func collapse() {
         
-        print("Collapsing: \(self) -> \(bounds.start)")
+        for tile in tiles {
+            
+            tile.collapse()
+        }
     }
 }
 

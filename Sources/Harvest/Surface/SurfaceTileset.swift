@@ -4,13 +4,24 @@
 //  Created by Zack Brown on 13/11/2020.
 //
 
-import AppKit
+import Euclid
 import Foundation
 import Meadow
 
-public struct SurfaceTileset {
+#if os(macOS)
+
+    import AppKit
+
+#else
+
+    import UIKit
+
+#endif
+
+public class SurfaceTileset {
     
-    public let tiles: [SurfaceTilesetTile]
+    private let tiles: [SurfaceTilesetTile]
+    private var meshes: [String : Mesh] = [:]
     
     public init() throws {
         
@@ -27,12 +38,38 @@ public struct SurfaceTileset {
             throw(error)
         }
     }
+    
+    func mesh(for tile: SurfaceTilesetTile) -> Mesh? {
+        
+        if let mesh = meshes[tile.identifier] {
+            
+            return mesh
+        }
+        
+        guard let mesh = tile.mesh else { return nil }
+        
+        meshes[tile.identifier] = mesh
+        
+        return mesh
+    }
 }
 
 extension SurfaceTileset {
     
-    public func tiles(with sockets: Int) -> [SurfaceTilesetTile] {
+    public func tiles(matching pattern: OrdinalPattern<SurfaceMaterial>) -> [SurfaceTilesetTile] {
         
-        return tiles.filter { $0.sockets == sockets }
+        return tiles.filter { $0.sockets.lower.isEqual(to: pattern) }
+    }
+    
+    public func tiles(matching bitmask: Int, style: SurfaceStyle?) -> [SurfaceTilesetTile] {
+        
+        return tiles.filter { tile in
+            
+            let equal = tile.bitmask == bitmask
+            
+            guard let style = style else { return equal }
+
+            return equal && tile.style == style
+        }
     }
 }

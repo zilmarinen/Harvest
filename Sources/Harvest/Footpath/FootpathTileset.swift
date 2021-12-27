@@ -4,9 +4,18 @@
 //  Created by Zack Brown on 25/03/2021.
 //
 
-import AppKit
 import Foundation
 import Meadow
+
+#if os(macOS)
+
+    import AppKit
+
+#else
+
+    import UIKit
+
+#endif
 
 public struct FootpathTileset {
 

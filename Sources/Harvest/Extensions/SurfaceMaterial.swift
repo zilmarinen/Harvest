@@ -15,8 +15,8 @@ extension SurfaceMaterial {
         
         case .air: return "A"
         case .dirt: return "D"
-        case .sand: return "S"
-        case .stone: return "S"
+        case .sand: return "Sa"
+        case .stone: return "St"
         case .undergrowth: return "U"
         }
     }
@@ -32,19 +32,17 @@ extension SurfaceMaterial {
         }
     }
     
-    var vertexColor: Color {
-        
-        switch  self {
-        case .air: return .clear
-        case .dirt: return .red
-        case .sand: return .green
-        case .stone: return .blue
-        case .undergrowth: return .black
-        }
-    }
+    func max(other: SurfaceMaterial) -> SurfaceMaterial { rawValue > other.rawValue ? self : other }
     
-    func max(other: SurfaceMaterial) -> SurfaceMaterial {
+    var bitmask: Int {
         
-        return rawValue > other.rawValue ? self : other
+        switch self {
+        
+        case .air: return 0
+        case .dirt: return 1
+        case .sand: return 9
+        case .stone: return 73
+        case .undergrowth: return 585
+        }
     }
 }

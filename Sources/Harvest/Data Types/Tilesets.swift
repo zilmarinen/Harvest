@@ -8,14 +8,14 @@ import Foundation
 
 public struct Tilesets {
     
-    let footpath: FootpathTileset
+    //let footpath: FootpathTileset
     let surface: SurfaceTileset
     
     public init() throws {
      
         do {
         
-            footpath = try FootpathTileset()
+            //footpath = try FootpathTileset()
             surface = try SurfaceTileset()
         }
         catch {

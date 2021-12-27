@@ -76,6 +76,12 @@ public class WaterTile2D: Tile2D {
         
         return true
     }
+    
+    override var mesh: Mesh {
+        
+        //TODO: implement mesh generation
+        return Mesh.cube()
+    }
 }
 
 extension WaterTile2D {

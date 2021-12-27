@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 01/06/2021.
 //
 
+import Euclid
 import Foundation
 import Meadow
 import SpriteKit
@@ -47,5 +48,11 @@ public class SeamTile2D: Tile2D {
         
         try container.encode(segue, forKey: .segue)
         try container.encode(identifier, forKey: .identifier)
+    }
+    
+    override var mesh: Mesh {
+        
+        //TODO: implement mesh generation
+        return Mesh.cube()
     }
 }

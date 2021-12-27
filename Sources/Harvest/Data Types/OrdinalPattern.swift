@@ -6,7 +6,7 @@
 
 import Meadow
 
-public struct OrdinalPattern<T: Codable & Equatable>: Codable, Equatable {
+public struct OrdinalPattern<T: Codable & Equatable>: Codable, CustomStringConvertible, Equatable {
     
     public enum CodingKeys: String, CodingKey {
         
@@ -89,4 +89,58 @@ public struct OrdinalPattern<T: Codable & Equatable>: Codable, Equatable {
         default: return southWest
         }
     }
+    
+    public var description: String { "[nw]: \(northWest)\n[ne]: \(northEast)\n[se]: \(southEast)\n[sw]: \(southWest)" }
+}
+
+extension OrdinalPattern {
+    
+    public func contains(value: T) -> Bool {
+        
+        return northWest == value || northEast == value || southEast == value || southWest == value
+    }
+    
+    public func isHomogenous(with value: T) -> Bool {
+        
+        return northWest == value && northEast == value && southEast == value && southWest == value
+    }
+}
+
+extension OrdinalPattern {
+    
+    func rotated(cardinal: Cardinal) -> Self {
+        
+        switch cardinal {
+        case .east: return Self(northWest: northEast, northEast: southEast, southEast: southWest, southWest: northWest)
+        case .south: return Self(northWest: southEast, northEast: southWest, southEast: northWest, southWest: northEast)
+        case .west: return Self(northWest: southWest, northEast: northWest, southEast: northEast, southWest: southEast)
+        default: return self
+        }
+    }
+}
+
+extension OrdinalPattern {
+    
+    public func isEqual(to other: Self) -> Bool {
+        
+        return self.rotation(matching: other) != nil
+    }
+    
+    func rotation(matching other: Self) -> Cardinal? {
+        
+        for cardinal in Cardinal.allCases {
+            
+            if self == other.rotated(cardinal: cardinal) {
+                
+                return cardinal
+            }
+        }
+        
+        return nil
+    }
+}
+
+extension OrdinalPattern where T == Int {
+    
+    var max: T { return Swift.max(northWest, northEast, southEast, southWest) }
 }

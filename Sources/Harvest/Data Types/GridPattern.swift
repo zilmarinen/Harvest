@@ -52,6 +52,12 @@ public struct GridPattern<T: Codable & Equatable>: Codable, Equatable {
         try container.encode(ordinals, forKey: .ordinals)
     }
     
+    public mutating func set(value: T) {
+        
+        cardinals.set(value: value)
+        ordinals.set(value: value)
+    }
+    
     public mutating func set(value: T, cardinal: Cardinal) {
         
         cardinals.set(value: value, cardinal: cardinal)

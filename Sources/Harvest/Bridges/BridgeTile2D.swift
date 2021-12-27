@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 03/05/2021.
 //
 
+import Euclid
 import Foundation
 import Meadow
 import SpriteKit
@@ -72,5 +73,11 @@ public class BridgeTile2D: Tile2D {
         }
         
         return super.clean()
+    }
+    
+    override var mesh: Mesh {
+        
+        //TODO: implement mesh generation
+        return Mesh.cube()
     }
 }

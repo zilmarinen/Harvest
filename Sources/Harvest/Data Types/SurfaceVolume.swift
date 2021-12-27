@@ -6,9 +6,8 @@
 
 import Meadow
 
-struct SurfaceVolume<T: Codable & Equatable>: Codable, Equatable {
+struct SurfaceVolume: Codable, Equatable {
     
     let coordinate: Coordinate
-    let sockets: SurfaceSockets<T>
+    let sockets: SurfaceSockets
 }
-

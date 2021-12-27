@@ -123,8 +123,6 @@ public class Grid2D<C: Chunk2D<T>, T: Tile2D>: SKNode, Codable, Collapsible, Res
     
     func collapse() {
         
-        print("Collapsing: \(self)")
-        
         for chunk in chunks {
             
             chunk.collapse()

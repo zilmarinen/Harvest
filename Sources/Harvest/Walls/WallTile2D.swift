@@ -4,6 +4,7 @@
 //  Created by Zack Brown on 03/04/2021.
 //
 
+import Euclid
 import Foundation
 import Meadow
 import SpriteKit
@@ -72,6 +73,12 @@ public class WallTile2D: Tile2D {
         }
         
         return super.clean()
+    }
+    
+    override var mesh: Mesh {
+        
+        //TODO: implement mesh generation
+        return Mesh.cube()
     }
 }
 

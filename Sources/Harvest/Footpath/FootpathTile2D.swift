@@ -76,6 +76,12 @@ public class FootpathTile2D: Tile2D {
         
         return super.clean()
     }
+    
+    override var mesh: Mesh {
+        
+        //TODO: implement mesh generation
+        return Mesh.cube()
+    }
 }
 
 extension FootpathTile2D {
