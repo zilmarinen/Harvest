@@ -27,17 +27,16 @@ public class SurfaceTile2D: Tile2D {
         }
     }
     
-    private var pattern = GridPattern<SurfaceMaterial>(value: .air)
-    private var elevation = GridPattern<Int>(value: 0)
+    private var config = SurfaceTileConfig()
     
-    private let overlay = OrdinalPatternOverlay()
+    private let patternOverlay = OrdinalPatternOverlay()
     private let elevationOverlay = SurfaceElevationOverlay()
     
     required init(coordinate: Coordinate) {
             
         super.init(coordinate: coordinate)
         
-        addChild(overlay)
+        addChild(patternOverlay)
         addChild(elevationOverlay)
     }
     
@@ -49,7 +48,7 @@ public class SurfaceTile2D: Tile2D {
         
         try super.init(from: decoder)
         
-        addChild(overlay)
+        addChild(patternOverlay)
         addChild(elevationOverlay)
     }
     
@@ -72,8 +71,8 @@ public class SurfaceTile2D: Tile2D {
         guard isDirty,
               let scene = scene as? Scene2D else { return false }
         
-        overlay.configure(with: pattern.ordinals)
-        elevationOverlay.configure(with: elevation.ordinals)
+        patternOverlay.configure(with: config.pattern.ordinals)
+        elevationOverlay.configure(with: config.elevation.ordinals)
         
         switch scene.map.surface.overlay {
         
@@ -91,8 +90,7 @@ public class SurfaceTile2D: Tile2D {
     
     override func collapse() {
         
-        pattern.set(value: .air)
-        elevation.set(value: World.Constants.floor)
+        config.reset()
         
         for cardinal in Cardinal.allCases {
             
@@ -101,8 +99,8 @@ public class SurfaceTile2D: Tile2D {
             let m0 = n0?.material ?? .air
             let e0 = n0?.coordinate.y ?? World.Constants.floor
             
-            pattern.set(value: material.max(other: m0), cardinal: cardinal)
-            elevation.set(value: e0, cardinal: cardinal)
+            config.pattern.set(value: m0, cardinal: cardinal)
+            config.elevation.set(value: e0, cardinal: cardinal)
         }
         
         for ordinal in Ordinal.allCases {
@@ -112,19 +110,22 @@ public class SurfaceTile2D: Tile2D {
             let n0 = find(neighbour: ordinal)
             
             let m0 = n0?.material ?? .air
-            let m1 = pattern.value(for: c0)
-            let m2 = pattern.value(for: c1)
+            let m1 = config.pattern.value(for: c0)
+            let m2 = config.pattern.value(for: c1)
             
             let e0 = n0?.coordinate.y ?? World.Constants.floor
-            let e1 = elevation.value(for: c0)
-            let e2 = elevation.value(for: c1)
+            let e1 = config.elevation.value(for: c0)
+            let e2 = config.elevation.value(for: c1)
             
-            pattern.set(value: material.max(other: m0.max(other: m1).max(other: m2)), ordinal: ordinal)
+            guard m0 != .air,
+                  m1 != .air,
+                  m2 != .air else { continue }
             
-            guard find(neighbour: c0) != nil,
-                  find(neighbour: c1) != nil else { continue }
+            config.elevation.set(value: max(e0, e1, e2, coordinate.y), ordinal: ordinal)
+                
+            config.pattern.set(value: material.max(material: m0.max(material: m1).max(material: m2)), ordinal: ordinal)
             
-            elevation.set(value: max(e0, e1, e2, coordinate.y), ordinal: ordinal)
+            config.occupancy.set(value: SurfaceSocket(inner: true, outer: true), ordinal: ordinal)
         }
     }
     
@@ -133,56 +134,51 @@ public class SurfaceTile2D: Tile2D {
         guard let scene = scene as? Scene2D else { return Mesh.cube() }
         
         let tileset = scene.tileset.surface
-        let maximumElevation = elevation.ordinals.max
-        
-        var style: SurfaceStyle? = nil
         
         var result = Mesh([])
         
-        for index in 1...maximumElevation {
+        let materials = config.pattern.ordinals.uniqueValues.filter { $0 != .air }
+        let chunks = materials.flatMap { config.chunks(for: $0) }.sorted { $0.pattern.area > $1.pattern.area }
+        
+        var occupancy = config.occupancy
+        
+        for index in chunks.indices {
             
-            var layerPattern = SurfaceSockets(value: .air)
+            let chunk = chunks[index]
             
-            for ordinal in Ordinal.allCases {
+            let pairs = tileset.tiles(matching: chunk.pattern.bitmask, material: chunk.material, occupancy: occupancy)
+            
+            guard let tile = index == 0 ? pairs.randomElement(using: &rng) : pairs.first,
+                  let crown = tile.crown.mesh,
+                  let throne = tile.throne.mesh,
+                  let bitmaskIndex = tile.crown.bitmasks.firstIndex(of: chunk.pattern.bitmask) else {
                 
-                let e0 = elevation.value(for: ordinal)
-                let m0 = pattern.value(for: ordinal)
-                
-                guard m0 != .air else { continue }
-                
-                if e0 >= index {
-                    
-                    layerPattern.lower.set(value: m0, ordinal: ordinal)
-                }
-                
-                if e0 >= (index + 1) {
-                    
-                    layerPattern.upper.set(value: m0, ordinal: ordinal)
-                }
-            }
-            
-            guard layerPattern.upper.contains(value: .air) else { continue }
-            
-            let matchingBitmask = tileset.tiles(matching: layerPattern.bitmask, style: style)
-            
-            let matchingRotation = matchingBitmask.compactMap { $0.sockets.rotation(matching: layerPattern) != nil ? $0 : nil }
-            
-            guard let tile = matchingRotation.randomElement(using: &rng),
-                  let direction = tile.sockets.rotation(matching: layerPattern),
-                  let mesh = tile.mesh else {
-                
-                      print("Unable to find tile [\(layerPattern.bitmask)]\nMatching bitmask: [\(matchingBitmask.count)]\nMatching rotation: [\(matchingRotation.count)]\npattern:\n \(layerPattern)")
+                print("Unable to find tiles matching bitmask: \(chunk.pattern.bitmask) for material: \(chunk.material)")
                 
                 continue
             }
             
-            let offset = Distance(x: 0, y: Double(index - 1), z: 0)
-            let rotation = Rotation(yaw: Angle(degrees: 90.0 * Double(direction.edge)))
+            let ordinal = tile.throne.rotations[bitmaskIndex]
+            let rotation = Rotation(yaw: Angle(degrees: -90.0 * Double(ordinal.corner)))
+            let sockets = tile.throne.sockets.rotated(ordinal: ordinal)
+            
+            occupancy.subtract(sockets: sockets)
+            
+            if chunk.elevation > 1 {
+                
+                for index in 0..<(chunk.elevation - 1) {
+                 
+                    let offset = Vector(x: 0, y: Double(index) * 0.5, z: 0)
+                    let transform = Transform(offset: offset, rotation: rotation)
+                                
+                    result = result.union(throne.transformed(by: transform))
+                }
+            }
+            
+            let offset = Vector(x: 0, y: Double(chunk.elevation - 1) * 0.5, z: 0)
             let transform = Transform(offset: offset, rotation: rotation)
                         
-            result = result.union(mesh.transformed(by: transform))
-            
-            style = tile.style
+            result = result.union(crown.transformed(by: transform))
         }
         
         return result

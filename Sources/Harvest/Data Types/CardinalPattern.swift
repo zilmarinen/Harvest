@@ -6,7 +6,7 @@
 
 import Meadow
 
-public struct CardinalPattern<T: Codable & Equatable>: Codable, CustomStringConvertible, Equatable {
+public struct CardinalPattern<T: Codable & Hashable>: Codable, Hashable {
     
     public enum CodingKeys: String, CodingKey {
         
@@ -16,10 +16,13 @@ public struct CardinalPattern<T: Codable & Equatable>: Codable, CustomStringConv
         case west = "w"
     }
     
-    public var north: T
-    public var east: T
-    public var south: T
-    public var west: T
+    var values: [T] { [north, east, south, west] }
+    var uniqueValues: [T] { Array(Set(values)) }
+    
+    private(set) public var north: T
+    private(set) public var east: T
+    private(set) public var south: T
+    private(set) public var west: T
     
     public init(value: T) {
         
@@ -89,6 +92,4 @@ public struct CardinalPattern<T: Codable & Equatable>: Codable, CustomStringConv
         default: return west
         }
     }
-    
-    public var description: String { "[n]: \(north)\n[e]: \(east)\n[s]: \(south)\n[w]: \(west)" }
 }

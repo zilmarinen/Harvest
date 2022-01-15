@@ -56,20 +56,33 @@ public class SurfaceTileset {
 
 extension SurfaceTileset {
     
-    public func tiles(matching pattern: OrdinalPattern<SurfaceMaterial>) -> [SurfaceTilesetTile] {
-        
-        return tiles.filter { $0.sockets.lower.isEqual(to: pattern) }
-    }
+    typealias Pair = (crown: SurfaceTilesetTile, throne: SurfaceTilesetTile)
     
-    public func tiles(matching bitmask: Int, style: SurfaceStyle?) -> [SurfaceTilesetTile] {
+    func tiles(matching bitmask: Int, material: SurfaceMaterial, occupancy: OrdinalPattern<SurfaceSocket>) -> [Pair] {
         
-        return tiles.filter { tile in
+        let matches = tiles.filter { $0.material == material && $0.bitmasks.contains(bitmask) }
+        let thrones = matches.filter { $0.volume == .throne }
+        let crowns = matches.filter { $0.volume == .crown }
+        
+        var pairs: [Pair] = []
+        
+        for throne in thrones {
             
-            let equal = tile.bitmask == bitmask
+            guard let bitmaskIndex = throne.bitmasks.firstIndex(of: bitmask) else { continue }
             
-            guard let style = style else { return equal }
-
-            return equal && tile.style == style
+            let ordinal = throne.rotations[bitmaskIndex]
+            
+            let sockets = throne.sockets.rotated(ordinal: ordinal)
+            
+            guard occupancy.has(vacancy: sockets) else { continue }
+            
+            let crown = crowns.first { $0.variation == throne.variation }
+            
+            guard let crown = crown  else { continue }
+            
+            pairs.append((crown, throne))
         }
+        
+        return pairs.sorted { $0.throne.sockets.area > $1.throne.sockets.area }
     }
 }

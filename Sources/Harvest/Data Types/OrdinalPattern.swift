@@ -6,7 +6,7 @@
 
 import Meadow
 
-public struct OrdinalPattern<T: Codable & Equatable>: Codable, CustomStringConvertible, Equatable {
+public struct OrdinalPattern<T: Codable & Hashable>: Codable, Hashable {
     
     public enum CodingKeys: String, CodingKey {
         
@@ -16,10 +16,13 @@ public struct OrdinalPattern<T: Codable & Equatable>: Codable, CustomStringConve
         case southWest = "sw"
     }
     
-    public var northWest: T
-    public var northEast: T
-    public var southEast: T
-    public var southWest: T
+    var values: [T] { [northWest, northEast, southEast, southWest] }
+    var uniqueValues: [T] { Array(Set(values)) }
+    
+    private(set) public var northWest: T
+    private(set) public var northEast: T
+    private(set) public var southEast: T
+    private(set) public var southWest: T
     
     public init(value: T) {
         
@@ -89,58 +92,78 @@ public struct OrdinalPattern<T: Codable & Equatable>: Codable, CustomStringConve
         default: return southWest
         }
     }
-    
-    public var description: String { "[nw]: \(northWest)\n[ne]: \(northEast)\n[se]: \(southEast)\n[sw]: \(southWest)" }
 }
 
 extension OrdinalPattern {
     
-    public func contains(value: T) -> Bool {
+    func rotated(ordinal: Ordinal) -> Self {
         
-        return northWest == value || northEast == value || southEast == value || southWest == value
-    }
-    
-    public func isHomogenous(with value: T) -> Bool {
-        
-        return northWest == value && northEast == value && southEast == value && southWest == value
-    }
-}
-
-extension OrdinalPattern {
-    
-    func rotated(cardinal: Cardinal) -> Self {
-        
-        switch cardinal {
-        case .east: return Self(northWest: northEast, northEast: southEast, southEast: southWest, southWest: northWest)
-        case .south: return Self(northWest: southEast, northEast: southWest, southEast: northWest, southWest: northEast)
-        case .west: return Self(northWest: southWest, northEast: northWest, southEast: northEast, southWest: southEast)
+        switch ordinal {
+        case .northEast: return Self(northWest: northEast, northEast: southEast, southEast: southWest, southWest: northWest)
+        case .southEast: return Self(northWest: southEast, northEast: southWest, southEast: northWest, southWest: northEast)
+        case .southWest: return Self(northWest: southWest, northEast: northWest, southEast: northEast, southWest: southEast)
         default: return self
         }
     }
 }
 
-extension OrdinalPattern {
+extension OrdinalPattern where T == SurfaceSocket {
     
-    public func isEqual(to other: Self) -> Bool {
+    public var area: Int {
         
-        return self.rotation(matching: other) != nil
+        var result = 0
+        
+        for ordinal in Ordinal.allCases {
+            
+            let socket = value(for: ordinal)
+            
+            result += (socket.inner ? 1 : 0) + (socket.outer ? 1 : 0)
+        }
+        
+        return result
     }
     
-    func rotation(matching other: Self) -> Cardinal? {
+    public var bitmask: Int {
         
-        for cardinal in Cardinal.allCases {
+        var result = 0
+        
+        for index in Ordinal.allCases.indices {
             
-            if self == other.rotated(cardinal: cardinal) {
-                
-                return cardinal
+            let ordinal = Ordinal.allCases[index]
+            
+            if value(for: ordinal).outer {
+            
+                result += 1 << index
             }
         }
         
-        return nil
+        return result
     }
-}
-
-extension OrdinalPattern where T == Int {
     
-    var max: T { return Swift.max(northWest, northEast, southEast, southWest) }
+    func has(vacancy: Self) -> Bool {
+        
+        for ordinal in Ordinal.allCases {
+            
+            let lhs = vacancy.value(for: ordinal)
+            
+            guard lhs.inner || lhs.outer else { continue }
+            
+            let rhs = value(for: ordinal)
+            
+            if (lhs.inner && !rhs.inner) || (lhs.outer && !rhs.outer) { return false }
+        }
+        
+        return true
+    }
+    
+    mutating func subtract(sockets: Self) {
+        
+        for ordinal in Ordinal.allCases {
+            
+            let lhs = sockets.value(for: ordinal)
+            let rhs = value(for: ordinal)
+            
+            set(value: SurfaceSocket(inner: lhs.inner ? false : rhs.inner, outer: lhs.outer ? false : rhs.outer), ordinal: ordinal)
+        }
+    }
 }

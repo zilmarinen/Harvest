@@ -6,7 +6,7 @@
 
 import Meadow
 
-public struct GridPattern<T: Codable & Equatable>: Codable, Equatable {
+public struct GridPattern<T: Codable & Hashable>: Codable, Hashable {
     
     public enum CodingKeys: String, CodingKey {
         

@@ -32,17 +32,5 @@ extension SurfaceMaterial {
         }
     }
     
-    func max(other: SurfaceMaterial) -> SurfaceMaterial { rawValue > other.rawValue ? self : other }
-    
-    var bitmask: Int {
-        
-        switch self {
-        
-        case .air: return 0
-        case .dirt: return 1
-        case .sand: return 9
-        case .stone: return 73
-        case .undergrowth: return 585
-        }
-    }
+    func max(material: SurfaceMaterial) -> SurfaceMaterial { rawValue > material.rawValue ? self : material }
 }
