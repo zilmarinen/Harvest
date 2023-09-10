@@ -9,13 +9,15 @@ import SceneKit
 
 public class DualChunk: SCNNode {
     
-    public let coordinate: Coordinate
+    internal let coordinate: Coordinate
     
     required public init(coordinate: Coordinate) {
         
         self.coordinate = coordinate
         
         super.init()
+        
+        self.position = SCNVector3(coordinate.convert(to: .region) - coordinate.convert(to: .chunk))
     }
     
     required public init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }

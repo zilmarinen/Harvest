@@ -9,7 +9,7 @@ import SceneKit
 
 public class GraphChunk<T: GraphTile>: SCNNode {
     
-    public let coordinate: Coordinate
+    internal let coordinate: Coordinate
     internal var tiles: [T]
     
     required public init(coordinate: Coordinate) {
@@ -18,16 +18,20 @@ public class GraphChunk<T: GraphTile>: SCNNode {
         self.tiles = []
         
         super.init()
+        
+        self.position = SCNVector3(coordinate.convert(to: .chunk) - coordinate.convert(to: .region))
     }
     
     required public init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    
+    internal func clear() { tiles.removeAll() }
     
     internal func find(tile coordinate: Coordinate) -> T? { tiles.first { $0.footprint.intersects(rhs: coordinate) } }
     
     @discardableResult
     internal func add(tile footprint: Grid.Footprint) -> T? {
         
-        guard find(tile: footprint.origin.origin) == nil else { return nil }
+        guard find(tile: footprint.origin.position) == nil else { return nil }
         
         let tile = T(footprint: footprint)
         

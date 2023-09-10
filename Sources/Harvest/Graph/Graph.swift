@@ -11,7 +11,7 @@ public class Graph<R: GraphRegion<C, T>,
                    C: GraphChunk<T>,
                    T: GraphTile>: SCNNode {
     
-    private(set) var regions: [R]
+    internal var regions: [R]
     
     required override public init() {
         
@@ -22,14 +22,24 @@ public class Graph<R: GraphRegion<C, T>,
     
     required public init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    private func find(region coordinate: Coordinate) -> R? { regions.first { $0.coordinate == coordinate } }
+    internal func clear() {
     
-    public func find(tile coordinate: Coordinate) -> T? { find(region: coordinate.convert(from: .tile, to: .region))?.find(tile: coordinate) }
+        regions.forEach { $0.removeFromParentNode() }
+        
+        regions.removeAll()
+    }
+    
+    internal func find(region coordinate: Coordinate) -> R? { regions.first { $0.coordinate == coordinate } }
+    
+    internal func find(tile coordinate: Coordinate) -> T? { find(region: coordinate.convert(from: .tile,
+                                                                                            to: .region))?.find(chunk: coordinate.convert(from: .tile,
+                                                                                                                                          to: .chunk))?.find(tile: coordinate) }
     
     @discardableResult
-    public func add(tile footprint: Grid.Footprint) -> T? {
+    internal func add(tile footprint: Grid.Footprint) -> T? {
         
-        let origin = footprint.origin.origin.convert(from: .tile, to: .region)
+        let origin = footprint.origin.position.convert(from: .tile,
+                                                       to: .region)
         
         let region = find(region: origin) ?? R(coordinate: origin)
         

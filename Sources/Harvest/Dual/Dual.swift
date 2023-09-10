@@ -8,9 +8,9 @@ import Bivouac
 import SceneKit
 
 public class Dual<R: DualRegion<C>,
-                   C: DualChunk>: SCNNode {
+                  C: DualChunk>: SCNNode {
     
-    private(set) var regions: [R]
+    internal var regions: [R]
     
     required override public init() {
         
@@ -21,18 +21,37 @@ public class Dual<R: DualRegion<C>,
     
     required public init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     
-    private func find(region coordinate: Coordinate) -> R? { regions.first { $0.coordinate == coordinate } }
+    internal func clear() {
     
-    internal func add(tile coordinate: Coordinate) {
+        regions.forEach { $0.removeFromParentNode() }
         
-        let origin = coordinate.convert(from: .tile, to: .region)
+        regions.removeAll()
+    }
+    
+    internal func find(region coordinate: Coordinate) -> R? { regions.first { $0.coordinate == coordinate } }
+    
+    internal func add(vertex coordinate: Coordinate) -> Grid.Vertex? {
         
-        let region = find(region: origin) ?? R(coordinate: origin)
+        guard coordinate.equalToOne else { return nil }
         
-        guard region.parent == nil else { return }
+        let vertex = Grid.Vertex(coordinate)
         
-        regions.append(region)
+        for triangle in vertex.triangles {
+            
+            let origin = triangle.position.convert(from: .tile,
+                                                   to: .region)
+            
+            let region = find(region: origin) ?? R(coordinate: origin)
+            
+            region.add(chunk: coordinate)
+            
+            guard region.parent == nil else { continue }
+            
+            regions.append(region)
+            
+            addChildNode(region)
+        }
         
-        addChildNode(region)
+        return vertex
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 public class GraphTile {
     
-    public let footprint: Grid.Footprint
+    internal let footprint: Grid.Footprint
     
     required public init(footprint: Grid.Footprint) {
         
