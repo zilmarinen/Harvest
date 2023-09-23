@@ -7,9 +7,23 @@
 import Bivouac
 import SceneKit
 
-public final class TerrainRegion: DualRegion<TerrainChunk> {
+public final class TerrainRegion: DualRegion<TerrainChunk>,
+                                  Soilable {
     
-    private var terrain: Terrain? { parent as? Terrain }
+    internal var isDirty: Bool = false
+    
+    internal var terrain: Terrain? { parent as? Terrain }
     internal var heightMap: TerrainHeightMap? { terrain?.heightMap }
 }
 
+extension TerrainRegion {
+    
+    func becomeDirty() {
+        
+        guard !isDirty else { return }
+        
+        isDirty = true
+        
+        terrain?.becomeDirty()
+    }
+}

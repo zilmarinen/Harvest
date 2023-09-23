@@ -26,6 +26,7 @@ public final class EditorScene: Scene {
     public override func update(delta: TimeInterval,
                                 time: TimeInterval) {
         
+        foliage.clean()
         terrain.clean()
     }
 }
