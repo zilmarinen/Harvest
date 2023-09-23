@@ -7,6 +7,22 @@
 import Bivouac
 import SceneKit
 
-public final class FoliageChunk: GraphChunk<FoliageTile> {
+public final class FoliageChunk: GraphChunk<FoliageTile>,
+                                 Soilable {
     
+    internal var isDirty: Bool = false
+    
+    internal var region: FoliageRegion? { parent as? FoliageRegion }
+}
+
+extension FoliageChunk {
+    
+    func becomeDirty() {
+        
+        guard !isDirty else { return }
+        
+        isDirty = true
+        
+        region?.becomeDirty()
+    }
 }

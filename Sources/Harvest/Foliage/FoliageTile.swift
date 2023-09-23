@@ -5,8 +5,8 @@
 //
 
 import Bivouac
-import SceneKit
 
 public final class FoliageTile: GraphTile {
     
+    internal var foliageType: FoliageType = .spruce
 }
