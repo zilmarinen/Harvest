@@ -36,9 +36,12 @@ internal class FoliageChunkMeshOperation: ConcurrentOperation,
             
             let mesh = prefabs.mesh(foliageType: tile.foliageType)
             
+            let position = tile.footprint.origin.position.convert(to: .tile)
+            let elevation = Vector(0.0, (Grid.Triangle.Kite.base * Double(tile.elevation)) + Grid.Triangle.Kite.apex, 0.0)
+            
             let node = SCNNode()
             
-            node.position = SCNVector3(tile.footprint.origin.position.convert(to: .tile) + Vector(0.0, Grid.Triangle.Kite.base, 0.0))
+            node.position = SCNVector3(position + elevation)
             node.geometry = SCNGeometry(mesh)
             
             chunk.addChildNode(node)

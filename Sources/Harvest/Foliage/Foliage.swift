@@ -18,7 +18,8 @@ public final class Foliage: Graph<FoliageRegion, FoliageChunk, FoliageTile>,
 extension Foliage {
  
     public func add(foliageType: FoliageType,
-                    at coordinate: Coordinate) {
+                    at coordinate: Coordinate,
+                    elevation: Int) {
         
         let footprint = Grid.Footprint(origin: coordinate,
                                        area: foliageType.area)
@@ -26,6 +27,7 @@ extension Foliage {
         guard let tile = add(tile: footprint) else { return }
         
         tile.foliageType = foliageType
+        tile.elevation = elevation
         
         guard let region = find(region: coordinate.convert(from: .tile,
                                                            to: .region)),

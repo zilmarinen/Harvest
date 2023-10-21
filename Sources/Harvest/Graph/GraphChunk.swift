@@ -19,7 +19,7 @@ public class GraphChunk<T: GraphTile>: SCNNode {
         
         super.init()
         
-        self.position = SCNVector3(coordinate.convert(to: .chunk) - coordinate.convert(to: .region))
+        self.position = SCNVector3(coordinate.convert(to: .chunk) - coordinate.convert(from: .chunk, to: .region).convert(to: .region))
     }
     
     required public init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }

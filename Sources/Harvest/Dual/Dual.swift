@@ -43,7 +43,7 @@ public class Dual<R: DualRegion<C>,
             
             let region = find(region: origin) ?? R(coordinate: origin)
             
-            region.add(chunk: coordinate)
+            region.add(chunk: triangle.position)
             
             guard region.parent == nil else { continue }
             

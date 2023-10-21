@@ -31,10 +31,6 @@ public class Graph<R: GraphRegion<C, T>,
     
     internal func find(region coordinate: Coordinate) -> R? { regions.first { $0.coordinate == coordinate } }
     
-    internal func find(tile coordinate: Coordinate) -> T? { find(region: coordinate.convert(from: .tile,
-                                                                                            to: .region))?.find(chunk: coordinate.convert(from: .tile,
-                                                                                                                                          to: .chunk))?.find(tile: coordinate) }
-    
     @discardableResult
     internal func add(tile footprint: Grid.Footprint) -> T? {
         

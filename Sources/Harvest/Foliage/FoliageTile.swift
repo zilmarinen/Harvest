@@ -9,4 +9,5 @@ import Bivouac
 public final class FoliageTile: GraphTile {
     
     internal var foliageType: FoliageType = .spruce
+    internal var elevation: Int = 0
 }
