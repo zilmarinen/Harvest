@@ -10,7 +10,16 @@ let package = Package(
         .library(name: "Harvest",
                  targets: ["Harvest"]),
     ],
+    dependencies: [
+//        .package(url: "git@github.com:zilmarinen/Deltille.git",
+//                 branch: "develop"),
+        .package(url: "git@github.com:nicklockwood/Euclid.git",
+                 branch: "main"),
+        .package(path: "../Deltille")
+    ],
     targets: [
-        .target(name: "Harvest")
+        .target(name: "Harvest",
+                dependencies: ["Deltille",
+                               "Euclid"])
     ]
 )
