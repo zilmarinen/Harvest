@@ -6,6 +6,7 @@
 //
 
 import Deltille
+import Foundation
 import RealityKit
 
 internal class HeightMap: Entity {
@@ -52,6 +53,10 @@ extension HeightMap {
         chunk.set(height,
                   material,
                   for: vertex)
+        
+        guard chunk.isEmpty else { return }
+        
+        chunk.removeFromParent()
     }
     
     internal func chunk(for hexagon: Hexagon) -> HeightMapChunk? {
@@ -59,6 +64,36 @@ extension HeightMap {
         chunks.first {
             
             $0.hexagon == hexagon
+        }
+    }
+    
+    internal func chunks(intersecting triangle: Triangle) -> [HeightMapChunk] {
+        
+        chunks.filter {
+            
+            for vertex in $0.hexagon.vertices {
+                
+                let other = Triangle(vertex.position(.chunk),
+                                     .region)
+                
+                if other == triangle {
+                    
+                    return true
+                }
+            }
+            
+            for vertex in triangle.vertices {
+                
+                let other = Hexagon(vertex.position(.region),
+                                    .chunk)
+                
+                if other == $0.hexagon {
+                    
+                    return true
+                }
+            }
+            
+            return false
         }
     }
 }

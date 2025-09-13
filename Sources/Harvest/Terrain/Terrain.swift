@@ -6,6 +6,7 @@
 //
 
 import Deltille
+import Foundation
 import RealityKit
 
 public class Terrain: Entity {
@@ -24,17 +25,17 @@ public class Terrain: Entity {
 
 extension Terrain {
     
-    internal var chunks: [TerrainChunk] {
+    internal var regions: [TerrainRegion] {
         
         children.compactMap {
             
-            $0 as? TerrainChunk
+            $0 as? TerrainRegion
         }
     }
  
-    internal var dirtyChunks: [TerrainChunk] {
+    internal var dirtyRegions: [TerrainRegion] {
         
-        chunks.filter { $0.isDirty }
+        regions.filter { $0.soilableComponent.isDirty }
     }
 }
 
@@ -53,32 +54,35 @@ extension Terrain {
                       material,
                       for: vertex)
         
-        for tile in vertex.tiles {
+        createRegions(for: vertex)
+    }
+}
+
+extension Terrain {
+    
+    private func createRegions(for vertex: Triangle.Vertex) {
+        
+        let tiles = Set(vertex.tiles.map { $0.transpose(.tile,
+                                                        .region) })
+        
+        for tile in tiles {
             
-            let triangle = Triangle(tile.vertex.position(.tile),
-                                    .chunk)
+            let region = region(for: tile) ?? TerrainRegion(triangle: tile)
             
-            let chunk = chunk(for: triangle) ?? TerrainChunk(triangle: triangle)
-            
-            if chunk.parent == nil {
+            if region.parent == nil {
                 
-                addChild(chunk)
+                addChild(region)
             }
             
-            chunk.becomeDirty()
+            region.createChunks(for: vertex)
         }
     }
     
-    internal func chunk(for triangle: Triangle) -> TerrainChunk? {
+    private func region(for triangle: Triangle) -> TerrainRegion? {
         
-        chunks.first {
+        regions.first {
             
             $0.triangle == triangle
         }
     }
-}
-
-internal class TerrainComponent: Component {
-    
-    
 }
