@@ -18,7 +18,7 @@ public final class Region: Codable,
     let heightMap: [HeightMapChunk]
     
     @MainActor
-    public init(coordinate: Coordinate) {
+    public init(empty coordinate: Coordinate) {
         
         let triangle = Triangle(coordinate)
         let tile = triangle.transpose(.region,

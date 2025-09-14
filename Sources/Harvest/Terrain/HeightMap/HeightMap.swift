@@ -9,9 +9,7 @@ import Deltille
 import Foundation
 import RealityKit
 
-internal class HeightMap: Entity {
-    
-}
+internal class HeightMap: Entity {}
 
 extension HeightMap {
     

@@ -69,9 +69,7 @@ extension RegionView {
     
     public func save() -> [Region] {
         
-        guard !terrain.regions.isEmpty else { return [] }
-        
-        return terrain.regions.compactMap {
+        terrain.regions.compactMap {
             
             save(region: $0)
         }

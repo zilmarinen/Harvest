@@ -22,7 +22,7 @@ extension WorldView {
     
     public func add(region coordinate: Coordinate) {
         
-        let scale = Triangle.Scale.chunk
+        let scale = Triangle.Scale.region
         
         let triangle = Triangle(coordinate)
     
@@ -31,7 +31,7 @@ extension WorldView {
         let material = SimpleMaterial(color: color,
                                       isMetallic: false)
         
-        guard let entity = try? ModelEntity(triangle.mesh(.tile)) else { return }
+        guard let entity = try? ModelEntity(triangle.mesh(scale)) else { return }
         
         entity.position = .init(Vector(0.0, 0.002, 0.0))
         entity.components[ModelComponent.self]?.materials = [material]

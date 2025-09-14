@@ -60,7 +60,8 @@ public class TerrainRegion: Entity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.triangle = try container.decode(Triangle.self, forKey: .triangle)
+        self.triangle = try container.decode(Triangle.self,
+                                             forKey: .triangle)
         
         super.init()
         
@@ -69,7 +70,8 @@ public class TerrainRegion: Entity,
         
         components[SoilableComponent.self] = soilableComponent
         
-        let children = try container.decode([TerrainChunk].self, forKey: .chunks)
+        let children = try container.decode([TerrainChunk].self,
+                                            forKey: .chunks)
         
         children.forEach { addChild($0) }
         

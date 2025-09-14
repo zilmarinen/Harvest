@@ -8,7 +8,8 @@
 import Deltille
 import RealityKit
 
-internal class HeightMapChunkComponent: Component {
+internal class HeightMapChunkComponent: Component,
+                                        Codable {
     
     internal var vertices: [Triangle.Vertex : HeightMapVertex] = [:]
     

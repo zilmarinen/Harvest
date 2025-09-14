@@ -19,11 +19,12 @@ internal class HeightMapChunk: Entity,
     }
     
     internal let hexagon: Hexagon
-    internal let heightMapChunkComponent = HeightMapChunkComponent()
+    internal let heightMapChunkComponent: HeightMapChunkComponent
     
     internal init(hexagon: Hexagon) {
         
         self.hexagon = hexagon
+        self.heightMapChunkComponent = .init()
         
         super.init()
         
@@ -47,7 +48,11 @@ internal class HeightMapChunk: Entity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.hexagon = try container.decode(Hexagon.self, forKey: .hexagon)
+        self.hexagon = try container.decode(Hexagon.self,
+                                            forKey: .hexagon)
+        
+        self.heightMapChunkComponent = try container.decode(HeightMapChunkComponent.self,
+                                                            forKey: .vertices)
         
         super.init()
         
@@ -69,7 +74,7 @@ internal class HeightMapChunk: Entity,
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(hexagon, forKey: .hexagon)
-        try container.encode(heightMapChunkComponent.vertices, forKey: .vertices)
+        try container.encode(heightMapChunkComponent, forKey: .vertices)
     }
 }
 

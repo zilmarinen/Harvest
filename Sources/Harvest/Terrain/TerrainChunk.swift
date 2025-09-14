@@ -26,7 +26,8 @@ internal class TerrainChunk: Entity,
         
         super.init()
         
-        position = .init(triangle.position(.chunk) - triangle.transpose(.chunk, .region).position(.region))
+        position = .init(triangle.position(.chunk) - triangle.transpose(.chunk,
+                                                                        .region).position(.region))
         
         components[SoilableComponent.self] = soilableComponent
         
@@ -46,11 +47,13 @@ internal class TerrainChunk: Entity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.triangle = try container.decode(Triangle.self, forKey: .triangle)
+        self.triangle = try container.decode(Triangle.self,
+                                             forKey: .triangle)
         
         super.init()
         
-        position = .init(triangle.position(.chunk) - triangle.transpose(.chunk, .region).position(.region))
+        position = .init(triangle.position(.chunk) - triangle.transpose(.chunk,
+                                                                        .region).position(.region))
         
         components[SoilableComponent.self] = soilableComponent
         
