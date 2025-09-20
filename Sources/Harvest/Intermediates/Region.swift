@@ -14,8 +14,8 @@ public final class Region: Codable,
     public let coordinate: Coordinate
     public var identifier: String
     
-    let region: TerrainRegion
-    let heightMap: [HeightMapChunk]
+    internal let region: TerrainRegion
+    internal let heightMap: [HeightMapChunk]
     
     @MainActor
     public init(empty coordinate: Coordinate) {
@@ -34,7 +34,7 @@ public final class Region: Codable,
         self.region = .init(empty: triangle)
         self.heightMap = hexagons.map {
             
-            let chunk = HeightMapChunk(hexagon: $0)
+            let chunk = HeightMapChunk($0)
             
             for vertex in tile.vertices {
                 

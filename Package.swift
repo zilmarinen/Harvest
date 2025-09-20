@@ -15,11 +15,15 @@ let package = Package(
 //                 branch: "develop"),
         .package(url: "git@github.com:nicklockwood/Euclid.git",
                  branch: "main"),
-        .package(path: "../Deltille")
+        .package(path: "../Deltille"),
+        .package(path: "../Lattice"),
+        .package(path: "../Regolith")
     ],
     targets: [
         .target(name: "Harvest",
                 dependencies: ["Deltille",
-                               "Euclid"])
+                               "Euclid",
+                               "Lattice",
+                               "Regolith"])
     ]
 )
