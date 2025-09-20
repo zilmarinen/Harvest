@@ -9,18 +9,7 @@ import Deltille
 import Foundation
 import RealityKit
 
-internal class HeightMap: Entity {}
-
-extension HeightMap {
-    
-    internal var chunks: [HeightMapChunk] {
-        
-        children.compactMap {
-            
-            $0 as? HeightMapChunk
-        }
-    }
-}
+internal class HeightMap: HexagonalGrid<HeightMapChunk> {}
 
 extension HeightMap {
     
@@ -41,7 +30,7 @@ extension HeightMap {
         let hexagon = Hexagon(vertex.position(.tile),
                               .chunk)
         
-        let chunk = chunk(for: hexagon) ?? HeightMapChunk(hexagon: hexagon)
+        let chunk = chunk(for: hexagon) ?? HeightMapChunk(hexagon)
         
         if chunk.parent == nil {
             
@@ -57,41 +46,18 @@ extension HeightMap {
         chunk.removeFromParent()
     }
     
-    internal func chunk(for hexagon: Hexagon) -> HeightMapChunk? {
+    internal func slice(for chunk: Triangle) -> HeightMapSlice {
         
-        chunks.first {
-            
-            $0.hexagon == hexagon
-        }
-    }
-    
-    internal func chunks(intersecting triangle: Triangle) -> [HeightMapChunk] {
+        let sieve = chunk.sieve(for: .chunk)
         
-        chunks.filter {
+        let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : HeightMapVertex]()) { result, vertex in
             
-            for vertex in $0.hexagon.vertices {
-                
-                let other = Triangle(vertex.position(.chunk),
-                                     .region)
-                
-                if other == triangle {
-                    
-                    return true
-                }
-            }
+            guard let value = get(value: vertex) else { return }
             
-            for vertex in triangle.vertices {
-                
-                let other = Hexagon(vertex.position(.region),
-                                    .chunk)
-                
-                if other == $0.hexagon {
-                    
-                    return true
-                }
-            }
-            
-            return false
+            result[vertex] = value
         }
+        
+        return .init(sieve: sieve,
+                     vertices: vertices)
     }
 }

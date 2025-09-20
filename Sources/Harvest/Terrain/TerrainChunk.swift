@@ -9,67 +9,40 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class TerrainChunk: Entity,
-                             @preconcurrency Codable {
+public class TerrainChunk: TriangularEntity,
+                           @preconcurrency Codable,
+                           HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
         case triangle
     }
     
-    internal let triangle: Triangle
-    internal let soilableComponent = SoilableComponent()
-    
-    internal init(triangle: Triangle) {
+    internal init(_ triangle: Triangle) {
         
-        self.triangle = triangle
-        
-        super.init()
-        
-        position = .init(triangle.position(.chunk) - triangle.transpose(.chunk,
-                                                                        .region).position(.region))
-        
-        components[SoilableComponent.self] = soilableComponent
-        
-        guard let entity = try? ModelEntity(triangle.mesh(.chunk)) else { return }
-        
-        entity.position = -.init(triangle.position(.chunk)) + [0.0, 0.01, 0.0]
-        entity.model?.materials = [SimpleMaterial(color: triangle.isPointy ? .systemMint : .systemPink,
-                                                  isMetallic: false)]
-        
-        addChild(entity)
+        super.init(triangle,
+            .chunk)
     }
     
     @available(*, unavailable)
     required public init() { fatalError("init() has not been implemented") }
     
-    required internal init(from decoder: any Decoder) throws {
+    required public init(from decoder: any Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.triangle = try container.decode(Triangle.self,
-                                             forKey: .triangle)
+        let triangle = try container.decode(Triangle.self,
+                                            forKey: .triangle)
         
-        super.init()
-        
-        position = .init(triangle.position(.chunk) - triangle.transpose(.chunk,
-                                                                        .region).position(.region))
-        
-        components[SoilableComponent.self] = soilableComponent
-        
-        guard let entity = try? ModelEntity(triangle.mesh(.chunk)) else { return }
-        
-        entity.position = -.init(triangle.position(.chunk)) + [0.0, 0.01, 0.0]
-        entity.model?.materials = [SimpleMaterial(color: triangle.isPointy ? .systemMint : .systemPink,
-                                                  isMetallic: false)]
-        
-        addChild(entity)
+        super.init(triangle,
+                   .chunk)
     }
     
-    internal func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(triangle, forKey: .triangle)
+        try container.encode(triangle,
+                             forKey: .triangle)
     }
 }

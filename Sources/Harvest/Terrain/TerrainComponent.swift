@@ -7,7 +7,4 @@
 
 import RealityKit
 
-internal class TerrainComponent: Component {
-    
-    
-}
+internal struct TerrainComponent: Component {}

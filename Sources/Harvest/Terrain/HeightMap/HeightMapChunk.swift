@@ -8,7 +8,7 @@
 import Deltille
 import RealityKit
 
-internal class HeightMapChunk: Entity,
+internal class HeightMapChunk: HexagonalEntity,
                                @preconcurrency Codable,
                                HasHeightMapChunkComponent {
     
@@ -18,27 +18,10 @@ internal class HeightMapChunk: Entity,
         case vertices
     }
     
-    internal let hexagon: Hexagon
-    internal let heightMapChunkComponent: HeightMapChunkComponent
-    
-    internal init(hexagon: Hexagon) {
+    internal init(_ hexagon: Hexagon) {
         
-        self.hexagon = hexagon
-        self.heightMapChunkComponent = .init()
-        
-        super.init()
-        
-        position = .init(hexagon.position(.chunk))
-        
-        components[HeightMapChunkComponent.self] = heightMapChunkComponent
-        
-        guard let entity = try? ModelEntity(Hexagon.zero.mesh(.chunk)) else { return }
-        
-        entity.position = [0.0, 0.02, 0.0]
-        entity.model?.materials = [SimpleMaterial(color: .yellow,
-                                                  isMetallic: false)]
-        
-        addChild(entity)
+        super.init(hexagon,
+            .chunk)
     }
     
     @available(*, unavailable)
@@ -48,49 +31,24 @@ internal class HeightMapChunk: Entity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.hexagon = try container.decode(Hexagon.self,
-                                            forKey: .hexagon)
+        let hexagon = try container.decode(Hexagon.self,
+                                           forKey: .hexagon)
+        
+        super.init(hexagon,
+                   .chunk)
         
         self.heightMapChunkComponent = try container.decode(HeightMapChunkComponent.self,
                                                             forKey: .vertices)
-        
-        super.init()
-        
-        position = .init(hexagon.position(.chunk))
-        
-        components[HeightMapChunkComponent.self] = heightMapChunkComponent
-        
-        guard let entity = try? ModelEntity(Hexagon.zero.mesh(.chunk)) else { return }
-        
-        entity.position = [0.0, 0.02, 0.0]
-        entity.model?.materials = [SimpleMaterial(color: .yellow,
-                                                  isMetallic: false)]
-        
-        addChild(entity)
     }
     
     internal func encode(to encoder: any Encoder) throws {
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(hexagon, forKey: .hexagon)
-        try container.encode(heightMapChunkComponent, forKey: .vertices)
-    }
-}
-
-extension HeightMapChunk {
-    
-    internal func get(value vertex: Triangle.Vertex) -> HeightMapVertex? {
+        try container.encode(hexagon,
+                             forKey: .hexagon)
         
-        heightMapChunkComponent.vertices[vertex]
-    }
-    
-    internal func set(_ height: Int,
-                      _ material: Int,
-                      for vertex: Triangle.Vertex) {
-        
-        heightMapChunkComponent.set(height,
-                                    material,
-                                    for: vertex)
+        try container.encode(heightMapChunkComponent,
+                             forKey: .vertices)
     }
 }

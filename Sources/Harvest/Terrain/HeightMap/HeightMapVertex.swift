@@ -10,6 +10,7 @@ import Deltille
 public struct HeightMapVertex: Codable,
                                Equatable {
     
+    public let vertex: Triangle.Vertex
     public let height: Int
     public let material: Int
 }

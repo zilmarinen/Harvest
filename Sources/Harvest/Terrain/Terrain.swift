@@ -9,7 +9,8 @@ import Deltille
 import Foundation
 import RealityKit
 
-public class Terrain: Entity {
+public class Terrain: TriangularGrid<TerrainRegion,
+                      TerrainChunk> {
     
     internal let heightMap = HeightMap()
     
@@ -24,18 +25,10 @@ public class Terrain: Entity {
 }
 
 extension Terrain {
-    
-    internal var regions: [TerrainRegion] {
-        
-        children.compactMap {
-            
-            $0 as? TerrainRegion
-        }
-    }
  
     internal var dirtyRegions: [TerrainRegion] {
         
-        regions.filter { $0.soilableComponent.isDirty }
+        regions.filter { $0.isDirty }
     }
 }
 
@@ -75,14 +68,6 @@ extension Terrain {
             }
             
             region.createChunks(for: vertex)
-        }
-    }
-    
-    private func region(for triangle: Triangle) -> TerrainRegion? {
-        
-        regions.first {
-            
-            $0.triangle == triangle
         }
     }
 }

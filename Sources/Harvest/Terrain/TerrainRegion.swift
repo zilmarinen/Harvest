@@ -9,17 +9,15 @@ import Deltille
 import Foundation
 import RealityKit
 
-public class TerrainRegion: Entity,
-                            @preconcurrency Codable {
+public class TerrainRegion: TriangularRegion<TerrainChunk>,
+                            @preconcurrency Codable,
+                            HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
         case triangle
         case chunks
     }
-    
-    internal let triangle: Triangle
-    internal let soilableComponent = SoilableComponent()
     
     convenience init(empty triangle: Triangle) {
         
@@ -36,21 +34,8 @@ public class TerrainRegion: Entity,
     
     public init(triangle: Triangle) {
         
-        self.triangle = triangle
-        
-        super.init()
-        
-        position = .init(triangle.position(.region))
-        name = triangle.id
-        
-        components[SoilableComponent.self] = soilableComponent
-        
-        guard let entity = try? ModelEntity(triangle.mesh(.region)) else { return }
-        
-        entity.position = -position
-        entity.model?.materials = [SimpleMaterial(color: triangle.isPointy ? .systemIndigo : .systemTeal,
-                                                  isMetallic: false)]
-        addChild(entity)
+        super.init(triangle,
+                   .region)
     }
     
     @available(*, unavailable)
@@ -60,15 +45,11 @@ public class TerrainRegion: Entity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.triangle = try container.decode(Triangle.self,
-                                             forKey: .triangle)
+        let triangle = try container.decode(Triangle.self,
+                                            forKey: .triangle)
         
-        super.init()
-        
-        position = .init(triangle.position(.region))
-        name = triangle.id
-        
-        components[SoilableComponent.self] = soilableComponent
+        super.init(triangle,
+                   .region)
         
         let children = try container.decode([TerrainChunk].self,
                                             forKey: .chunks)
@@ -87,29 +68,19 @@ public class TerrainRegion: Entity,
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(triangle, forKey: .triangle)
-        try container.encode(chunks, forKey: .chunks)
+        try container.encode(triangle,
+                             forKey: .triangle)
+        
+        try container.encode(chunks,
+                             forKey: .chunks)
     }
 }
 
 extension TerrainRegion {
-    
-    internal var chunks: [TerrainChunk] {
-        
-        children.compactMap {
-            
-            $0 as? TerrainChunk
-        }
-    }
  
     internal var dirtyChunks: [TerrainChunk] {
         
-        chunks.filter { $0.soilableComponent.isDirty }
-    }
-    
-    internal var isEmpty: Bool {
-        
-        chunks.isEmpty
+        chunks.filter { $0.isDirty }
     }
 }
 
@@ -130,20 +101,16 @@ extension TerrainRegion {
         
         for tile in tiles {
             
-            let chunk = chunk(for: tile) ?? TerrainChunk(triangle: tile)
+            let chunk = chunk(for: tile) ?? TerrainChunk(tile)
             
             if chunk.parent == nil {
                 
                 addChild(chunk)
             }
-        }
-    }
-    
-    internal func chunk(for triangle: Triangle) -> TerrainChunk? {
-        
-        chunks.first {
             
-            $0.triangle == triangle
+            chunk.becomeDirty()
         }
+        
+        becomeDirty()
     }
 }
