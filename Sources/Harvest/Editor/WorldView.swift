@@ -20,6 +20,16 @@ public class WorldView: EditorView {
 
 extension WorldView {
     
+    public func clear() {
+        
+        for child in world.children {
+            
+            guard let child = child as? ModelEntity else { continue }
+            
+            child.removeFromParent()
+        }
+    }
+    
     public func add(region coordinate: Coordinate) {
         
         let scale = Triangle.Scale.region

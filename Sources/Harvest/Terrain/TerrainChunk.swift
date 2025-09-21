@@ -11,6 +11,7 @@ import RealityKit
 
 public class TerrainChunk: TriangularEntity,
                            @preconcurrency Codable,
+                           HasModel,
                            HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {

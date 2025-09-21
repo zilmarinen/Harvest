@@ -9,6 +9,7 @@ import AppKit
 import Deltille
 import Euclid
 import RealityKit
+import Regolith
 
 @MainActor
 internal struct TerrainSystem: System {
@@ -69,19 +70,106 @@ extension TerrainSystem {
     private func update(chunk: TerrainChunk,
                         slice: HeightMapSlice) {
         
-        for (vertex, heightMap) in slice.vertices {
+        var tiles: [Triangle.Vertex : TerrainTile] = [:]
+        
+        //loop through each vertex that needs to be rendered
+        for (vertex, _) in slice.vertices {
             
-            for triangle in vertex.tiles {
+            //loop through each of the connected tiles
+            for tile in vertex.tiles {
                 
-                let tile = triangle.transpose(.tile,
+                let triangle = tile.transpose(.tile,
                                               .chunk)
                 
-                guard tile == chunk.triangle else { continue }
+                //check the tile is within the current chunk and
+                //that we have not already mapped this tile
+                guard triangle == chunk.triangle,
+                      tiles[tile.vertex] == nil else { continue }
                 
-                //
+                //gather each vertex in the height map for this tile
+                let vertices = tile.vertices.compactMap {
+                    
+                    slice.vertices[$0]
+                }
+                
+                tiles[tile.vertex] = .init(triangle: tile,
+                                           vertices: vertices)
             }
         }
         
+        render(chunk: chunk,
+               tiles: tiles)
+        
         chunk.isDirty = false
+    }
+    
+    private func render(chunk: TerrainChunk,
+                        tiles: [Triangle.Vertex : TerrainTile]) {
+        
+        do {
+            var mesh = Mesh.empty
+            
+            for (_, tile) in tiles {
+                
+                mesh = mesh.union(render(tile: tile))
+            }
+            
+            mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
+            
+            let descriptor = MeshDescriptor(triangles: mesh.translated(by: Vector(0.0, 0.05, 0.0)))
+            
+            let resource = try MeshResource.generate(from: [descriptor])
+            
+            chunk.model = .init(mesh: resource,
+                                materials: [SimpleMaterial(color: .gray,
+                                                           isMetallic: false)])
+        }
+        catch {
+            
+            fatalError("Error genering mesh for chunk \(chunk.triangle.id): \(error.localizedDescription)")
+        }
+    }
+    
+    private func render(tile: TerrainTile) -> Mesh {
+        
+        let stencil = Triangle.zero.stencil(.tile)
+        let offset = tile.triangle.position(.tile)
+        let step = Triangle.Rotation.step
+        let pattern = tile.triangle.pattern
+        
+        print("Tile \(tile.triangle.id) has pattern: \(pattern)")
+        
+        guard !tile.isUniform else {
+            
+            let kite = Triangle.Kite.uniform
+            
+            let template =  kite.mesh(stencil,
+                                      Double(tile.anyHeight),
+                                      .green)
+            
+            let angle = Angle(radians: tile.triangle.rotation)
+            
+            return template.transformed(by: .init(offset: offset,
+                                                  rotation: .yaw(angle)))
+        }
+        
+        var mesh = Mesh.empty
+        
+        for heightMap in tile.vertices {
+            
+            guard let corner = tile.triangle.corner(heightMap.vertex) else { continue }
+            
+            let kite = tile.triangle.pattern.kites[corner.rawValue]
+            
+            let template = kite.mesh(stencil,
+                                     Double(heightMap.height),
+                                     .blue)
+            
+            let angle = Angle(radians: (step * Double(-corner.rawValue) + tile.triangle.rotation))
+            
+            mesh = mesh.union(template.rotated(by: .yaw(angle)))
+        }
+        
+        return mesh.translated(by: offset)
     }
 }

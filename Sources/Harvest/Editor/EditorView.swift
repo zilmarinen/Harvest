@@ -10,6 +10,7 @@ import Deltille
 import Euclid
 import RealityKit
 
+@MainActor
 open class EditorView: ARView {
     
     internal let floorPlane = float4x4(simd_quatf(angle: 0.0,

@@ -9,7 +9,7 @@ import RealityKit
 
 internal struct SoilableComponent: Component {
     
-    internal var isDirty: Bool = false
+    internal var isDirty: Bool = true
 }
 
 internal protocol HasSoilableComponent: Entity {

@@ -12,7 +12,7 @@ public struct CameraFocusComponent: Component {
     
     internal static let forward = simd_normalize(SIMD3<Float>(-1, -1, -1))
     internal static let minimumRadius: Float = 2.0
-    internal static let maximumRadius: Float = 50.0
+    internal static let maximumRadius: Float = 75.0
     
     internal var focus: Vector = .zero
 }
