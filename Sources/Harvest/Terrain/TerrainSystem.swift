@@ -14,7 +14,7 @@ import Regolith
 @MainActor
 internal struct TerrainSystem: System {
     
-    private static let query = EntityQuery(where: .has(TerrainComponent.self))
+    private static let query = EntityQuery(where: .has(TerrainCacheComponent.self))
     
     init(scene: Scene) {}
     
@@ -23,7 +23,8 @@ internal struct TerrainSystem: System {
         for entity in context.entities(matching: Self.query,
                                        updatingSystemWhen: .rendering) {
             
-            guard let terrain = entity as? Terrain else { continue }
+            guard let terrain = entity as? Terrain,
+                  let cache = terrain.components[TerrainCacheComponent.self] else { continue }
             
             var emptyRegions: [TerrainRegion] = []
             
@@ -43,7 +44,8 @@ internal struct TerrainSystem: System {
                     }
                     
                     update(chunk: chunk,
-                           slice: slice)
+                           slice: slice,
+                           cache: cache)
                 }
                 
                 emptyChunks.forEach {
@@ -68,61 +70,29 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: HeightMapSlice) {
+                        slice: HeightMapSlice,
+                        cache: TerrainCacheComponent) {
         
-        var tiles: [Triangle.Vertex : TerrainTile] = [:]
-        
-        //loop through each vertex that needs to be rendered
-        for (vertex, _) in slice.vertices {
+        let tiles = slice.sieve.tiles.reduce(into: [Triangle.Vertex : TerrainTile]()) { result, tile in
             
-            //loop through each of the connected tiles
-            for tile in vertex.tiles {
+            let vertices = tile.vertices.compactMap {
                 
-                let triangle = tile.transpose(.tile,
-                                              .chunk)
-                
-                //check the tile is within the current chunk and
-                //that we have not already mapped this tile
-                guard triangle == chunk.triangle,
-                      tiles[tile.vertex] == nil else { continue }
-                
-                //gather each vertex in the height map for this tile
-                let vertices = tile.vertices.compactMap {
-                    
-                    slice.vertices[$0]
-                }
-                
-                tiles[tile.vertex] = .init(triangle: tile,
-                                           vertices: vertices)
+                slice.vertices[$0]
             }
+            
+            guard !vertices.isEmpty else { return }
+            
+            result[tile.vertex] = .init(triangle: tile,
+                                        vertices: vertices)
         }
         
-        render(chunk: chunk,
-               tiles: tiles)
-        
-        chunk.isDirty = false
-    }
-    
-    private func render(chunk: TerrainChunk,
-                        tiles: [Triangle.Vertex : TerrainTile]) {
-        
         do {
-            var mesh = Mesh.empty
             
-            for (_, tile) in tiles {
-                
-                mesh = mesh.union(render(tile: tile))
-            }
+            try render(chunk: chunk,
+                       tiles: tiles,
+                       cache: cache)
             
-            mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
-            
-            let descriptor = MeshDescriptor(triangles: mesh.translated(by: Vector(0.0, 0.05, 0.0)))
-            
-            let resource = try MeshResource.generate(from: [descriptor])
-            
-            chunk.model = .init(mesh: resource,
-                                materials: [SimpleMaterial(color: .gray,
-                                                           isMetallic: false)])
+            chunk.isDirty = false
         }
         catch {
             
@@ -130,27 +100,49 @@ extension TerrainSystem {
         }
     }
     
-    private func render(tile: TerrainTile) -> Mesh {
+    private func render(chunk: TerrainChunk,
+                        tiles: [Triangle.Vertex : TerrainTile],
+                        cache: TerrainCacheComponent) throws {
         
         let stencil = Triangle.zero.stencil(.tile)
-        let offset = tile.triangle.position(.tile)
-        let step = Triangle.Rotation.step
-        let pattern = tile.triangle.pattern
         
-        print("Tile \(tile.triangle.id) has pattern: \(pattern)")
+        var mesh = Mesh.empty
+        
+        for (_, tile) in tiles {
+            
+            mesh = mesh.merge(render(tile: tile,
+                                     stencil: stencil,
+                                     cache: cache))
+        }
+        
+        mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
+        
+        let descriptor = MeshDescriptor(triangles: mesh)
+        
+        let resource = try MeshResource.generate(from: [descriptor])
+        
+        chunk.model = .init(mesh: resource,
+                            materials: [SimpleMaterial(color: .gray,
+                                                       isMetallic: false)])
+    }
+    
+    private func render(tile: TerrainTile,
+                        stencil: Triangle.Stencil,
+                        cache: TerrainCacheComponent) -> Mesh {
+        
+        let origin = tile.triangle.position(.tile)
+        let step = Triangle.Rotation.step
+        let baseHeight = TerrainCacheComponent.baseHeight
+        let tileRotation = Angle(radians: tile.triangle.rotation)
         
         guard !tile.isUniform else {
             
-            let kite = Triangle.Kite.uniform
+            let apex = cache.apex(for: .uniform,
+                                  terrainType: tile.uniformMaterial)
             
-            let template =  kite.mesh(stencil,
-                                      Double(tile.anyHeight),
-                                      .green)
+            let offset = Vector(0.0, baseHeight * Double(tile.uniformHeight), 0.0)
             
-            let angle = Angle(radians: tile.triangle.rotation)
-            
-            return template.transformed(by: .init(offset: offset,
-                                                  rotation: .yaw(angle)))
+            return apex.rotated(by: .yaw(tileRotation)).translated(by: origin + offset)
         }
         
         var mesh = Mesh.empty
@@ -159,17 +151,26 @@ extension TerrainSystem {
             
             guard let corner = tile.triangle.corner(heightMap.vertex) else { continue }
             
-            let kite = tile.triangle.pattern.kites[corner.rawValue]
+            let kite = tile.triangle.kite(index: corner.rawValue)
             
-            let template = kite.mesh(stencil,
-                                     Double(heightMap.height),
-                                     .blue)
+            let apex = cache.apex(for: kite,
+                                  terrainType: heightMap.material)
+            let base = cache.base(for: kite,
+                                  terrainType: heightMap.material)
             
-            let angle = Angle(radians: (step * Double(-corner.rawValue) + tile.triangle.rotation))
+            let offset = Vector(0.0, baseHeight * Double(heightMap.height), 0.0)
+            let angle = tileRotation + .init(radians: (step * Double(-corner.rawValue)))
             
-            mesh = mesh.union(template.rotated(by: .yaw(angle)))
+            for i in 0..<heightMap.height {
+                
+                let translation = Vector(0.0, baseHeight * Double(i), 0.0)
+                
+                mesh = mesh.union(base.rotated(by: .yaw(angle)).translated(by: translation))
+            }
+            
+            mesh = mesh.union(apex.rotated(by: .yaw(angle)).translated(by: offset))
         }
         
-        return mesh.translated(by: offset)
+        return mesh.translated(by: origin)
     }
 }
