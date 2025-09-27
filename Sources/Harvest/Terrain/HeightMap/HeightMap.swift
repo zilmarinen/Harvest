@@ -24,7 +24,7 @@ extension HeightMap {
     }
     
     internal func set(_ height: Int,
-                      _ material: Int,
+                      _ material: TerrainType,
                       for vertex: Triangle.Vertex) {
         
         let hexagon = Hexagon(vertex.position(.tile),

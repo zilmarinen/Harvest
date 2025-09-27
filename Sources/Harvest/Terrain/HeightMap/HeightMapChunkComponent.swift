@@ -23,7 +23,7 @@ internal protocol HasHeightMapChunkComponent: Entity {
     func get(value vertex: Triangle.Vertex) -> HeightMapVertex?
     
     func set(_ height: Int,
-             _ material: Int,
+             _ material: TerrainType,
              for vertex: Triangle.Vertex)
 }
 
@@ -57,7 +57,7 @@ extension HasHeightMapChunkComponent {
     }
     
     func set(_ height: Int,
-             _ material: Int,
+             _ material: TerrainType,
              for vertex: Triangle.Vertex) {
         
         guard height > 0 else {

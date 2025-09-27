@@ -25,7 +25,7 @@ public class RegionView: EditorView {
         super.registerComponents()
         
         HeightMapChunkComponent.registerComponent()
-        TerrainComponent.registerComponent()
+        TerrainCacheComponent.registerComponent()
     }
     
     public override func registerSystems() {

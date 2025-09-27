@@ -19,13 +19,14 @@ extension TerrainTile {
         
         guard vertices.count == 3 else { return false }
         
+        return hasUniformHeight && hasUniformMaterial
+    }
+    
+    internal var hasUniformHeight: Bool {
+        
         for i in 0..<(vertices.count - 1) {
             
-            let lhs = vertices[i]
-            let rhs = vertices[i + 1]
-            
-            if lhs.height != rhs.height ||
-               lhs.material != rhs.material {
+            if vertices[i].height != vertices[i + 1].height {
                 
                 return false
             }
@@ -34,14 +35,27 @@ extension TerrainTile {
         return true
     }
     
-    internal var anyHeight: Int {
+    internal var hasUniformMaterial: Bool {
         
-        vertices.first?.height ?? 0
+        for i in 0..<(vertices.count - 1) {
+            
+            if vertices[i].material != vertices[i + 1].material {
+                
+                return false
+            }
+        }
+        
+        return true
     }
     
-    internal var anyMaterial: Int {
+    internal var uniformHeight: Int {
         
-        vertices.first?.material ?? 0
+        vertices[0].height
+    }
+    
+    internal var uniformMaterial: TerrainType {
+        
+        vertices[0].material
     }
 }
 

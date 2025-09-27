@@ -20,7 +20,7 @@ public class Terrain: TriangularGrid<TerrainRegion,
         
         addChild(heightMap)
         
-        components[TerrainComponent.self] = .init()
+        components[TerrainCacheComponent.self] = .init()
     }
 }
 
@@ -40,7 +40,7 @@ extension Terrain {
     }
     
     public func set(_ height: Int,
-                    _ material: Int,
+                    _ material: TerrainType,
                     for vertex: Triangle.Vertex) {
         
         heightMap.set(height,

@@ -12,5 +12,5 @@ public struct HeightMapVertex: Codable,
     
     public let vertex: Triangle.Vertex
     public let height: Int
-    public let material: Int
+    public let material: TerrainType
 }

@@ -19,7 +19,7 @@ internal class HeightMapChunk: HexagonalEntity,
     }
     
     internal init(_ hexagon: Hexagon) {
-        
+    
         super.init(hexagon,
             .chunk)
     }

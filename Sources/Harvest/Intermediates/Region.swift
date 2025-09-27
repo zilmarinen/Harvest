@@ -18,9 +18,8 @@ public final class Region: Codable,
     internal let heightMap: [HeightMapChunk]
     
     @MainActor
-    public init(empty coordinate: Coordinate) {
+    public init(empty triangle: Triangle) {
         
-        let triangle = Triangle(coordinate)
         let tile = triangle.transpose(.region,
                                       .tile)
         let hexagons = tile.vertices.map {
@@ -28,9 +27,10 @@ public final class Region: Codable,
             Hexagon($0.position(.tile),
                     .chunk)
         }
+        let material = TerrainType.allCases.randomElement()!
         
-        self.coordinate = coordinate
-        self.identifier = coordinate.id
+        self.coordinate = triangle.vertex.position
+        self.identifier = triangle.id
         self.region = .init(empty: triangle)
         self.heightMap = hexagons.map {
             
@@ -38,11 +38,11 @@ public final class Region: Codable,
             
             for vertex in tile.vertices {
                 
-                guard $0.contains($0.position(.tile),
+                guard $0.contains(vertex.position(.tile),
                                   .chunk) else { continue }
                 
                 chunk.set(1,
-                          1,
+                          material,
                           for: vertex)
             }
             
