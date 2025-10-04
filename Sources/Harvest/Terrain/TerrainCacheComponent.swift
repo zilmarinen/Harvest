@@ -11,51 +11,19 @@ import Euclid
 import RealityKit
 import Regolith
 
-internal struct TerrainCacheComponent: Component {
-    
-    typealias Materials = [TerrainType : (apex: Material,
-                                          base: Material)]
+internal class TerrainCacheComponent: Component {
     
     internal static let apexHeight = 0.1
     internal static let baseHeight = 0.5
     
     private let stencil = Triangle.zero.stencil(.tile)
     
-    private let materials: Materials
-    
-    private let apex: [Triangle.Kite : Mesh]
-    private let base: [Triangle.Kite : Mesh]
+    private var apex: [TerrainType : [Triangle.Kite : Mesh]] = [:]
+    private var base: [TerrainType : [Triangle.Kite : Mesh]] = [:]
     
     internal init() {
         
-        let stencil = Triangle.zero.stencil(.tile)
-        let kites = Triangle.Kite.allCases
-        
-        self.apex = kites.reduce(into: [Triangle.Kite : Mesh](), { result, kite in
-            
-            result[kite] = kite.mesh(stencil,
-                                     Self.apexHeight,
-                                     .red)
-        })
-        
-        self.base = kites.reduce(into: [Triangle.Kite : Mesh](), { result, kite in
-            
-            result[kite] = kite.mesh(stencil,
-                                     Self.baseHeight,
-                                     .red)
-        })
-        
-        self.materials = TerrainType.allCases.reduce(into: Materials(), { result, terrainType in
-            
-            let apexMaterial = SimpleMaterial(color: NSColor(terrainType.apexColor),
-                                              isMetallic: false)
-            
-            let baseMaterial = SimpleMaterial(color: NSColor(terrainType.baseColor),
-                                              isMetallic: false)
-            
-            result[terrainType] = (apex: apexMaterial,
-                                   base: baseMaterial)
-        })
+        //
     }
 }
 
@@ -64,12 +32,42 @@ extension TerrainCacheComponent {
     internal func apex(for kite: Triangle.Kite,
                        terrainType: TerrainType) -> Mesh {
         
-        apex[kite] ?? .empty
+        var container = apex[terrainType] ?? [:]
+        
+        if let mesh = container[kite] {
+            
+            return mesh
+        }
+        
+        let mesh = kite.mesh(stencil,
+                             Self.apexHeight,
+                             terrainType.apexColor)
+        
+        container[kite] = mesh
+        
+        apex[terrainType] = container
+        
+        return mesh
     }
     
     internal func base(for kite: Triangle.Kite,
                        terrainType: TerrainType) -> Mesh {
         
-        base[kite] ?? .empty
+        var container = base[terrainType] ?? [:]
+        
+        if let mesh = container[kite] {
+            
+            return mesh
+        }
+        
+        let mesh = kite.mesh(stencil,
+                             Self.baseHeight,
+                             terrainType.baseColor)
+        
+        container[kite] = mesh
+        
+        base[terrainType] = container
+        
+        return mesh
     }
 }
