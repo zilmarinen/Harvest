@@ -22,7 +22,7 @@ public class TerrainChunk: TriangularEntity,
     internal init(_ triangle: Triangle) {
         
         super.init(triangle,
-            .chunk)
+                   .chunk)
     }
     
     @available(*, unavailable)

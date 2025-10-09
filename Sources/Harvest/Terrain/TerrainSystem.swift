@@ -117,13 +117,10 @@ extension TerrainSystem {
         
         mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
         
-        let descriptor = MeshDescriptor(triangles: mesh)
+        let model = ModelComponent(mesh: .init(mesh: mesh),
+                                   materials: [cache.material])
         
-        let resource = try MeshResource.generate(from: [descriptor])
-        
-        chunk.model = .init(mesh: resource,
-                            materials: [SimpleMaterial(color: .gray,
-                                                       isMetallic: false)])
+        chunk.model = model
     }
     
     private func render(tile: TerrainTile,

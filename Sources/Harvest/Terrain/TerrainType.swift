@@ -63,15 +63,15 @@ extension TerrainType {
             
         case .chaparral: .init(0.741, 0.663, 0.157)
             
-        case .deciduous: .init(0.0, 0.0, 0.0)
+        case .deciduous: .init(0.741, 0.141, 0.227)
             
-        case .prairie: .init(0.0, 0.0, 0.0)
+        case .prairie: .init(0.176, 0.741, 0.388)
           
-        case .rainforest: .init(0.0, 0.0, 0.0)
+        case .rainforest: .init(0.141, 0.227, 0.741)
              
-        case .scrubland: .init(0.0, 0.0, 0.0)
+        case .scrubland: .init(0.663, 0.278, 0.176)
             
-        case .tundra: .init(0.0, 0.0, 0.0)
+        case .tundra: .init(0.247, 0.278, 0.259)
         }
     }
     
@@ -83,15 +83,15 @@ extension TerrainType {
             
         case .chaparral: .init(0.278, 0.247, 0.176)
             
-        case .deciduous: .init(0.0, 0.0, 0.0)
+        case .deciduous: .init(0.247, 0.663, 0.141)
             
-        case .prairie: .init(0.0, 0.0, 0.0)
+        case .prairie: .init(0.259, 0.294, 0.227)
           
-        case .rainforest: .init(0.0, 0.0, 0.0)
+        case .rainforest: .init(0.388, 0.663, 0.259)
              
-        case .scrubland: .init(0.0, 0.0, 0.0)
+        case .scrubland: .init(0.388, 0.227, 0.247)
             
-        case .tundra: .init(0.0, 0.0, 0.0)
+        case .tundra: .init(0.176, 0.663, 0.294)
         }
     }
 }

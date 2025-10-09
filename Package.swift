@@ -24,6 +24,7 @@ let package = Package(
                 dependencies: ["Deltille",
                                "Euclid",
                                "Lattice",
-                               "Regolith"])
+                               "Regolith"],
+                resources: [.process("Shaders")])
     ]
 )

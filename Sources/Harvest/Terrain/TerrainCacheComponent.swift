@@ -18,12 +18,33 @@ internal class TerrainCacheComponent: Component {
     
     private let stencil = Triangle.zero.stencil(.tile)
     
+    internal let material: CustomMaterial
+    
     private var apex: [TerrainType : [Triangle.Kite : Mesh]] = [:]
     private var base: [TerrainType : [Triangle.Kite : Mesh]] = [:]
     
     internal init() {
         
-        //
+        do {
+            
+            guard let device = MTLCreateSystemDefaultDevice() else { fatalError("Error creating default metal device") }
+            
+            let library = try device.makeDefaultLibrary(bundle: .module)
+            
+            let surface = CustomMaterial.SurfaceShader(named: "customMaterialSurface",
+                                                       in: library)
+            
+            let geometry = CustomMaterial.GeometryModifier(named: "customMaterialGeometry",
+                                                           in: library)
+            
+            self.material = try CustomMaterial(surfaceShader: surface,
+                                               geometryModifier: geometry,
+                                               lightingModel: .lit)
+        }
+        catch {
+            
+            fatalError("Error creating custom material: \(error)")
+        }
     }
 }
 
