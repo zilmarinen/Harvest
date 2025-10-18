@@ -1,31 +1,30 @@
 //
-//  HeightMapChunk.swift
-//  Harvest
+//  BiomeChunk.swift
 //
-//  Created by Zack Brown on 04/09/2025.
+//  Created by Zack Brown on 17/10/2025.
 //
 
 import Deltille
 import RealityKit
 
-internal class HeightMapChunk: HexagonalEntity,
-                               @preconcurrency Codable,
-                               HasHeightMapChunkComponent {
+internal class BiomeChunk: HexagonalEntity,
+                           @preconcurrency Codable,
+                           HasBiomeComponent {
     
     internal enum CodingKeys: CodingKey {
         
         case hexagon
-        case vertices
+        case biomes
     }
     
     internal init(_ hexagon: Hexagon) {
     
         super.init(hexagon,
-            .chunk)
+                   .chunk)
     }
     
     @available(*, unavailable)
-    required public init() { fatalError("init() has not been implemented") }
+    required internal init() { fatalError("init() has not been implemented") }
     
     internal required init(from decoder: any Decoder) throws {
         
@@ -37,8 +36,8 @@ internal class HeightMapChunk: HexagonalEntity,
         super.init(hexagon,
                    .chunk)
         
-        self.heightMapChunkComponent = try container.decode(HeightMapChunkComponent.self,
-                                                            forKey: .vertices)
+        self.biomeComponent = try container.decode(BiomeComponent.self,
+                                                   forKey: .biomes)
     }
     
     internal func encode(to encoder: any Encoder) throws {
@@ -48,7 +47,7 @@ internal class HeightMapChunk: HexagonalEntity,
         try container.encode(hexagon,
                              forKey: .hexagon)
         
-        try container.encode(heightMapChunkComponent,
-                             forKey: .vertices)
+        try container.encode(biomeComponent,
+                             forKey: .biomes)
     }
 }

@@ -1,32 +1,31 @@
 //
-//  TerrainTile.swift
-//  Harvest
+//  BiomeTile.swift
 //
-//  Created by Zack Brown on 20/09/2025.
+//  Created by Zack Brown on 17/10/2025.
 //
 
 import Deltille
 
-internal struct TerrainTile {
+internal struct BiomeTile {
     
     internal let triangle: Triangle
-    internal let vertices: [HeightMapVertex]
+    internal let vertices: [BiomeVertex]
 }
 
-extension TerrainTile {
+extension BiomeTile {
     
     internal var isUniform: Bool {
         
         guard vertices.count == 3 else { return false }
         
-        return hasUniformHeight && hasUniformMaterial
+        return hasUniformElevation && hasUniformBiome
     }
     
-    internal var hasUniformHeight: Bool {
+    internal var hasUniformElevation: Bool {
         
         for i in 0..<(vertices.count - 1) {
             
-            if vertices[i].height != vertices[i + 1].height {
+            if vertices[i].elevation != vertices[i + 1].elevation {
                 
                 return false
             }
@@ -35,11 +34,11 @@ extension TerrainTile {
         return true
     }
     
-    internal var hasUniformMaterial: Bool {
+    internal var hasUniformBiome: Bool {
         
         for i in 0..<(vertices.count - 1) {
             
-            if vertices[i].material != vertices[i + 1].material {
+            if vertices[i].biome != vertices[i + 1].biome {
                 
                 return false
             }
@@ -48,20 +47,20 @@ extension TerrainTile {
         return true
     }
     
-    internal var uniformHeight: Int {
+    internal var uniformElevation: Int {
         
-        vertices[0].height
+        vertices[0].elevation
     }
     
-    internal var uniformMaterial: TerrainType {
+    internal var uniformBiome: Biome {
         
-        vertices[0].material
+        vertices[0].biome
     }
 }
 
-extension TerrainTile {
+extension BiomeTile {
     
-    internal func heightMap(vertex: Triangle.Vertex) -> HeightMapVertex? {
+    internal func biome(for vertex: Triangle.Vertex) -> BiomeVertex? {
         
         vertices.first {
             

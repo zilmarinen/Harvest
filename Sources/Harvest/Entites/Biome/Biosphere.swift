@@ -1,19 +1,26 @@
 //
-//  HeightMap.swift
-//  Harvest
+//  Biosphere.swift
 //
-//  Created by Zack Brown on 04/09/2025.
+//  Created by Zack Brown on 17/10/2025.
 //
 
 import Deltille
 import Foundation
 import RealityKit
 
-internal class HeightMap: HexagonalGrid<HeightMapChunk> {}
-
-extension HeightMap {
+internal class Biosphere: HexagonalGrid<BiomeChunk> {
     
-    internal func get(value vertex: Triangle.Vertex) -> HeightMapVertex? {
+    internal required init() {
+        
+        super.init()
+        
+        name = Entity.Identifier.biosphere.id
+    }
+}
+
+extension Biosphere {
+    
+    internal func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
         
         let hexagon = Hexagon(vertex.position(.tile),
                               .chunk)
@@ -23,22 +30,22 @@ extension HeightMap {
         return chunk.get(value: vertex)
     }
     
-    internal func set(_ height: Int,
-                      _ material: TerrainType,
+    internal func set(_ biome: Biome,
+                      _ height: Int,
                       for vertex: Triangle.Vertex) {
         
         let hexagon = Hexagon(vertex.position(.tile),
                               .chunk)
         
-        let chunk = chunk(for: hexagon) ?? HeightMapChunk(hexagon)
+        let chunk = chunk(for: hexagon) ?? BiomeChunk(hexagon)
         
         if chunk.parent == nil {
             
             addChild(chunk)
         }
         
-        chunk.set(height,
-                  material,
+        chunk.set(biome,
+                  height,
                   for: vertex)
         
         guard chunk.isEmpty else { return }
@@ -46,15 +53,15 @@ extension HeightMap {
         chunk.removeFromParent()
     }
     
-    internal func slice(for chunk: Triangle) -> HeightMapSlice {
+    internal func slice(for chunk: Triangle) -> BiomeSlice {
         
         let sieve = chunk.sieve(for: .chunk)
         
-        let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : HeightMapVertex]()) { result, vertex in
+        let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : BiomeVertex]()) { result, vertex in
             
-            guard let value = get(value: vertex) else { return }
+            guard let biome = get(biome: vertex) else { return }
             
-            result[vertex] = value
+            result[vertex] = biome
         }
         
         return .init(sieve: sieve,

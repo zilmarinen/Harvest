@@ -1,6 +1,5 @@
 //
 //  TerrainCacheComponent.swift
-//  Harvest
 //
 //  Created by Zack Brown on 08/09/2025.
 //
@@ -20,8 +19,8 @@ internal class TerrainCacheComponent: Component {
     
     internal let material: CustomMaterial
     
-    private var apex: [TerrainType : [Triangle.Kite : Mesh]] = [:]
-    private var base: [TerrainType : [Triangle.Kite : Mesh]] = [:]
+    private var apex: [Biome : [Triangle.Kite : Mesh]] = [:]
+    private var base: [Biome : [Triangle.Kite : Mesh]] = [:]
     
     internal init() {
         
@@ -51,43 +50,45 @@ internal class TerrainCacheComponent: Component {
 extension TerrainCacheComponent {
     
     internal func apex(for kite: Triangle.Kite,
-                       terrainType: TerrainType) -> Mesh {
+                       biome: Biome) -> Mesh {
         
-        var container = apex[terrainType] ?? [:]
+        var container = apex[biome] ?? [:]
         
         if let mesh = container[kite] {
             
             return mesh
         }
         
-        let mesh = kite.mesh(stencil,
+        let mesh = Mesh.kite(kite,
+                             stencil,
                              Self.apexHeight,
-                             terrainType.apexColor)
+                             biome.colorPalette.primary)
         
         container[kite] = mesh
         
-        apex[terrainType] = container
+        apex[biome] = container
         
         return mesh
     }
     
     internal func base(for kite: Triangle.Kite,
-                       terrainType: TerrainType) -> Mesh {
+                       biome: Biome) -> Mesh {
         
-        var container = base[terrainType] ?? [:]
+        var container = base[biome] ?? [:]
         
         if let mesh = container[kite] {
             
             return mesh
         }
         
-        let mesh = kite.mesh(stencil,
+        let mesh = Mesh.kite(kite,
+                             stencil,
                              Self.baseHeight,
-                             terrainType.baseColor)
+                             biome.colorPalette.secondary)
         
         container[kite] = mesh
         
-        base[terrainType] = container
+        base[biome] = container
         
         return mesh
     }

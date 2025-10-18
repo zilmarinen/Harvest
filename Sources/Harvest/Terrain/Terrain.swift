@@ -1,6 +1,5 @@
 //
 //  Terrain.swift
-//  Harvest
 //
 //  Created by Zack Brown on 10/08/2025.
 //
@@ -9,16 +8,14 @@ import Deltille
 import Foundation
 import RealityKit
 
-public class Terrain: TriangularGrid<TerrainRegion,
-                      TerrainChunk> {
-    
-    internal let heightMap = HeightMap()
+internal class Terrain: TriangularGrid<TerrainRegion,
+                                        TerrainChunk> {
     
     internal required init() {
         
         super.init()
         
-        addChild(heightMap)
+        name = Entity.Identifier.terrain.id
         
         components[TerrainCacheComponent.self] = .init()
     }
@@ -34,26 +31,7 @@ extension Terrain {
 
 extension Terrain {
     
-    public func get(value vertex: Triangle.Vertex) -> HeightMapVertex? {
-        
-        heightMap.get(value: vertex)
-    }
-    
-    public func set(_ height: Int,
-                    _ material: TerrainType,
-                    for vertex: Triangle.Vertex) {
-        
-        heightMap.set(height,
-                      material,
-                      for: vertex)
-        
-        createRegions(for: vertex)
-    }
-}
-
-extension Terrain {
-    
-    private func createRegions(for vertex: Triangle.Vertex) {
+    internal func terraform(vertex: Triangle.Vertex) {
         
         let tiles = Set(vertex.tiles.map { $0.transpose(.tile,
                                                         .region) })

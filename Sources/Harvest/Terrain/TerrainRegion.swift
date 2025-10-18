@@ -1,6 +1,5 @@
 //
 //  TerrainRegion.swift
-//  Harvest
 //
 //  Created by Zack Brown on 10/09/2025.
 //
@@ -9,9 +8,9 @@ import Deltille
 import Foundation
 import RealityKit
 
-public class TerrainRegion: TriangularRegion<TerrainChunk>,
-                            @preconcurrency Codable,
-                            HasSoilableComponent {
+internal class TerrainRegion: TriangularRegion<TerrainChunk>,
+                              @preconcurrency Codable,
+                              HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
@@ -19,7 +18,7 @@ public class TerrainRegion: TriangularRegion<TerrainChunk>,
         case chunks
     }
     
-    convenience init(empty triangle: Triangle) {
+    internal convenience init(empty triangle: Triangle) {
         
         self.init(triangle: triangle)
         
@@ -32,16 +31,16 @@ public class TerrainRegion: TriangularRegion<TerrainChunk>,
         }
     }
     
-    public init(triangle: Triangle) {
+    internal init(triangle: Triangle) {
         
         super.init(triangle,
                    .region)
     }
     
     @available(*, unavailable)
-    required public init() { fatalError("init() has not been implemented") }
+    required internal init() { fatalError("init() has not been implemented") }
     
-    required public init(from decoder: any Decoder) throws {
+    required internal init(from decoder: any Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
@@ -64,7 +63,7 @@ public class TerrainRegion: TriangularRegion<TerrainChunk>,
         addChild(entity)
     }
     
-    public func encode(to encoder: any Encoder) throws {
+    internal func encode(to encoder: any Encoder) throws {
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         

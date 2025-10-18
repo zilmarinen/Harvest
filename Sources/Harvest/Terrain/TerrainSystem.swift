@@ -1,6 +1,5 @@
 //
 //  TerrainSystem.swift
-//  Harvest
 //
 //  Created by Zack Brown on 27/08/2025.
 //
@@ -16,9 +15,11 @@ internal struct TerrainSystem: System {
     
     private static let query = EntityQuery(where: .has(TerrainCacheComponent.self))
     
-    init(scene: Scene) {}
+    internal init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
+        
+        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere else { return }
         
         for entity in context.entities(matching: Self.query,
                                        updatingSystemWhen: .rendering) {
@@ -34,7 +35,7 @@ internal struct TerrainSystem: System {
                 
                 for chunk in region.dirtyChunks {
                     
-                    let slice = terrain.heightMap.slice(for: chunk.triangle)
+                    let slice = biosphere.slice(for: chunk.triangle)
                     
                     guard !slice.vertices.isEmpty else {
                         
@@ -70,10 +71,10 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: HeightMapSlice,
+                        slice: BiomeSlice,
                         cache: TerrainCacheComponent) {
         
-        let tiles = slice.sieve.tiles.reduce(into: [Triangle.Vertex : TerrainTile]()) { result, tile in
+        let tiles = slice.sieve.tiles.reduce(into: [Triangle.Vertex : BiomeTile]()) { result, tile in
             
             let vertices = tile.vertices.compactMap {
                 
@@ -101,7 +102,7 @@ extension TerrainSystem {
     }
     
     private func render(chunk: TerrainChunk,
-                        tiles: [Triangle.Vertex : TerrainTile],
+                        tiles: [Triangle.Vertex : BiomeTile],
                         cache: TerrainCacheComponent) throws {
         
         let stencil = Triangle.zero.stencil(.tile)
@@ -117,13 +118,23 @@ extension TerrainSystem {
         
         mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
         
-        let model = ModelComponent(mesh: .init(mesh: mesh),
+        let apex = Vector(0.0, mesh.bounds.max.y, 0.0)
+        
+        let perimeter: [SIMD3<Float>] = stencil.perimeter.map { .init($0) } +
+                                        stencil.perimeter.map { .init($0 + apex) }
+        
+        let resource = MeshResource(mesh: mesh)
+        let shape = ShapeResource.generateConvex(from: perimeter)
+        
+        let model = ModelComponent(mesh: resource,
                                    materials: [cache.material])
         
         chunk.model = model
+        chunk.collision = .init(shapes: [shape],
+                                isStatic: true)
     }
     
-    private func render(tile: TerrainTile,
+    private func render(tile: BiomeTile,
                         stencil: Triangle.Stencil,
                         cache: TerrainCacheComponent) -> Mesh {
         
@@ -135,30 +146,30 @@ extension TerrainSystem {
         guard !tile.isUniform else {
             
             let apex = cache.apex(for: .uniform,
-                                  terrainType: tile.uniformMaterial)
+                                  biome: tile.uniformBiome)
             
-            let offset = Vector(0.0, baseHeight * Double(tile.uniformHeight), 0.0)
+            let offset = Vector(0.0, baseHeight * Double(tile.uniformElevation), 0.0)
             
             return apex.rotated(by: .yaw(tileRotation)).translated(by: origin + offset)
         }
         
         var mesh = Mesh.empty
         
-        for heightMap in tile.vertices {
+        for vertex in tile.vertices {
             
-            guard let corner = tile.triangle.corner(heightMap.vertex) else { continue }
+            guard let corner = tile.triangle.corner(vertex.vertex) else { continue }
             
             let kite = tile.triangle.kite(index: corner.rawValue)
             
             let apex = cache.apex(for: kite,
-                                  terrainType: heightMap.material)
+                                  biome: vertex.biome)
             let base = cache.base(for: kite,
-                                  terrainType: heightMap.material)
+                                  biome: vertex.biome)
             
-            let offset = Vector(0.0, baseHeight * Double(heightMap.height), 0.0)
+            let offset = Vector(0.0, baseHeight * Double(vertex.elevation), 0.0)
             let angle = tileRotation + .init(radians: (step * Double(-corner.rawValue)))
             
-            for i in 0..<heightMap.height {
+            for i in 0..<vertex.elevation {
                 
                 let translation = Vector(0.0, baseHeight * Double(i), 0.0)
                 

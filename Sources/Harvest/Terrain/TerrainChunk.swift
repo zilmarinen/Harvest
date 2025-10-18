@@ -1,6 +1,5 @@
 //
 //  TerrainChunk.swift
-//  Harvest
 //
 //  Created by Zack Brown on 04/09/2025.
 //
@@ -9,10 +8,11 @@ import Deltille
 import Euclid
 import RealityKit
 
-public class TerrainChunk: TriangularEntity,
-                           @preconcurrency Codable,
-                           HasModel,
-                           HasSoilableComponent {
+internal class TerrainChunk: TriangularEntity,
+                             @preconcurrency Codable,
+                             HasCollision,
+                             HasModel,
+                             HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
@@ -26,9 +26,9 @@ public class TerrainChunk: TriangularEntity,
     }
     
     @available(*, unavailable)
-    required public init() { fatalError("init() has not been implemented") }
+    required internal init() { fatalError("init() has not been implemented") }
     
-    required public init(from decoder: any Decoder) throws {
+    required internal init(from decoder: any Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
