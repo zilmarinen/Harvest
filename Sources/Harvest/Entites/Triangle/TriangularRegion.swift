@@ -1,6 +1,5 @@
 //
 //  TriangularRegion.swift
-//  Harvest
 //
 //  Created by Zack Brown on 17/09/2025.
 //

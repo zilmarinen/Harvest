@@ -1,6 +1,5 @@
 //
 //  CustomMaterial.metal
-//  Harvest
 //
 //  Created by Zack Brown on 08/10/2025.
 //
@@ -70,6 +69,6 @@ void customMaterialSurface(surface_parameters params) {
 
     float4 color = mix(baseColor, lineColor, lineMask);
 
-    //params.surface().set_base_color(half3(color.xyz));
+    params.surface().set_base_color(half3(color.xyz));
     params.surface().set_base_color(half3(baseColor.xyz));
 }

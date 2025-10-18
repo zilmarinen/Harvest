@@ -1,6 +1,5 @@
 //
 //  SoilableComponent.swift
-//  Harvest
 //
 //  Created by Zack Brown on 07/09/2025.
 //

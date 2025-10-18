@@ -1,6 +1,5 @@
 //
 //  HitTest.swift
-//  Harvest
 //
 //  Created by Zack Brown on 26/08/2025.
 //

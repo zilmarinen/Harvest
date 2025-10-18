@@ -1,6 +1,5 @@
 //
 //  RegionView.swift
-//  Harvest
 //
 //  Created by Zack Brown on 04/09/2025.
 //
@@ -11,12 +10,14 @@ import RealityKit
 
 public class RegionView: EditorView {
     
-    public let terrain = Terrain()
+    internal let biosphere = Biosphere()
+    internal let terrain = Terrain()
         
     public required init(frame: NSRect) {
         
         super.init(frame: frame)
         
+        world.addChild(biosphere)
         world.addChild(terrain)
     }
     
@@ -24,7 +25,7 @@ public class RegionView: EditorView {
         
         super.registerComponents()
         
-        HeightMapChunkComponent.registerComponent()
+        BiomeComponent.registerComponent()
         TerrainCacheComponent.registerComponent()
     }
     
@@ -54,11 +55,9 @@ extension RegionView {
         
         terrain.addChild(region.region)
         
-        for chunk in region.heightMap {
+        for chunk in region.biomes {
             
-            guard terrain.heightMap.chunk(for: chunk.hexagon) == nil else { continue }
-            
-            terrain.heightMap.addChild(chunk)
+            biosphere.addChild(chunk)
         }
     }
 }
@@ -84,6 +83,47 @@ extension RegionView {
         return .init(coordinate: triangle.vertex.position,
                      identifier: region.name,
                      region: region,
-                     heightMap: terrain.heightMap.chunks(intersecting: triangle))
+                     biomes: biosphere.chunks(intersecting: triangle))
+    }
+}
+
+// MARK: Biome
+
+extension RegionView {
+    
+    public func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
+        
+        biosphere.get(biome: vertex)
+    }
+    
+    public func set(_ biome: Biome,
+                    for vertex: Triangle.Vertex) {
+        
+        guard let existing = get(biome: vertex) else { return }
+        
+        set(biome,
+            existing.elevation,
+            for: vertex)
+    }
+    
+    public func set(_ elevation: Int,
+                    for vertex: Triangle.Vertex) {
+        
+        guard let existing = get(biome: vertex) else { return }
+        
+        set(existing.biome,
+            elevation,
+            for: vertex)
+    }
+    
+    public func set(_ biome: Biome,
+                    _ elevation: Int,
+                    for vertex: Triangle.Vertex) {
+        
+        biosphere.set(biome,
+                      elevation,
+                      for: vertex)
+        
+        terrain.terraform(vertex: vertex)
     }
 }

@@ -1,6 +1,5 @@
 //
 //  WorldView.swift
-//  Harvest
 //
 //  Created by Zack Brown on 13/08/2025.
 //

@@ -1,6 +1,5 @@
 //
 //  TriangularEntity.swift
-//  Harvest
 //
 //  Created by Zack Brown on 16/09/2025.
 //
@@ -40,14 +39,6 @@ public class TriangularEntity: Entity {
             
             position = .zero
         }
-        
-        guard let entity = try? ModelEntity(triangle.mesh(scale)) else { return }
-        
-        entity.position = -.init(triangle.position(scale)) + [0.0, scale == .region ? 0.01 : 0.02, 0.0]
-        entity.model?.materials = [SimpleMaterial(color: triangle.isPointy ? .systemMint : .systemPink,
-                                                  isMetallic: false)]
-        
-        addChild(entity)
     }
     
     @available(*, unavailable)

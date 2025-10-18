@@ -1,6 +1,5 @@
 //
 //  Camera.swift
-//  Harvest
 //
 //  Created by Zack Brown on 16/08/2025.
 //
@@ -16,8 +15,7 @@ public class Camera: Entity {
         
         super.init()
         
-        name = "Camera"
-        pov.name = "PoV"
+        name = Entity.Identifier.camera.id
         
         addChild(pov)
         

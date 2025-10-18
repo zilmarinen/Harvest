@@ -1,6 +1,5 @@
 //
 //  CursorComponent.swift
-//  Harvest
 //
 //  Created by Zack Brown on 18/08/2025.
 //

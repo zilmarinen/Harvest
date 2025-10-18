@@ -1,6 +1,5 @@
 //
 //  CameraSystem.swift
-//  Harvest
 //
 //  Created by Zack Brown on 16/08/2025.
 //

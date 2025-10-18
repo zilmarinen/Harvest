@@ -1,6 +1,5 @@
 //
 //  Region.swift
-//  Harvest
 //
 //  Created by Zack Brown on 13/09/2025.
 //
@@ -15,7 +14,7 @@ public final class Region: Codable,
     public var identifier: String
     
     internal let region: TerrainRegion
-    internal let heightMap: [HeightMapChunk]
+    internal let biomes: [BiomeChunk]
     
     @MainActor
     public init(empty triangle: Triangle) {
@@ -27,22 +26,21 @@ public final class Region: Codable,
             Hexagon($0.position(.tile),
                     .chunk)
         }
-        let material = TerrainType.allCases.randomElement()!
         
         self.coordinate = triangle.vertex.position
         self.identifier = triangle.id
         self.region = .init(empty: triangle)
-        self.heightMap = hexagons.map {
+        self.biomes = hexagons.map {
             
-            let chunk = HeightMapChunk($0)
+            let chunk = BiomeChunk($0)
             
             for vertex in tile.vertices {
                 
                 guard $0.contains(vertex.position(.tile),
                                   .chunk) else { continue }
                 
-                chunk.set(1,
-                          material,
+                chunk.set(.prairie,
+                          1,
                           for: vertex)
             }
             
@@ -53,12 +51,12 @@ public final class Region: Codable,
     internal init(coordinate: Coordinate,
                   identifier: String,
                   region: TerrainRegion,
-                  heightMap: [HeightMapChunk]) {
+                  biomes: [BiomeChunk]) {
      
         self.coordinate = coordinate
         self.identifier = identifier
         self.region = region
-        self.heightMap = heightMap
+        self.biomes = biomes
     }
     
     public func hash(into hasher: inout Hasher) {

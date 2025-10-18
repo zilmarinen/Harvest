@@ -1,6 +1,5 @@
 //
 //  EditorView.swift
-//  Harvest
 //
 //  Created by Zack Brown on 10/08/2025.
 //
@@ -59,7 +58,11 @@ extension EditorView {
         guard let ray = unproject(point,
                                   ontoPlane: floorPlane) else { return nil }
         
-        let pointInWorld = Vector(ray)
+        let nearest = hitTest(point,
+                              query: .all,
+                              mask: .all)
+        
+        let pointInWorld = Vector(nearest.first?.position ?? ray)
         
         let triangle = Triangle(pointInWorld,
                                 .tile)
