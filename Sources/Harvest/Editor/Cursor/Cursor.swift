@@ -8,30 +8,24 @@ import Deltille
 import Euclid
 import RealityKit
 
-public class Cursor: Entity {
-    
-    internal let cursor: ModelEntity
+public class Cursor: Entity,
+                     HasCursorComponent {
     
     public required init() {
-        
-        self.cursor = ModelEntity(mesh: .generateBox(size: 0.25),
-                                  materials: [SimpleMaterial(color: .systemMint,
-                                                             isMetallic: false)])
         
         super.init()
         
         name = Entity.Identifier.cursor.id
         
-        addChild(cursor)
+        let mesh = Mesh.cursor(.conway)
+        
+        for _ in 0..<7 {
+            
+            guard let model = try? ModelEntity(mesh) else { continue }
+            
+            addChild(model)
+        }
         
         components.set(CursorComponent())
-    }
-}
-
-extension Cursor {
-    
-    public func focus(on location: Vector) {
-        
-        components[CursorComponent.self]?.focus = location
     }
 }

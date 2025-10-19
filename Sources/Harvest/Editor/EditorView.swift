@@ -15,8 +15,8 @@ open class EditorView: ARView {
     internal let floorPlane = float4x4(simd_quatf(angle: 0.0,
                                                   axis: .init(.unitY)))
     
-    public let camera = Camera()
-    public let cursor = Cursor()
+    internal let camera = Camera()
+    internal let cursor = Cursor()
     
     internal let world = AnchorEntity(world: .zero)
     
@@ -51,6 +51,8 @@ open class EditorView: ARView {
     }
 }
 
+// MARK: Hit Test
+
 extension EditorView {
     
     public func hitTest(point: CGPoint) -> HitTest? {
@@ -73,5 +75,37 @@ extension EditorView {
         return .init(pointInWorld: pointInWorld,
                      triangle: triangle,
                      vertex: closest)
+    }
+}
+
+// MARK: Camera
+
+extension EditorView {
+    
+    public func set(camera focus: Vector) {
+        
+        // TODO: add has camera component protocol
+        camera.focus(on: focus)
+    }
+    
+    public func set(zoom value: Float) {
+        
+        // TODO: add has camera component protocol
+        camera.zoom(delta: value)
+    }
+}
+
+// MARK: Cursor
+
+extension EditorView {
+    
+    public func set(cursor focus: Vector) {
+        
+        cursor.set(focus: focus)
+    }
+    
+    public func set(cursor cursorStyle: CursorStyle) {
+        
+        cursor.set(cursorStyle: cursorStyle)
     }
 }
