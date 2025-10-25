@@ -54,11 +54,7 @@ extension RegionView {
         region.region.name = region.identifier
         
         terrain.addChild(region.region)
-        
-        for chunk in region.biomes {
-            
-            biosphere.addChild(chunk)
-        }
+        biosphere.merge(region.biomes)
     }
 }
 

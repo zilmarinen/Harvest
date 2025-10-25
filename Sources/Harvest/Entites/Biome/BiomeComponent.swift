@@ -19,11 +19,13 @@ internal protocol HasBiomeComponent: Entity {
     
     var isEmpty: Bool { get }
     
-    func get(value vertex: Triangle.Vertex) -> BiomeVertex?
+    func get(biome vertex: Triangle.Vertex) -> BiomeVertex?
     
     func set(_ biome: Biome,
-             _ height: Int,
+             _ elevation: Int,
              for vertex: Triangle.Vertex)
+    
+    func merge(_ other: BiomeComponent)
 }
 
 extension HasBiomeComponent {
@@ -48,16 +50,16 @@ extension HasBiomeComponent {
         }
     }
     
-    var isEmpty: Bool { biomeComponent.vertices.isEmpty }
+    internal var isEmpty: Bool { biomeComponent.vertices.isEmpty }
     
-    func get(value vertex: Triangle.Vertex) -> BiomeVertex? {
+    internal func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
         
         biomeComponent.vertices[vertex]
     }
     
-    func set(_ biome: Biome,
-             _ elevation: Int,
-             for vertex: Triangle.Vertex) {
+    internal func set(_ biome: Biome,
+                      _ elevation: Int,
+                      for vertex: Triangle.Vertex) {
         
         guard elevation > 0 else {
             
@@ -67,5 +69,10 @@ extension HasBiomeComponent {
         biomeComponent.vertices[vertex] = .init(vertex: vertex,
                                                 biome: biome,
                                                 elevation: elevation)
+    }
+    
+    internal func merge(_ other: BiomeComponent) {
+        
+        biomeComponent.vertices.merge(other.vertices) { (current, _) in current }
     }
 }

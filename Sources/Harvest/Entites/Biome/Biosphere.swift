@@ -8,13 +8,31 @@ import Deltille
 import Foundation
 import RealityKit
 
-internal class Biosphere: HexagonalGrid<BiomeChunk> {
+internal class Biosphere: HexagonalGrid<BiomeRegion,
+                                        BiomeChunk> {
     
     internal required init() {
         
         super.init()
         
         name = Entity.Identifier.biosphere.id
+    }
+    
+    internal func merge(_ chunks: [BiomeChunk]) {
+        
+        chunks.forEach {
+            
+            let parent = $0.hexagon.parent()
+            
+            let region = region(for: parent) ?? BiomeRegion(hexagon: parent)
+            
+            if region.parent == nil {
+                
+                addChild(region)
+            }
+            
+            region.merge($0)
+        }
     }
 }
 
@@ -25,32 +43,34 @@ extension Biosphere {
         let hexagon = Hexagon(vertex.position(.tile),
                               .chunk)
         
-        guard let chunk = chunk(for: hexagon) else { return nil }
+        guard let region = region(for: hexagon.parent()) else { return nil }
         
-        return chunk.get(value: vertex)
+        return region.get(biome: vertex)
     }
     
     internal func set(_ biome: Biome,
-                      _ height: Int,
+                      _ elevation: Int,
                       for vertex: Triangle.Vertex) {
         
         let hexagon = Hexagon(vertex.position(.tile),
                               .chunk)
         
-        let chunk = chunk(for: hexagon) ?? BiomeChunk(hexagon)
+        let parent = hexagon.parent()
         
-        if chunk.parent == nil {
+        let region = region(for: parent) ?? BiomeRegion(hexagon: parent)
+        
+        if region.parent == nil {
             
-            addChild(chunk)
+            addChild(region)
         }
         
-        chunk.set(biome,
-                  height,
-                  for: vertex)
+        region.set(biome,
+                   elevation,
+                   for: vertex)
         
-        guard chunk.isEmpty else { return }
+        guard region.isEmpty else { return }
         
-        chunk.removeFromParent()
+        region.removeFromParent()
     }
     
     internal func slice(for chunk: Triangle) -> BiomeSlice {

@@ -9,6 +9,7 @@ import Deltille
 import Euclid
 import RealityKit
 
+@MainActor
 internal struct CursorSystem: System {
     
     private static let query = EntityQuery(where: .has(CursorComponent.self))
@@ -16,6 +17,8 @@ internal struct CursorSystem: System {
     init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
+        
+        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere else { return }
         
         for entity in context.entities(matching: Self.query,
                                        updatingSystemWhen: .rendering) {
@@ -32,12 +35,15 @@ internal struct CursorSystem: System {
             switch component.cursorStyle {
                 
             case .hexagonal: layout(cursors: cursor.children,
+                                    biosphere: biosphere,
                                     hexagonal: vertex)
                 
             case .triangle: update(cursors: cursor.children,
+                                   biosphere: biosphere,
                                    triangle: triangle)
                 
             case .vertex: update(cursors: cursor.children,
+                                 biosphere: biosphere,
                                  vertex: vertex)
             }
         }
@@ -47,6 +53,7 @@ internal struct CursorSystem: System {
 extension CursorSystem {
     
     private func layout(cursors: Entity.ChildCollection,
+                        biosphere: Biosphere,
                         hexagonal vertex: Triangle.Vertex) {
         
         for i in vertex.vertices.indices {
@@ -55,13 +62,23 @@ extension CursorSystem {
             
             let vertex = vertex.vertices[i]
             
-            child.position = .init(vertex.position(.tile))
+            let biome = biosphere.get(biome: vertex)
+            
+            let elevation = Double(biome?.elevation ?? 0)
+            
+            let offset = Vector(0.0,
+                                (TerrainCacheComponent.baseHeight * elevation) +
+                                (elevation > 0 ? TerrainCacheComponent.apexHeight : 0.0),
+                                0.0);
+            
+            child.position = .init(vertex.position(.tile) + offset)
         }
         
         cursors.first?.position = .init(vertex.position(.tile))
     }
     
     private func update(cursors: Entity.ChildCollection,
+                        biosphere: Biosphere,
                         triangle: Triangle) {
         
         for i in cursors.indices {
@@ -70,16 +87,35 @@ extension CursorSystem {
             
             let vertex = triangle.vertices[i % triangle.vertices.count]
             
-            child.position = .init(vertex.position(.tile))
+            let biome = biosphere.get(biome: vertex)
+            
+            let elevation = Double(biome?.elevation ?? 0)
+            
+            let offset = Vector(0.0,
+                                (TerrainCacheComponent.baseHeight * elevation) +
+                                (elevation > 0 ? TerrainCacheComponent.apexHeight : 0.0),
+                                0.0);
+            
+            child.position = .init(vertex.position(.tile) + offset)
         }
     }
     
     private func update(cursors: Entity.ChildCollection,
+                        biosphere: Biosphere,
                         vertex: Triangle.Vertex) {
+        
+        let biome = biosphere.get(biome: vertex)
+        
+        let elevation = Double(biome?.elevation ?? 0)
+        
+        let offset = Vector(0.0,
+                            (TerrainCacheComponent.baseHeight * elevation) +
+                            (elevation > 0 ? TerrainCacheComponent.apexHeight : 0.0),
+                            0.0);
         
         cursors.forEach {
 
-            $0.position = .init(vertex.position(.tile))
+            $0.position = .init(vertex.position(.tile) + offset)
         }
     }
 }

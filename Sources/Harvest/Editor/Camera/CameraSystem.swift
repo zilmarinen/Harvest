@@ -6,6 +6,7 @@
 
 import RealityKit
 
+@MainActor
 internal struct CameraSystem: System {
     
     private static let query = EntityQuery(where: .has(CameraFocusComponent.self))

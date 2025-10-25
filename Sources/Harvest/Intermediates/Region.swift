@@ -16,38 +16,6 @@ public final class Region: Codable,
     internal let region: TerrainRegion
     internal let biomes: [BiomeChunk]
     
-    @MainActor
-    public init(empty triangle: Triangle) {
-        
-        let tile = triangle.transpose(.region,
-                                      .tile)
-        let hexagons = tile.vertices.map {
-            
-            Hexagon($0.position(.tile),
-                    .chunk)
-        }
-        
-        self.coordinate = triangle.vertex.position
-        self.identifier = triangle.id
-        self.region = .init(empty: triangle)
-        self.biomes = hexagons.map {
-            
-            let chunk = BiomeChunk($0)
-            
-            for vertex in tile.vertices {
-                
-                guard $0.contains(vertex.position(.tile),
-                                  .chunk) else { continue }
-                
-                chunk.set(.prairie,
-                          1,
-                          for: vertex)
-            }
-            
-            return chunk
-        }
-    }
-    
     internal init(coordinate: Coordinate,
                   identifier: String,
                   region: TerrainRegion,
@@ -63,13 +31,47 @@ public final class Region: Codable,
         
         hasher.combine(coordinate)
     }
-}
-
-extension Region {
     
     public static func == (lhs: Region,
                            rhs: Region) -> Bool {
         
         lhs.coordinate == rhs.coordinate
+    }
+}
+
+extension Region {
+    
+    @MainActor
+    public convenience init(empty triangle: Triangle) {
+        
+        let tile = triangle.transpose(.region,
+                                      .tile)
+        let hexagons = Array(Set(tile.vertices.map {
+            
+            Hexagon($0.position(.tile),
+                    .chunk)
+        }))
+        
+        let biomes = hexagons.map {
+            
+            let chunk = BiomeChunk($0)
+            
+            for vertex in tile.vertices {
+                
+                guard $0.contains(vertex.position(.tile),
+                                  .chunk) else { continue }
+                
+                chunk.set(.prairie,
+                          1,
+                          for: vertex)
+            }
+            
+            return chunk
+        }
+        
+        self.init(coordinate: triangle.vertex.position,
+                  identifier: triangle.id,
+                  region: .init(empty: triangle),
+                  biomes: biomes)
     }
 }

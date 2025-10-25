@@ -7,27 +7,28 @@
 import Deltille
 import RealityKit
 
-internal class HexagonalGrid<C: HexagonalEntity>: Entity {
+internal class HexagonalGrid<R: HexagonalRegion<C>,
+                             C: HexagonalEntity>: Entity {
     
     internal var isEmpty: Bool {
         
-        chunks.isEmpty
+        regions.isEmpty
     }
     
-    internal var chunks: [C] {
+    internal var regions: [R] {
         
         children.compactMap {
             
-            $0 as? C
+            $0 as? R
         }
     }
 }
 
 extension HexagonalGrid {
     
-    internal func chunk(for hexagon: Hexagon) -> C? {
+    internal func region(for hexagon: Hexagon) -> R? {
         
-        chunks.first {
+        regions.first {
             
             $0.hexagon == hexagon
         }
@@ -35,31 +36,9 @@ extension HexagonalGrid {
     
     internal func chunks(intersecting triangle: Triangle) -> [C] {
         
-        chunks.filter {
-            
-            for vertex in $0.hexagon.vertices {
-                
-                let other = Triangle(vertex.position(.chunk),
-                                     .region)
-                
-                if other == triangle {
-                    
-                    return true
-                }
-            }
-            
-            for vertex in triangle.vertices {
-                
-                let other = Hexagon(vertex.position(.region),
-                                    .chunk)
-                
-                if other == $0.hexagon {
-                    
-                    return true
-                }
-            }
-            
-            return false
+        regions.flatMap {
+         
+            $0.chunks(intersecting: triangle)
         }
     }
 }
