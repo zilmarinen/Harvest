@@ -33,8 +33,11 @@ extension Terrain {
     
     internal func terraform(vertex: Triangle.Vertex) {
         
-        let tiles = Set(vertex.tiles.map { $0.transpose(.tile,
-                                                        .region) })
+        let tiles = Set(vertex.tiles.map {
+            
+            $0.transpose(.tile,
+                         .region)
+        })
         
         for tile in tiles {
             
@@ -45,7 +48,7 @@ extension Terrain {
                 addChild(region)
             }
             
-            region.createChunks(for: vertex)
+            region.terraform(vertex: vertex)
         }
     }
 }

@@ -27,7 +27,7 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
         
         for vertex in tile.vertices {
             
-            createChunks(for: vertex)
+            terraform(vertex: vertex)
         }
     }
     
@@ -54,13 +54,6 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
                                             forKey: .chunks)
         
         children.forEach { addChild($0) }
-        
-        guard let entity = try? ModelEntity(triangle.mesh(.region)) else { return }
-        
-        entity.position = -position
-        entity.model?.materials = [SimpleMaterial(color: triangle.isPointy ? .systemIndigo : .systemTeal,
-                                                  isMetallic: false)]
-        addChild(entity)
     }
     
     internal func encode(to encoder: any Encoder) throws {
@@ -85,7 +78,7 @@ extension TerrainRegion {
 
 extension TerrainRegion {
     
-    internal func createChunks(for vertex: Triangle.Vertex) {
+    internal func terraform(vertex: Triangle.Vertex) {
         
         let tiles = Set(vertex.tiles.compactMap {
             
