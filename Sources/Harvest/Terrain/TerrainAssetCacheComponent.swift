@@ -1,5 +1,5 @@
 //
-//  TerrainCacheComponent.swift
+//  TerrainAssetCacheComponent.swift
 //
 //  Created by Zack Brown on 08/09/2025.
 //
@@ -10,7 +10,7 @@ import Euclid
 import RealityKit
 import Regolith
 
-internal class TerrainCacheComponent: Component {
+internal class TerrainAssetCacheComponent: Component {
     
     internal static let apexHeight = 0.1
     internal static let baseHeight = 0.5
@@ -47,7 +47,7 @@ internal class TerrainCacheComponent: Component {
     }
 }
 
-extension TerrainCacheComponent {
+extension TerrainAssetCacheComponent {
     
     internal func apex(for kite: Triangle.Kite,
                        biome: Biome) -> Mesh {

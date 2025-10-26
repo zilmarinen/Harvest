@@ -9,7 +9,7 @@ import Foundation
 import RealityKit
 
 internal class Terrain: TriangularGrid<TerrainRegion,
-                                        TerrainChunk> {
+                                       TerrainChunk> {
     
     internal required init() {
         
@@ -17,7 +17,7 @@ internal class Terrain: TriangularGrid<TerrainRegion,
         
         name = Entity.Identifier.terrain.id
         
-        components[TerrainCacheComponent.self] = .init()
+        components[TerrainAssetCacheComponent.self] = .init()
     }
 }
 
@@ -41,7 +41,7 @@ extension Terrain {
         
         for tile in tiles {
             
-            let region = region(for: tile) ?? TerrainRegion(triangle: tile)
+            let region = region(for: tile) ?? .init(tile)
             
             if region.parent == nil {
                 

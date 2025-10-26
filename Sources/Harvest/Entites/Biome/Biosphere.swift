@@ -87,4 +87,15 @@ extension Biosphere {
         return .init(sieve: sieve,
                      vertices: vertices)
     }
+    
+    internal func tile(for triangle: Triangle) -> BiomeTile {
+        
+        let vertices = triangle.vertices.compactMap {
+            
+            get(biome: $0)
+        }
+        
+        return .init(triangle: triangle,
+                     vertices: vertices)
+    }
 }

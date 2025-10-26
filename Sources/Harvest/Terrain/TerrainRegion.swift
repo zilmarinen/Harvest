@@ -20,7 +20,7 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
     
     internal convenience init(empty triangle: Triangle) {
         
-        self.init(triangle: triangle)
+        self.init(triangle)
         
         let tile = triangle.transpose(.region,
                                       .tile)
@@ -31,7 +31,7 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
         }
     }
     
-    internal init(triangle: Triangle) {
+    internal init(_ triangle: Triangle) {
         
         super.init(triangle,
                    .region)
@@ -93,7 +93,7 @@ extension TerrainRegion {
         
         for tile in tiles {
             
-            let chunk = chunk(for: tile) ?? TerrainChunk(tile)
+            let chunk = chunk(for: tile) ?? .init(tile)
             
             if chunk.parent == nil {
                 

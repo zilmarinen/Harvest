@@ -16,29 +16,17 @@ extension BiomeTile {
     
     internal var isUniform: Bool {
         
-        guard vertices.count == 3 else { return false }
-        
-        return hasUniformElevation && hasUniformBiome
-    }
-    
-    internal var hasUniformElevation: Bool {
-        
-        for i in 0..<(vertices.count - 1) {
-            
-            if vertices[i].elevation != vertices[i + 1].elevation {
-                
-                return false
-            }
-        }
-        
-        return true
+        hasUniformBiome &&
+        hasUniformElevation
     }
     
     internal var hasUniformBiome: Bool {
         
-        for i in 0..<(vertices.count - 1) {
+        guard vertices.count == 3 else { return false }
+        
+        for i in 0..<vertices.count {
             
-            if vertices[i].biome != vertices[i + 1].biome {
+            if vertices[i].biome != vertices[(i + 1) % vertices.count].biome {
                 
                 return false
             }
@@ -47,14 +35,33 @@ extension BiomeTile {
         return true
     }
     
-    internal var uniformElevation: Int {
+    internal var hasUniformElevation: Bool {
         
-        vertices[0].elevation
+        guard vertices.count == 3 else { return false }
+        
+        for i in 0..<vertices.count {
+            
+            if vertices[i].elevation != vertices[(i + 1) % vertices.count].elevation {
+                
+                return false
+            }
+        }
+        
+        return true
     }
     
-    internal var uniformBiome: Biome {
+    internal var biome: Biome? {
         
-        vertices[0].biome
+        guard hasUniformBiome else { return nil }
+        
+        return vertices.first?.biome
+    }
+    
+    internal var elevation: Int? {
+        
+        guard hasUniformElevation else { return nil }
+        
+        return vertices.first?.elevation
     }
 }
 

@@ -13,7 +13,7 @@ import Regolith
 @MainActor
 internal struct TerrainSystem: System {
     
-    private static let query = EntityQuery(where: .has(TerrainCacheComponent.self))
+    private static let query = EntityQuery(where: .has(TerrainAssetCacheComponent.self))
     
     internal init(scene: Scene) {}
     
@@ -25,7 +25,7 @@ internal struct TerrainSystem: System {
                                        updatingSystemWhen: .rendering) {
             
             guard let terrain = entity as? Terrain,
-                  let cache = terrain.components[TerrainCacheComponent.self] else { continue }
+                  let cache = terrain.components[TerrainAssetCacheComponent.self] else { continue }
             
             var emptyRegions: [TerrainRegion] = []
             
@@ -72,7 +72,7 @@ extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
                         slice: BiomeSlice,
-                        cache: TerrainCacheComponent) {
+                        cache: TerrainAssetCacheComponent) {
         
         let tiles = slice.sieve.tiles.reduce(into: [Triangle.Vertex : BiomeTile]()) { result, tile in
             
@@ -103,7 +103,7 @@ extension TerrainSystem {
     
     private func render(chunk: TerrainChunk,
                         tiles: [Triangle.Vertex : BiomeTile],
-                        cache: TerrainCacheComponent) throws {
+                        cache: TerrainAssetCacheComponent) throws {
         
         let stencil = Triangle.zero.stencil(.tile)
         
@@ -136,19 +136,21 @@ extension TerrainSystem {
     
     private func render(tile: BiomeTile,
                         stencil: Triangle.Stencil,
-                        cache: TerrainCacheComponent) -> Mesh {
+                        cache: TerrainAssetCacheComponent) -> Mesh {
         
         let origin = tile.triangle.position(.tile)
         let step = Triangle.Rotation.step
-        let baseHeight = TerrainCacheComponent.baseHeight
+        let baseHeight = TerrainAssetCacheComponent.baseHeight
         let tileRotation = Angle(radians: tile.triangle.rotation)
         
-        guard !tile.isUniform else {
+        if tile.isUniform,
+           let biome = tile.biome,
+           let elevation = tile.elevation {
             
             let apex = cache.apex(for: .uniform,
-                                  biome: tile.uniformBiome)
+                                  biome: biome)
             
-            let offset = Vector(0.0, baseHeight * Double(tile.uniformElevation), 0.0)
+            let offset = Vector(0.0, baseHeight * Double(elevation), 0.0)
             
             return apex.rotated(by: .yaw(tileRotation)).translated(by: origin + offset)
         }
