@@ -18,7 +18,8 @@ let package = Package(
         .package(path: "../Alluvium"),
         .package(path: "../Deltille"),
         .package(path: "../Lattice"),
-        .package(path: "../Regolith")
+        .package(path: "../Regolith"),
+        .package(path: "../Verdure")
     ],
     targets: [
         .target(name: "Harvest",
@@ -26,7 +27,8 @@ let package = Package(
                                "Deltille",
                                "Euclid",
                                "Lattice",
-                               "Regolith"],
+                               "Regolith",
+                               "Verdure"],
                 resources: [.process("Shaders")])
     ]
 )

@@ -6,11 +6,13 @@
 
 import AppKit
 import Deltille
+import Lattice
 import RealityKit
 
 public class RegionView: EditorView {
     
     internal let biosphere = Biosphere()
+    internal let foliage = Foliage()
     internal let terrain = Terrain()
         
     public required init(frame: NSRect) {
@@ -18,6 +20,7 @@ public class RegionView: EditorView {
         super.init(frame: frame)
         
         world.addChild(biosphere)
+        world.addChild(foliage)
         world.addChild(terrain)
     }
     
@@ -26,13 +29,16 @@ public class RegionView: EditorView {
         super.registerComponents()
         
         BiomeComponent.registerComponent()
-        TerrainCacheComponent.registerComponent()
+        FoliageComponent.registerComponent()
+        FoliageAssetCacheComponent.registerComponent()
+        TerrainAssetCacheComponent.registerComponent()
     }
     
     public override func registerSystems() {
         
         super.registerSystems()
         
+        FoliageSystem.registerSystem()
         TerrainSystem.registerSystem()
     }
 }
@@ -121,5 +127,15 @@ extension RegionView {
                       for: vertex)
         
         terrain.terraform(vertex: vertex)
+    }
+}
+
+// MARK: Foliage
+
+extension RegionView {
+    
+    public func set(foliage triangle: Triangle) {
+        
+        foliage.set(foliage: triangle)
     }
 }

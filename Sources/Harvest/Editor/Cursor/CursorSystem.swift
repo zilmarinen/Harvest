@@ -67,8 +67,8 @@ extension CursorSystem {
             let elevation = Double(biome?.elevation ?? 0)
             
             let offset = Vector(0.0,
-                                (TerrainCacheComponent.baseHeight * elevation) +
-                                (elevation > 0 ? TerrainCacheComponent.apexHeight : 0.0),
+                                (TerrainAssetCacheComponent.baseHeight * elevation) +
+                                (elevation > 0 ? TerrainAssetCacheComponent.apexHeight : 0.0),
                                 0.0);
             
             child.position = .init(vertex.position(.tile) + offset)
@@ -92,8 +92,8 @@ extension CursorSystem {
             let elevation = Double(biome?.elevation ?? 0)
             
             let offset = Vector(0.0,
-                                (TerrainCacheComponent.baseHeight * elevation) +
-                                (elevation > 0 ? TerrainCacheComponent.apexHeight : 0.0),
+                                (TerrainAssetCacheComponent.baseHeight * elevation) +
+                                (elevation > 0 ? TerrainAssetCacheComponent.apexHeight : 0.0),
                                 0.0);
             
             child.position = .init(vertex.position(.tile) + offset)
@@ -109,8 +109,8 @@ extension CursorSystem {
         let elevation = Double(biome?.elevation ?? 0)
         
         let offset = Vector(0.0,
-                            (TerrainCacheComponent.baseHeight * elevation) +
-                            (elevation > 0 ? TerrainCacheComponent.apexHeight : 0.0),
+                            (TerrainAssetCacheComponent.baseHeight * elevation) +
+                            (elevation > 0 ? TerrainAssetCacheComponent.apexHeight : 0.0),
                             0.0);
         
         cursors.forEach {

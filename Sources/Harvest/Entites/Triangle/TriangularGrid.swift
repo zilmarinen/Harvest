@@ -33,4 +33,14 @@ extension TriangularGrid {
             $0.triangle == triangle
         }
     }
+    
+    internal func chunk(for triangle: Triangle) -> C? {
+        
+        let parent = triangle.transpose(.tile,
+                                        .region)
+        
+        guard let region = region(for: parent) else { return nil }
+        
+        return region.chunk(for: triangle)
+    }
 }

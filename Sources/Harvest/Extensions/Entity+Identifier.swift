@@ -15,6 +15,7 @@ extension Entity {
         case biosphere
         case camera
         case cursor
+        case foliage
         case terrain
         
         internal var id: String { rawValue.capitalized }
