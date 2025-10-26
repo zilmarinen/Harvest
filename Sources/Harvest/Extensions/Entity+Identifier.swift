@@ -17,6 +17,7 @@ extension Entity {
         case cursor
         case foliage
         case terrain
+        case water
         
         internal var id: String { rawValue.capitalized }
     }

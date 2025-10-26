@@ -14,6 +14,7 @@ public class RegionView: EditorView {
     internal let biosphere = Biosphere()
     internal let foliage = Foliage()
     internal let terrain = Terrain()
+    internal let water = Water()
         
     public required init(frame: NSRect) {
         
@@ -22,6 +23,7 @@ public class RegionView: EditorView {
         world.addChild(biosphere)
         world.addChild(foliage)
         world.addChild(terrain)
+        world.addChild(water)
     }
     
     public override func registerComponents() {
@@ -32,6 +34,7 @@ public class RegionView: EditorView {
         FoliageComponent.registerComponent()
         FoliageAssetCacheComponent.registerComponent()
         TerrainAssetCacheComponent.registerComponent()
+        WaterComponent.registerComponent()
     }
     
     public override func registerSystems() {
@@ -40,6 +43,7 @@ public class RegionView: EditorView {
         
         FoliageSystem.registerSystem()
         TerrainSystem.registerSystem()
+        WaterSystem.registerSystem()
     }
 }
 
@@ -137,5 +141,19 @@ extension RegionView {
     public func set(foliage triangle: Triangle) {
         
         foliage.set(foliage: triangle)
+    }
+}
+
+// MARK: Water
+
+extension RegionView {
+    
+    public func set(_ waterType: WaterType,
+                    _ elevation: Int,
+                    for triangle: Triangle) {
+        
+        water.set(waterType,
+                  elevation,
+                  for: triangle)
     }
 }
