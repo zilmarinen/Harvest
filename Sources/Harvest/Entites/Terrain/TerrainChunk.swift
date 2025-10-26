@@ -1,17 +1,16 @@
 //
-//  FoliageChunk.swift
+//  TerrainChunk.swift
 //
-//  Created by Zack Brown on 25/10/2025.
+//  Created by Zack Brown on 04/09/2025.
 //
 
 import Deltille
 import Euclid
 import RealityKit
 
-internal class FoliageChunk: TriangularEntity,
+internal class TerrainChunk: TriangularEntity,
                              HasCollision,
                              HasModel,
-                             HasFoliageComponent,
                              HasSoilableComponent {
     
     internal init(_ triangle: Triangle) {

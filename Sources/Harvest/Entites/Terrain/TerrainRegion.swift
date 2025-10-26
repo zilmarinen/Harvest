@@ -9,14 +9,7 @@ import Foundation
 import RealityKit
 
 internal class TerrainRegion: TriangularRegion<TerrainChunk>,
-                              @preconcurrency Codable,
                               HasSoilableComponent {
-    
-    internal enum CodingKeys: CodingKey {
-        
-        case triangle
-        case chunks
-    }
     
     internal convenience init(empty triangle: Triangle) {
         
@@ -31,40 +24,14 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
         }
     }
     
-    internal init(_ triangle: Triangle) {
+    internal override init(_ triangle: Triangle) {
         
-        super.init(triangle,
-                   .region)
+        super.init(triangle)
     }
-    
-    @available(*, unavailable)
-    required internal init() { fatalError("init() has not been implemented") }
     
     required internal init(from decoder: any Decoder) throws {
         
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let triangle = try container.decode(Triangle.self,
-                                            forKey: .triangle)
-        
-        super.init(triangle,
-                   .region)
-        
-        let children = try container.decode([TerrainChunk].self,
-                                            forKey: .chunks)
-        
-        children.forEach { addChild($0) }
-    }
-    
-    internal func encode(to encoder: any Encoder) throws {
-    
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(triangle,
-                             forKey: .triangle)
-        
-        try container.encode(chunks,
-                             forKey: .chunks)
+        try super.init(from: decoder)
     }
 }
 

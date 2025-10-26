@@ -12,12 +12,13 @@ internal class BiomeRegion: HexagonalRegion<BiomeChunk> {
     
     internal init(hexagon: Hexagon) {
         
-        super.init(hexagon,
-                   .region)
+        super.init(hexagon)
     }
     
-    @available(*, unavailable)
-    required internal init() { fatalError("init() has not been implemented") }
+    required internal init(from decoder: any Decoder) throws {
+        
+        try super.init(from: decoder)
+    }
     
     internal func merge(_ chunk: BiomeChunk) {
         

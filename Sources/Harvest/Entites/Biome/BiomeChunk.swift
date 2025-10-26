@@ -8,12 +8,10 @@ import Deltille
 import RealityKit
 
 internal class BiomeChunk: HexagonalEntity,
-                           @preconcurrency Codable,
                            HasBiomeComponent {
     
     internal enum CodingKeys: CodingKey {
         
-        case hexagon
         case biomes
     }
     
@@ -28,24 +26,19 @@ internal class BiomeChunk: HexagonalEntity,
     
     internal required init(from decoder: any Decoder) throws {
         
+        try super.init(from: decoder)
+        
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let hexagon = try container.decode(Hexagon.self,
-                                           forKey: .hexagon)
-        
-        super.init(hexagon,
-                   .chunk)
         
         self.biomeComponent = try container.decode(BiomeComponent.self,
                                                    forKey: .biomes)
     }
     
-    internal func encode(to encoder: any Encoder) throws {
+    internal override func encode(to encoder: any Encoder) throws {
+        
+        try super.encode(to: encoder)
     
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(hexagon,
-                             forKey: .hexagon)
         
         try container.encode(biomeComponent,
                              forKey: .biomes)
