@@ -6,11 +6,11 @@
 
 import Deltille
 
-internal struct WaterTile: Codable,
+public struct WaterTile: Codable,
                            Hashable {
     
-    internal let triangle: Triangle
+    public let triangle: Triangle
     
-    internal let waterType: WaterType
-    internal let elevation: Int
+    public let waterType: WaterType
+    public let elevation: Int
 }

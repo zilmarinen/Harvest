@@ -15,16 +15,22 @@ public final class Region: Codable,
     
     internal let region: TerrainRegion
     internal let biomes: [BiomeChunk]
+    internal let foliage: FoliageRegion?
+    internal let water: WaterRegion?
     
     internal init(coordinate: Coordinate,
                   identifier: String,
                   region: TerrainRegion,
-                  biomes: [BiomeChunk]) {
+                  biomes: [BiomeChunk],
+                  foliage: FoliageRegion? = nil,
+                  water: WaterRegion? = nil) {
      
         self.coordinate = coordinate
         self.identifier = identifier
         self.region = region
         self.biomes = biomes
+        self.foliage = foliage
+        self.water = water
     }
     
     public func hash(into hasher: inout Hasher) {

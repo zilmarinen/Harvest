@@ -29,7 +29,7 @@ public class HexagonalEntity: Entity,
         
         name = hexagon.id
         
-        position = .init(hexagon.position(scale))
+        reposition()
     }
     
     @available(*, unavailable)
@@ -46,6 +46,10 @@ public class HexagonalEntity: Entity,
                                           forKey: .scale)
         
         super.init()
+        
+        name = hexagon.id
+        
+        reposition()
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -57,5 +61,28 @@ public class HexagonalEntity: Entity,
         
         try container.encode(scale,
                              forKey: .scale)
+    }
+}
+
+extension HexagonalEntity {
+    
+    private func reposition() {
+        
+        switch scale {
+            
+        case .region:
+            
+            position = .init(hexagon.child().position(.chunk))
+            
+        case .chunk:
+            
+            let origin = hexagon.parent().child().position(scale)
+            
+            position = .init(hexagon.position(scale) - origin)
+            
+        default:
+            
+            position = .init(hexagon.position(scale))
+        }
     }
 }

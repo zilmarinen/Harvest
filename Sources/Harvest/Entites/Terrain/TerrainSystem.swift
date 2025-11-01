@@ -105,14 +105,13 @@ extension TerrainSystem {
                         tiles: [Triangle.Vertex : BiomeTile],
                         cache: TerrainAssetCacheComponent) throws {
         
-        let stencil = Triangle.zero.stencil(.tile)
+        let stencil = chunk.triangle.stencil(chunk.scale)
         
         var mesh = Mesh.empty
         
         for (_, tile) in tiles {
             
             mesh = mesh.merge(render(tile: tile,
-                                     stencil: stencil,
                                      cache: cache))
         }
         
@@ -135,7 +134,6 @@ extension TerrainSystem {
     }
     
     private func render(tile: BiomeTile,
-                        stencil: Triangle.Stencil,
                         cache: TerrainAssetCacheComponent) -> Mesh {
         
         let origin = tile.triangle.position(.tile)

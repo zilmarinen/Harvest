@@ -29,23 +29,7 @@ public class TriangularEntity: Entity,
         
         name = triangle.id
         
-        switch scale {
-            
-        case .region:
-            
-            position = .init(triangle.position(.region))
-            
-        case .chunk:
-            
-            let origin = triangle.transpose(.chunk,
-                                            .region).position(.region)
-            
-            position = .init(triangle.position(.chunk) - origin)
-            
-        default:
-            
-            position = .zero
-        }
+        reposition()
     }
     
     @available(*, unavailable)
@@ -62,6 +46,10 @@ public class TriangularEntity: Entity,
                                           forKey: .scale)
         
         super.init()
+        
+        name = triangle.id
+        
+        reposition()
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -73,5 +61,29 @@ public class TriangularEntity: Entity,
         
         try container.encode(scale,
                              forKey: .scale)
+    }
+}
+
+extension TriangularEntity {
+    
+    private func reposition() {
+        
+        switch scale {
+            
+        case .region:
+            
+            position = .init(triangle.position(scale))
+            
+        case .chunk:
+            
+            let origin = triangle.transpose(scale,
+                                            .region).position(.region)
+            
+            position = .init(triangle.position(scale) - origin)
+            
+        default:
+            
+            position = .zero
+        }
     }
 }

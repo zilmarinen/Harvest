@@ -9,7 +9,8 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class WaterComponent: Component {
+internal class WaterComponent: Component,
+                               Codable {
     
     internal var tiles: [Triangle : WaterTile] = [:]
 }
@@ -20,9 +21,13 @@ internal protocol HasWaterComponent: Entity {
     
     var isEmpty: Bool { get }
     
+    func get(tile triangle: Triangle) -> WaterTile?
+    
     func set(_ waterType: WaterType,
              _ elevation: Int,
              for triangle: Triangle)
+    
+    func remove(tiles: [Triangle])
 }
 
 extension HasWaterComponent {
@@ -49,6 +54,11 @@ extension HasWaterComponent {
     
     internal var isEmpty: Bool { waterComponent.tiles.isEmpty }
     
+    internal func get(tile triangle: Triangle) -> WaterTile? {
+     
+        waterComponent.tiles[triangle]
+    }
+    
     internal func set(_ waterType: WaterType,
                       _ elevation: Int,
                       for triangle: Triangle) {
@@ -61,5 +71,13 @@ extension HasWaterComponent {
         waterComponent.tiles[triangle] = .init(triangle: triangle,
                                                waterType: waterType,
                                                elevation: elevation)
+    }
+    
+    internal func remove(tiles: [Triangle]) {
+        
+        tiles.forEach {
+            
+            waterComponent.tiles.removeValue(forKey: $0)
+        }
     }
 }

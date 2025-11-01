@@ -63,6 +63,13 @@ extension BiomeTile {
         
         return vertices.first?.elevation
     }
+    
+    internal var apex: Int {
+        
+        let elevation = vertices.map { $0.elevation }
+        
+        return elevation.sorted(by: >).first ?? 0
+    }
 }
 
 extension BiomeTile {

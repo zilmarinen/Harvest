@@ -63,8 +63,18 @@ extension RegionView {
         
         region.region.name = region.identifier
         
-        terrain.addChild(region.region)
         biosphere.merge(region.biomes)
+        terrain.addChild(region.region)
+        
+        if let child = region.foliage {
+            
+            foliage.addChild(child)
+        }
+        
+        if let child = region.water {
+            
+            water.addChild(child)
+        }
     }
 }
 
@@ -89,7 +99,9 @@ extension RegionView {
         return .init(coordinate: triangle.vertex.position,
                      identifier: region.name,
                      region: region,
-                     biomes: biosphere.chunks(intersecting: triangle))
+                     biomes: biosphere.chunks(intersecting: triangle),
+                     foliage: foliage.region(for: triangle),
+                     water: water.region(for: triangle))
     }
 }
 
@@ -147,6 +159,11 @@ extension RegionView {
 // MARK: Water
 
 extension RegionView {
+    
+    public func get(water triangle: Triangle) -> WaterTile? {
+        
+        water.get(tile: triangle)
+    }
     
     public func set(_ waterType: WaterType,
                     _ elevation: Int,
