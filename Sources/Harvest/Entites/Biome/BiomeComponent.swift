@@ -17,6 +17,8 @@ internal protocol HasBiomeComponent: Entity {
     
     var biomeComponent: BiomeComponent { get }
     
+    var vertices: [Triangle.Vertex : BiomeVertex] { get }
+    
     var isEmpty: Bool { get }
     
     func get(biome vertex: Triangle.Vertex) -> BiomeVertex?
@@ -50,7 +52,9 @@ extension HasBiomeComponent {
         }
     }
     
-    internal var isEmpty: Bool { biomeComponent.vertices.isEmpty }
+    internal var vertices: [Triangle.Vertex : BiomeVertex] { biomeComponent.vertices }
+    
+    internal var isEmpty: Bool { vertices.isEmpty }
     
     internal func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
         

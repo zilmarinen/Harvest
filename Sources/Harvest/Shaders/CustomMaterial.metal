@@ -68,3 +68,19 @@ void customMaterialSurface(surface_parameters params) {
     
     params.surface().set_base_color(half3(color.xyz));
 }
+
+
+[[visible]]
+void waterGeometry(geometry_parameters params) {
+    
+    //
+}
+
+[[visible]]
+void waterSurface(surface_parameters params) {
+    
+    float4 baseColor = params.geometry().color();
+    
+    params.surface().set_base_color(half3(baseColor.xyz));
+    params.surface().set_opacity(0.5);
+}

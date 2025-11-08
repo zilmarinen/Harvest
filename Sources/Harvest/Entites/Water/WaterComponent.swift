@@ -19,6 +19,8 @@ internal protocol HasWaterComponent: Entity {
     
     var waterComponent: WaterComponent { get set }
     
+    var tiles: [Triangle : WaterTile] { get }
+    
     var isEmpty: Bool { get }
     
     func get(tile triangle: Triangle) -> WaterTile?
@@ -52,7 +54,9 @@ extension HasWaterComponent {
         }
     }
     
-    internal var isEmpty: Bool { waterComponent.tiles.isEmpty }
+    internal var tiles: [Triangle : WaterTile] { waterComponent.tiles }
+    
+    internal var isEmpty: Bool { tiles.isEmpty }
     
     internal func get(tile triangle: Triangle) -> WaterTile? {
      

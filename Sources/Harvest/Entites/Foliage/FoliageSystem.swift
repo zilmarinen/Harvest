@@ -71,7 +71,7 @@ internal struct FoliageSystem: System {
         
         var mesh = Mesh.empty
         
-        for (triangle, septomino) in chunk.foliageComponent.foliage {
+        for (triangle, septomino) in chunk.tiles {
             
             let foliage = cache.mesh(for: septomino)
             

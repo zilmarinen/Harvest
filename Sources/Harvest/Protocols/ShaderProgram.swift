@@ -20,6 +20,7 @@ internal final class ShaderProgram {
                            Identifiable {
         
         case customMaterial
+        case water
         
         internal var id: String { rawValue }
     }

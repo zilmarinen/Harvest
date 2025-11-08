@@ -47,76 +47,71 @@ extension WaterSystem {
                         biosphere: Biosphere,
                         water: Water) {
         
-        let stencil = chunk.triangle.stencil(chunk.scale)
-        
-        var mesh = Mesh.empty
-        
         var invalidTiles: [Triangle] = []
         
-        for (triangle, tile) in chunk.waterComponent.tiles {
+        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
-            let terrain = biosphere.tile(for: triangle)
+            let (_, tile) = item
+            let biome = biosphere.tile(for: tile.triangle)
             
-            if terrain.hasThreeVertices,
-               tile.elevation <= terrain.apex {
+            guard !biome.hasThreeVertices ||
+                  (biome.hasThreeVertices && biome.base < tile.elevation) else {
                 
-                invalidTiles.append(triangle)
+                invalidTiles.append(tile.triangle)
                 
-                continue
+                return
             }
             
-            let part = render(tile: tile,
-                              water: water)
-            
-            mesh = mesh.merge(part)
+            result.append(contentsOf: render(tile: tile,
+                                             water: water))
         }
         
-        if !invalidTiles.isEmpty {
-            
-            chunk.remove(tiles: invalidTiles)
-        }
+        chunk.remove(tiles: invalidTiles)
         
-        guard !mesh.polygons.isEmpty else { return }
+        guard !polygons.isEmpty else { return }
         
-        mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
+        let mesh = Mesh(polygons)
         
-        chunk.mesh = mesh
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false
     }
     
     private func render(tile: WaterTile,
-                        water: Water) -> Mesh {
+                        water: Water) -> [Euclid.Polygon] {
         
-        let apex = Vector(0.0, (TerrainSystem.Constant.baseHeight * Double(tile.elevation)) - TerrainSystem.Constant.apexHeight, 0.0)
+        let apexElevation = Vector(0.0, (Double(tile.elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
+        let vertices = tile.triangle.vertices.map { $0.position(.tile) + apexElevation }
+        let apexPath = vertices.path(tile.waterType.colorPalette.primary)
         
-        var mesh = tile.triangle.mesh(.tile,
-                                      tile.waterType.colorPalette.primary).translated(by: apex)
+        guard let apex = Polygon(shape: apexPath) else { return [] }
+        
+        var polygons = [apex]
         
         for edge in tile.triangle.edges {
-            
+         
             let adjacent = tile.triangle.neighbour(edge)
-            
+
             let elevation = water.get(tile: adjacent)?.elevation ?? 0
-            
-            let base = Vector(0.0, TerrainSystem.Constant.baseHeight * Double(elevation), 0.0)
-            
+
             guard tile.elevation > elevation else { continue }
             
+            let mantleElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
+            
             let corners = edge.corners.map {
-                
+
                 tile.triangle.vertex($0).position(.tile)
             }
             
-            let face =  corners.reversed().map { $0 + base } +
-                        corners.map { $0 + apex }
-            
+            let face =  corners.reversed().map { $0 + mantleElevation } +
+                        corners.map { $0 + apexElevation }
+
             let path = face.path(tile.waterType.colorPalette.secondary)
-            
+
             guard let polygon = Polygon(shape: path) else { continue }
-            
-            mesh = mesh.merge(Mesh([polygon]))
+
+            polygons.append(polygon)
         }
         
-        return mesh
+        return polygons
     }
 }
