@@ -13,23 +13,23 @@ public final class Region: Codable,
     public let coordinate: Coordinate
     public var identifier: String
     
-    internal let region: TerrainRegion
     internal let biomes: [BiomeChunk]
     internal let foliage: FoliageRegion?
+    internal let terrain: TerrainRegion
     internal let water: WaterRegion?
     
     internal init(coordinate: Coordinate,
                   identifier: String,
-                  region: TerrainRegion,
                   biomes: [BiomeChunk],
                   foliage: FoliageRegion? = nil,
+                  terrain: TerrainRegion,
                   water: WaterRegion? = nil) {
      
         self.coordinate = coordinate
         self.identifier = identifier
-        self.region = region
         self.biomes = biomes
         self.foliage = foliage
+        self.terrain = terrain
         self.water = water
     }
     
@@ -77,7 +77,15 @@ extension Region {
         
         self.init(coordinate: triangle.vertex.position,
                   identifier: triangle.id,
-                  region: .init(empty: triangle),
-                  biomes: biomes)
+                  biomes: biomes,
+                  terrain: .init(empty: triangle))
+    }
+}
+
+extension Region {
+    
+    public func remove(tiles region: Triangle) {
+        
+        //TODO: remove overlapping biome / terrain
     }
 }

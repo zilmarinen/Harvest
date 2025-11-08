@@ -10,14 +10,25 @@ import RealityKit
 
 internal class WaterChunk: TriangularEntity,
                            HasCollision,
-                           HasModel,
+                           HasMesh,
                            HasSoilableComponent,
                            HasWaterComponent {
     
     internal enum CodingKeys: CodingKey {
         
         case tiles
+        case mesh
     }
+    
+    internal var mesh: Mesh? {
+        
+        didSet {
+            
+            updateModel()
+        }
+    }
+    
+    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
     
     internal init(_ triangle: Triangle) {
         
@@ -33,6 +44,11 @@ internal class WaterChunk: TriangularEntity,
         
         self.waterComponent = try container.decode(WaterComponent.self,
                                                    forKey: .tiles)
+        
+        self.mesh = try container.decode(Mesh.self,
+                                         forKey: .mesh)
+        
+        updateModel()
     }
     
     internal override func encode(to encoder: any Encoder) throws {
@@ -43,5 +59,8 @@ internal class WaterChunk: TriangularEntity,
         
         try container.encode(waterComponent,
                              forKey: .tiles)
+        
+        try container.encode(mesh,
+                             forKey: .mesh)
     }
 }

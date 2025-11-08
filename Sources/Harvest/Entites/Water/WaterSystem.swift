@@ -10,7 +10,9 @@ import Euclid
 import RealityKit
 
 @MainActor
-internal struct WaterSystem: System {
+internal struct WaterSystem: @preconcurrency System {
+    
+    internal static var dependencies: [SystemDependency] = [.after(TerrainSystem.self)]
     
     private static let query = EntityQuery(where: .has(WaterComponent.self))
     
@@ -55,7 +57,8 @@ extension WaterSystem {
             
             let terrain = biosphere.tile(for: triangle)
             
-            guard tile.elevation >= terrain.apex else {
+            if terrain.hasThreeVertices,
+               tile.elevation <= terrain.apex {
                 
                 invalidTiles.append(triangle)
                 
@@ -77,31 +80,17 @@ extension WaterSystem {
         
         mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
         
-        let apex = Vector(0.0, mesh.bounds.max.y, 0.0)
-        
-        let perimeter: [SIMD3<Float>] = stencil.perimeter.map { .init($0) } +
-                                        stencil.perimeter.map { .init($0 + apex) }
-        
-        let resource = MeshResource(mesh: mesh)
-        let shape = ShapeResource.generateConvex(from: perimeter)
-        
-        let model = ModelComponent(mesh: resource,
-                                   materials: [SimpleMaterial(color: .systemBlue,
-                                                              isMetallic: false)])
-        
-        chunk.model = model
-        chunk.collision = .init(shapes: [shape],
-                                isStatic: true)
-        
+        chunk.mesh = mesh
         chunk.isDirty = false
     }
     
     private func render(tile: WaterTile,
                         water: Water) -> Mesh {
         
-        let apex = Vector(0.0, TerrainAssetCacheComponent.baseHeight * Double(tile.elevation), 0.0)
+        let apex = Vector(0.0, (TerrainSystem.Constant.baseHeight * Double(tile.elevation)) - TerrainSystem.Constant.apexHeight, 0.0)
         
-        var mesh = tile.triangle.mesh(.tile).translated(by: apex)
+        var mesh = tile.triangle.mesh(.tile,
+                                      tile.waterType.colorPalette.primary).translated(by: apex)
         
         for edge in tile.triangle.edges {
             
@@ -109,7 +98,7 @@ extension WaterSystem {
             
             let elevation = water.get(tile: adjacent)?.elevation ?? 0
             
-            let base = Vector(0.0, TerrainAssetCacheComponent.baseHeight * Double(elevation), 0.0)
+            let base = Vector(0.0, TerrainSystem.Constant.baseHeight * Double(elevation), 0.0)
             
             guard tile.elevation > elevation else { continue }
             
@@ -121,7 +110,7 @@ extension WaterSystem {
             let face =  corners.reversed().map { $0 + base } +
                         corners.map { $0 + apex }
             
-            let path = face.path(.red)
+            let path = face.path(tile.waterType.colorPalette.secondary)
             
             guard let polygon = Polygon(shape: path) else { continue }
             

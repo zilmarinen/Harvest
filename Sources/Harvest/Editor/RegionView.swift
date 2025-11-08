@@ -32,8 +32,6 @@ public class RegionView: EditorView {
         
         BiomeComponent.registerComponent()
         FoliageComponent.registerComponent()
-        FoliageAssetCacheComponent.registerComponent()
-        TerrainAssetCacheComponent.registerComponent()
         WaterComponent.registerComponent()
     }
     
@@ -61,10 +59,10 @@ extension RegionView {
     
     private func load(region: Region) {
         
-        region.region.name = region.identifier
+        region.terrain.name = region.identifier
         
         biosphere.merge(region.biomes)
-        terrain.addChild(region.region)
+        terrain.addChild(region.terrain)
         
         if let child = region.foliage {
             
@@ -90,17 +88,17 @@ extension RegionView {
         }
     }
     
-    private func save(region: TerrainRegion) -> Region? {
+    private func save(region terrain: TerrainRegion) -> Region? {
         
-        guard !region.isEmpty else { return nil }
+        guard !terrain.isEmpty else { return nil }
         
-        let triangle = region.triangle
+        let triangle = terrain.triangle
         
         return .init(coordinate: triangle.vertex.position,
-                     identifier: region.name,
-                     region: region,
+                     identifier: terrain.name,
                      biomes: biosphere.chunks(intersecting: triangle),
                      foliage: foliage.region(for: triangle),
+                     terrain: terrain,
                      water: water.region(for: triangle))
     }
 }

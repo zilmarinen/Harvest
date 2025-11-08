@@ -10,7 +10,8 @@ import Euclid
 import RealityKit
 import Verdure
 
-internal class FoliageComponent: Component {
+internal class FoliageComponent: Component,
+                                 Codable {
     
     internal var foliage: [Triangle : Triangle.Septomino] = [:]
 }

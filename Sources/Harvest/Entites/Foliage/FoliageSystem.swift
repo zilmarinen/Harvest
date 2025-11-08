@@ -77,14 +77,14 @@ internal struct FoliageSystem: System {
             
             let tile = biosphere.tile(for: triangle)
             
-            let elevation = Double(tile.elevation ?? 0)
+            let elevation = Double(tile.uniformElevation ?? 0)
             
             let position = triangle.position(.tile)
             
             let rotation = Angle(radians: triangle.rotation)
             
             let offset = Vector(position.x,
-                                (elevation * TerrainAssetCacheComponent.baseHeight) + TerrainAssetCacheComponent.apexHeight,
+                                (elevation * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight,
                                  position.z)
             
             mesh = mesh.merge(foliage.rotated(by: .yaw(rotation)).translated(by: offset))
@@ -95,7 +95,7 @@ internal struct FoliageSystem: System {
         let resource = MeshResource(mesh: mesh)
         
         let model = ModelComponent(mesh: resource,
-                                   materials: [cache.material])
+                                   materials: [SimpleMaterial()])
         
         chunk.model = model
         

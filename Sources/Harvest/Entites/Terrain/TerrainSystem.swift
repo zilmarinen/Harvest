@@ -13,57 +13,54 @@ import Regolith
 @MainActor
 internal struct TerrainSystem: System {
     
-    private static let query = EntityQuery(where: .has(TerrainAssetCacheComponent.self))
+    internal enum Constant {
+        
+        static let apexHeight = 0.1
+        static let baseHeight = 0.5
+    }
     
     internal init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere else { return }
+        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        for entity in context.entities(matching: Self.query,
-                                       updatingSystemWhen: .rendering) {
+        var emptyRegions: [TerrainRegion] = []
+        
+        for region in terrain.dirtyRegions {
             
-            guard let terrain = entity as? Terrain,
-                  let cache = terrain.components[TerrainAssetCacheComponent.self] else { continue }
+            var emptyChunks: [TerrainChunk] = []
             
-            var emptyRegions: [TerrainRegion] = []
-            
-            for region in terrain.dirtyRegions {
+            for chunk in region.dirtyChunks {
                 
-                var emptyChunks: [TerrainChunk] = []
+                let slice = biosphere.slice(for: chunk.triangle)
                 
-                for chunk in region.dirtyChunks {
+                guard !slice.vertices.isEmpty else {
                     
-                    let slice = biosphere.slice(for: chunk.triangle)
+                    emptyChunks.append(chunk)
                     
-                    guard !slice.vertices.isEmpty else {
-                        
-                        emptyChunks.append(chunk)
-                        
-                        continue
-                    }
-                    
-                    update(chunk: chunk,
-                           slice: slice,
-                           cache: cache)
+                    continue
                 }
                 
-                emptyChunks.forEach {
-                    
-                    region.removeChild($0)
-                }
-                
-                if region.isEmpty {
-                    
-                    emptyRegions.append(region)
-                }
+                update(chunk: chunk,
+                       slice: slice)
             }
             
-            emptyRegions.forEach {
+            emptyChunks.forEach {
                 
-                terrain.removeChild($0)
+                region.removeChild($0)
             }
+            
+            if region.isEmpty {
+                
+                emptyRegions.append(region)
+            }
+        }
+        
+        emptyRegions.forEach {
+            
+            terrain.removeChild($0)
         }
     }
 }
@@ -71,114 +68,105 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: BiomeSlice,
-                        cache: TerrainAssetCacheComponent) {
+                        slice: BiomeSlice) {
         
-        let tiles = slice.sieve.tiles.reduce(into: [Triangle.Vertex : BiomeTile]()) { result, tile in
+        let polygons = slice.tiles.flatMap {
             
-            let vertices = tile.vertices.compactMap {
-                
-                slice.vertices[$0]
-            }
-            
-            guard !vertices.isEmpty else { return }
-            
-            result[tile.vertex] = .init(triangle: tile,
-                                        vertices: vertices)
+            render(tile: $1)
         }
         
-        do {
-            
-            try render(chunk: chunk,
-                       tiles: tiles,
-                       cache: cache)
-            
-            chunk.isDirty = false
-        }
-        catch {
-            
-            fatalError("Error genering mesh for chunk \(chunk.triangle.id): \(error.localizedDescription)")
-        }
+        guard !polygons.isEmpty else { return }
+        
+        let mesh = Mesh(polygons)
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        chunk.isDirty = false
     }
     
-    private func render(chunk: TerrainChunk,
-                        tiles: [Triangle.Vertex : BiomeTile],
-                        cache: TerrainAssetCacheComponent) throws {
+    private func render(tile: BiomeTile) -> [Euclid.Polygon] {
         
-        let stencil = chunk.triangle.stencil(chunk.scale)
+        let stencil = tile.triangle.stencil(.tile)
         
-        var mesh = Mesh.empty
-        
-        for (_, tile) in tiles {
+        guard let biome = tile.uniformBiome,
+              let elevation = tile.uniformElevation else {
             
-            mesh = mesh.merge(render(tile: tile,
-                                     cache: cache))
+            return render(tile: tile,
+                          stencil: stencil)
         }
         
-        mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
-        
-        let apex = Vector(0.0, mesh.bounds.max.y, 0.0)
-        
-        let perimeter: [SIMD3<Float>] = stencil.perimeter.map { .init($0) } +
-                                        stencil.perimeter.map { .init($0 + apex) }
-        
-        let resource = MeshResource(mesh: mesh)
-        let shape = ShapeResource.generateConvex(from: perimeter)
-        
-        let model = ModelComponent(mesh: resource,
-                                   materials: [cache.material])
-        
-        chunk.model = model
-        chunk.collision = .init(shapes: [shape],
-                                isStatic: true)
+        return render(tile: tile,
+                      stencil: stencil,
+                      kite: .uniform,
+                      biome: biome,
+                      elevation: elevation)
     }
     
     private func render(tile: BiomeTile,
-                        cache: TerrainAssetCacheComponent) -> Mesh {
+                        stencil: Triangle.Stencil) -> [Euclid.Polygon] {
         
         let origin = tile.triangle.position(.tile)
-        let step = Triangle.Rotation.step
-        let baseHeight = TerrainAssetCacheComponent.baseHeight
-        let tileRotation = Angle(radians: tile.triangle.rotation)
         
-        if tile.isUniform,
-           let biome = tile.biome,
-           let elevation = tile.elevation {
+        return tile.vertices.reduce(into: [Euclid.Polygon]()) { result, vertex in
             
-            let apex = cache.apex(for: .uniform,
-                                  biome: biome)
-            
-            let offset = Vector(0.0, baseHeight * Double(elevation), 0.0)
-            
-            return apex.rotated(by: .yaw(tileRotation)).translated(by: origin + offset)
-        }
-        
-        var mesh = Mesh.empty
-        
-        for vertex in tile.vertices {
-            
-            guard let corner = tile.triangle.corner(vertex.vertex) else { continue }
+            guard let corner = tile.triangle.corner(vertex.vertex) else { return }
             
             let kite = tile.triangle.kite(index: corner.rawValue)
             
-            let apex = cache.apex(for: kite,
-                                  biome: vertex.biome)
-            let base = cache.base(for: kite,
-                                  biome: vertex.biome)
+            let angle = Angle(radians: Triangle.Rotation.step * Double(-corner.rawValue))
+            let rotation = Rotation.yaw(angle)
             
-            let offset = Vector(0.0, baseHeight * Double(vertex.elevation), 0.0)
-            let angle = tileRotation + .init(radians: (step * Double(-corner.rawValue)))
+            let polygons = render(tile: tile,
+                                  stencil: stencil,
+                                  kite: kite,
+                                  biome: vertex.biome,
+                                  elevation: vertex.elevation)
             
-            for i in 0..<vertex.elevation {
-                
-                let translation = Vector(0.0, baseHeight * Double(i), 0.0)
-                
-                mesh = mesh.union(base.rotated(by: .yaw(angle)).translated(by: translation))
-            }
+            result.append(contentsOf: polygons.translated(by: -origin).rotated(by: rotation).translated(by: origin))
+        }
+    }
+    
+    private func render(tile: BiomeTile,
+                        stencil: Triangle.Stencil,
+                        kite: Triangle.Kite,
+                        biome: Biome,
+                        elevation: Int) -> [Euclid.Polygon] {
+        
+        let apexElevation = Vector(0.0, (Double(elevation) * Constant.baseHeight) + Constant.apexHeight, 0.0)
+        let vertices = kite.vertices.map { stencil.vertex($0) + apexElevation }
+        let apexPath = vertices.path(biome.colorPalette.primary)
+        let tileBase = tile.base
+        
+        guard let apex = Polygon(shape: apexPath) else { return [] }
+        
+        var polygons = [apex]
+        
+        guard kite != .uniform,
+              elevation > tileBase else { return polygons }
+        
+        let crownElevation = Vector(0.0, Double(elevation) * Constant.baseHeight, 0.0)
+        let mantleElevation = Vector(0.0, Double(tileBase) * Constant.baseHeight, 0.0)
+        
+        let edgePath = kite.vertices.suffix(kite.vertices.count - 1).map { stencil.vertex($0) }
+        
+        for i in edgePath.indices {
             
-            mesh = mesh.union(apex.rotated(by: .yaw(angle)).translated(by: offset))
+            let v0 = edgePath[i]
+            let v1 = edgePath[(i + 1) % edgePath.count]
+            
+            let v2 = v0 + crownElevation
+            let v3 = v1 + crownElevation
+            let v4 = v0 + apexElevation
+            let v5 = v1 + apexElevation
+            
+            let crownPath = [v5, v4, v2, v3].path(biome.colorPalette.primary)
+            let mantlePath = [v3, v2, v0 + mantleElevation, v1 + mantleElevation].path(biome.colorPalette.secondary)
+            
+            guard let crown = Polygon(shape: crownPath),
+                  let mantle = Polygon(shape: mantlePath) else { continue }
+            
+            polygons.append(contentsOf: [crown, mantle])
         }
         
-        return mesh.translated(by: origin)
+        return polygons
     }
 }

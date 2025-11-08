@@ -20,9 +20,11 @@ extension BiomeTile {
         hasUniformElevation
     }
     
+    internal var hasThreeVertices: Bool { vertices.count == 3 }
+    
     internal var hasUniformBiome: Bool {
         
-        guard vertices.count == 3 else { return false }
+        guard hasThreeVertices else { return false }
         
         for i in 0..<vertices.count {
             
@@ -37,7 +39,7 @@ extension BiomeTile {
     
     internal var hasUniformElevation: Bool {
         
-        guard vertices.count == 3 else { return false }
+        guard hasThreeVertices else { return false }
         
         for i in 0..<vertices.count {
             
@@ -50,14 +52,14 @@ extension BiomeTile {
         return true
     }
     
-    internal var biome: Biome? {
+    internal var uniformBiome: Biome? {
         
         guard hasUniformBiome else { return nil }
         
         return vertices.first?.biome
     }
     
-    internal var elevation: Int? {
+    internal var uniformElevation: Int? {
         
         guard hasUniformElevation else { return nil }
         
@@ -69,6 +71,15 @@ extension BiomeTile {
         let elevation = vertices.map { $0.elevation }
         
         return elevation.sorted(by: >).first ?? 0
+    }
+    
+    internal var base: Int {
+        
+        guard hasThreeVertices else { return 0 }
+        
+        let elevation = vertices.map { $0.elevation }
+        
+        return elevation.sorted(by: <).first ?? 0
     }
 }
 

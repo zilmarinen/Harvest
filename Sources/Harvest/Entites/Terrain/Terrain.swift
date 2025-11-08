@@ -16,8 +16,6 @@ internal class Terrain: TriangularGrid<TerrainRegion,
         super.init()
         
         name = Entity.Identifier.terrain.id
-        
-        components[TerrainAssetCacheComponent.self] = .init()
     }
 }
 

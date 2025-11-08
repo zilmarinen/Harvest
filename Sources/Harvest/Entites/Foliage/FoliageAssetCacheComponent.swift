@@ -12,33 +12,7 @@ import Verdure
 
 internal class FoliageAssetCacheComponent: Component {
     
-    internal let material: CustomMaterial
-    
     private var meshes: [Triangle.Septomino : Mesh] = [:]
-    
-    internal init() {
-        
-        do {
-            
-            guard let device = MTLCreateSystemDefaultDevice() else { fatalError("Error creating default metal device") }
-            
-            let library = try device.makeDefaultLibrary(bundle: .module)
-            
-            let surface = CustomMaterial.SurfaceShader(named: "customMaterialSurface",
-                                                       in: library)
-            
-            let geometry = CustomMaterial.GeometryModifier(named: "customMaterialGeometry",
-                                                           in: library)
-            
-            self.material = try CustomMaterial(surfaceShader: surface,
-                                               geometryModifier: geometry,
-                                               lightingModel: .lit)
-        }
-        catch {
-            
-            fatalError("Error creating custom material: \(error)")
-        }
-    }
 }
 
 extension FoliageAssetCacheComponent {
@@ -52,8 +26,8 @@ extension FoliageAssetCacheComponent {
         
         let mesh = Mesh.foliage(septomino,
                                 .columnar,
-                                .init(.green, .yellow),
-                                .init(.red, .blue))
+                                .init(.white, .gray),
+                                .init(.gray, .black))
         
         meshes[septomino] = mesh
         

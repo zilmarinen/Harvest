@@ -18,7 +18,8 @@ internal struct CursorSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere else { return }
+        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+              let water = context.scene.find(entity: .water) as? Water else { return }
         
         for entity in context.entities(matching: Self.query,
                                        updatingSystemWhen: .rendering) {
@@ -67,8 +68,8 @@ extension CursorSystem {
             let elevation = Double(biome?.elevation ?? 0)
             
             let offset = Vector(0.0,
-                                (TerrainAssetCacheComponent.baseHeight * elevation) +
-                                (elevation > 0 ? TerrainAssetCacheComponent.apexHeight : 0.0),
+                                (TerrainSystem.Constant.baseHeight * elevation) +
+                                (elevation > 0 ? TerrainSystem.Constant.apexHeight : 0.0),
                                 0.0);
             
             child.position = .init(vertex.position(.tile) + offset)
@@ -92,8 +93,8 @@ extension CursorSystem {
             let elevation = Double(biome?.elevation ?? 0)
             
             let offset = Vector(0.0,
-                                (TerrainAssetCacheComponent.baseHeight * elevation) +
-                                (elevation > 0 ? TerrainAssetCacheComponent.apexHeight : 0.0),
+                                (TerrainSystem.Constant.baseHeight * elevation) +
+                                (elevation > 0 ? TerrainSystem.Constant.apexHeight : 0.0),
                                 0.0);
             
             child.position = .init(vertex.position(.tile) + offset)
@@ -109,8 +110,8 @@ extension CursorSystem {
         let elevation = Double(biome?.elevation ?? 0)
         
         let offset = Vector(0.0,
-                            (TerrainAssetCacheComponent.baseHeight * elevation) +
-                            (elevation > 0 ? TerrainAssetCacheComponent.apexHeight : 0.0),
+                            (TerrainSystem.Constant.baseHeight * elevation) +
+                            (elevation > 0 ? TerrainSystem.Constant.apexHeight : 0.0),
                             0.0);
         
         cursors.forEach {
