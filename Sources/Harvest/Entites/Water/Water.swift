@@ -31,10 +31,7 @@ extension Water {
     
     internal func get(tile triangle: Triangle) -> WaterTile? {
         
-        let parent = triangle.transpose(.tile,
-                                        .region)
-        
-        guard let region = region(for: parent) else { return nil }
+        guard let region = region(for: triangle) else { return nil }
         
         return region.get(tile: triangle)
     }
@@ -43,11 +40,8 @@ extension Water {
                       _ elevation: Int,
                       for triangle: Triangle) {
         
-        let parent = triangle.transpose(.tile,
-                                        .region)
-        
-        let region = region(for: parent) ?? .init(parent)
-        
+        let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                       .region))
         if region.parent == nil {
             
             addChild(region)

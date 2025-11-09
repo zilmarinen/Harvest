@@ -64,11 +64,15 @@ extension TriangularRegion {
 
 extension TriangularRegion {
     
-    internal func chunk(for triangle: Triangle) -> C? {
+    internal func chunk(for triangle: Triangle,
+                        _ scale: Triangle.Scale = .tile) -> C? {
         
-        chunks.first {
+        let match = triangle.transpose(scale,
+                                       .chunk)
+        
+        return chunks.first {
             
-            $0.triangle == triangle
+            $0.triangle == match
         }
     }
 }

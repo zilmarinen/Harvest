@@ -26,21 +26,25 @@ public class TriangularGrid<R: TriangularRegion<C>,
 
 extension TriangularGrid {
     
-    internal func region(for triangle: Triangle) -> R? {
+    internal func region(for triangle: Triangle,
+                         _ scale: Triangle.Scale = .tile) -> R? {
         
-        regions.first {
+        let match = triangle.transpose(scale,
+                                       .region)
+        
+        return regions.first {
             
-            $0.triangle == triangle
+            $0.triangle == match
         }
     }
     
-    internal func chunk(for triangle: Triangle) -> C? {
+    internal func chunk(for triangle: Triangle,
+                        _ scale: Triangle.Scale = .tile) -> C? {
         
-        let parent = triangle.transpose(.tile,
-                                        .region)
+        guard let region = region(for: triangle,
+                                  scale) else { return nil }
         
-        guard let region = region(for: parent) else { return nil }
-        
-        return region.chunk(for: triangle)
+        return region.chunk(for: triangle,
+                            scale)
     }
 }

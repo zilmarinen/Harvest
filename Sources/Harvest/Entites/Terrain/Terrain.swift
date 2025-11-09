@@ -31,15 +31,10 @@ extension Terrain {
     
     internal func terraform(vertex: Triangle.Vertex) {
         
-        let tiles = Set(vertex.tiles.map {
+        for triangle in vertex.tiles {
             
-            $0.transpose(.tile,
-                         .region)
-        })
-        
-        for tile in tiles {
-            
-            let region = region(for: tile) ?? .init(tile)
+            let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                           .region))
             
             if region.parent == nil {
                 

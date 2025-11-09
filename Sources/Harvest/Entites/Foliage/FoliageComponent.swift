@@ -13,18 +13,20 @@ import Verdure
 internal class FoliageComponent: Component,
                                  Codable {
     
-    internal var tiles: [Triangle : Triangle.Septomino] = [:]
+    internal var tiles: Set<Triangle> = Set()
 }
 
 internal protocol HasFoliageComponent: Entity {
     
     var foliageComponent: FoliageComponent { get set }
     
-    var tiles: [Triangle : Triangle.Septomino] { get }
+    var tiles: [Triangle] { get }
     
     var isEmpty: Bool { get }
     
     func set(foliage triangle: Triangle)
+    
+    func remove(tiles: [Triangle])
 }
 
 extension HasFoliageComponent {
@@ -49,12 +51,7 @@ extension HasFoliageComponent {
         }
     }
     
-    internal var tiles: [Triangle : Triangle.Septomino] { foliageComponent.tiles }
+    internal var tiles: [Triangle] { Array(foliageComponent.tiles) }
     
     internal var isEmpty: Bool { tiles.isEmpty }
-    
-    internal func set(foliage triangle: Triangle) {
-        
-        foliageComponent.tiles[triangle] = triangle.septomino
-    }
 }

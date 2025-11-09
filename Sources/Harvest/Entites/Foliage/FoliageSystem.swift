@@ -11,94 +11,92 @@ import RealityKit
 import Verdure
 
 @MainActor
-internal struct FoliageSystem: System {
+internal struct FoliageSystem: @preconcurrency System {
     
-    private static let query = EntityQuery(where: .has(FoliageAssetCacheComponent.self))
+    internal static var dependencies: [SystemDependency] = [.after(TerrainSystem.self)]
     
     internal init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere else { return }
+        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+              let foliage = context.scene.find(entity: .foliage) as? Foliage else { return }
         
-        for entity in context.entities(matching: Self.query,
-                                       updatingSystemWhen: .rendering) {
+        var emptyRegions: [FoliageRegion] = []
+        
+        for region in foliage.dirtyRegions {
             
-            guard let foliage = entity as? Foliage,
-                  let cache = foliage.components[FoliageAssetCacheComponent.self] else { continue }
-            
-            var emptyRegions: [FoliageRegion] = []
-            
-            for region in foliage.dirtyRegions {
+            for chunk in region.dirtyChunks {
                 
-                var emptyChunks: [FoliageChunk] = []
+                update(chunk: chunk,
+                       biosphere: biosphere)
                 
-                for chunk in region.dirtyChunks {
+                if chunk.isEmpty {
                     
-                    guard !chunk.isEmpty else {
-                        
-                        emptyChunks.append(chunk)
-                        
-                        continue
-                    }
-                    
-                    update(chunk: chunk,
-                           biosphere: biosphere,
-                           cache: cache)
-                }
-                
-                emptyChunks.forEach {
-                    
-                    region.removeChild($0)
-                }
-                
-                if region.isEmpty {
-                    
-                    emptyRegions.append(region)
+                    chunk.removeFromParent()
                 }
             }
             
-            emptyRegions.forEach {
+            if region.isEmpty {
                 
-                foliage.removeChild($0)
+                emptyRegions.append(region)
             }
+        }
+        
+        emptyRegions.forEach {
+            
+            $0.removeFromParent()
         }
     }
+}
+
+extension FoliageSystem {
     
     private func update(chunk: FoliageChunk,
-                        biosphere: Biosphere,
-                        cache: FoliageAssetCacheComponent) {
+                        biosphere: Biosphere) {
         
-        var mesh = Mesh.empty
+        var invalidTiles: [Triangle] = []
         
-        for (triangle, septomino) in chunk.tiles {
+        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
             
-            let foliage = cache.mesh(for: septomino)
+            let biome = biosphere.tile(for: triangle)
             
-            let tile = biosphere.tile(for: triangle)
+            guard let elevation = biome.uniformElevation else {
+                
+                invalidTiles.append(triangle)
+                
+                return
+            }
             
-            let elevation = Double(tile.uniformElevation ?? 0)
-            
-            let position = triangle.position(.tile)
-            
-            let rotation = Angle(radians: triangle.rotation)
-            
-            let offset = Vector(position.x,
-                                (elevation * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight,
-                                 position.z)
-            
-            mesh = mesh.merge(foliage.rotated(by: .yaw(rotation)).translated(by: offset))
+            result.append(contentsOf: render(biome: biome,
+                                             elevation: elevation))
         }
         
-        mesh = mesh.translated(by: -chunk.triangle.position(.chunk))
+        chunk.remove(tiles: invalidTiles)
         
-        let resource = MeshResource(mesh: mesh)
+        guard !polygons.isEmpty else { return }
         
-        let model = ModelComponent(mesh: resource,
-                                   materials: [SimpleMaterial()])
+        let mesh = Mesh(polygons)
         
-        chunk.model = model
-        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false
+    }
+    
+    private func render(biome: BiomeTile,
+                        elevation: Int) -> [Euclid.Polygon] {
+        
+        guard let uniform = biome.uniformBiome else { return [] }
+        
+        let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
+        let origin = biome.triangle.position(.tile)
+        let angle = Angle(radians: biome.triangle.rotation)
+        let rotation = Rotation.yaw(angle)
+        
+        let mesh = Mesh.foliage(.antlia,
+                                .columnar,
+                                uniform.foliage,
+                                uniform.foliage).rotated(by: rotation).translated(by: origin + apexElevation)
+        
+        return mesh.polygons
     }
 }

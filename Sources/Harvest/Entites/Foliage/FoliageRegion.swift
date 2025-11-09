@@ -34,11 +34,8 @@ extension FoliageRegion {
     
     internal func set(foliage triangle: Triangle) {
         
-        let parent = triangle.transpose(.tile,
-                                        .chunk)
-        
-        let chunk = chunk(for: parent) ?? .init(parent)
-        
+        let chunk = chunk(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                     .chunk))
         if chunk.parent == nil {
             
             addChild(chunk)

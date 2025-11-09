@@ -14,8 +14,6 @@ internal struct WaterSystem: @preconcurrency System {
     
     internal static var dependencies: [SystemDependency] = [.after(TerrainSystem.self)]
     
-    private static let query = EntityQuery(where: .has(WaterComponent.self))
-    
     internal init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
@@ -23,20 +21,31 @@ internal struct WaterSystem: @preconcurrency System {
         guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        for entity in context.entities(matching: Self.query,
-                                       updatingSystemWhen: .rendering) {
+        var emptyRegions: [WaterRegion] = []
+        
+        for region in water.dirtyRegions {
             
-            guard let chunk = entity as? WaterChunk,
-                  chunk.isDirty else { continue }
+            for chunk in region.dirtyChunks {
             
-            update(chunk: chunk,
-                   biosphere: biosphere,
-                   water: water)
+                update(chunk: chunk,
+                       biosphere: biosphere,
+                       water: water)
             
-            if chunk.isEmpty {
-                
-                chunk.removeFromParent()
+                if chunk.isEmpty {
+                    
+                    chunk.removeFromParent()
+                }
             }
+            
+            if region.isEmpty {
+                
+                emptyRegions.append(region)
+            }
+        }
+        
+        emptyRegions.forEach {
+            
+            $0.removeFromParent()
         }
     }
 }
@@ -51,13 +60,13 @@ extension WaterSystem {
         
         let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
-            let (_, tile) = item
-            let biome = biosphere.tile(for: tile.triangle)
+            let (triangle, tile) = item
+            let biome = biosphere.tile(for: triangle)
             
             guard !biome.hasThreeVertices ||
-                  (biome.hasThreeVertices && biome.base < tile.elevation) else {
+                  biome.base > tile.elevation else {
                 
-                invalidTiles.append(tile.triangle)
+                invalidTiles.append(triangle)
                 
                 return
             }

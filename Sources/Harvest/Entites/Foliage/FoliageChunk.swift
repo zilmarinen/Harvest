@@ -9,15 +9,25 @@ import Euclid
 import RealityKit
 
 internal class FoliageChunk: TriangularEntity,
-                             HasCollision,
-                             HasModel,
+                             HasMesh,
                              HasFoliageComponent,
                              HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
         case tiles
+        case mesh
     }
+    
+    internal var mesh: Mesh? {
+        
+        didSet {
+            
+            updateModel()
+        }
+    }
+    
+    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
     
     internal init(_ triangle: Triangle) {
         
@@ -33,6 +43,11 @@ internal class FoliageChunk: TriangularEntity,
         
         self.foliageComponent = try container.decode(FoliageComponent.self,
                                                      forKey: .tiles)
+        
+        self.mesh = try container.decode(Mesh.self,
+                                         forKey: .mesh)
+        
+        updateModel()
     }
     
     internal override func encode(to encoder: any Encoder) throws {
@@ -43,5 +58,25 @@ internal class FoliageChunk: TriangularEntity,
         
         try container.encode(foliageComponent,
                              forKey: .tiles)
+        
+        try container.encode(mesh,
+                             forKey: .mesh)
+    }
+}
+
+extension FoliageChunk {
+    
+    internal func set(foliage triangle: Triangle) {
+        
+        foliageComponent.tiles.insert(triangle)
+        
+        becomeDirty()
+    }
+    
+    internal func remove(tiles: [Triangle]) {
+        
+        foliageComponent.tiles.subtract(tiles)
+        
+        becomeDirty()
     }
 }

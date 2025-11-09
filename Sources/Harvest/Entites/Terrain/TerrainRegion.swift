@@ -47,20 +47,18 @@ extension TerrainRegion {
     
     internal func terraform(vertex: Triangle.Vertex) {
         
-        let tiles = Set(vertex.tiles.compactMap {
+        let triangles = Set(vertex.tiles.compactMap {
             
             let region = $0.transpose(.tile,
                                       .region)
             
-            let chunk = $0.transpose(.tile,
-                                     .chunk)
-            
-            return region == triangle ? chunk : nil
+            return region == triangle ? $0 : nil
         })
         
-        for tile in tiles {
+        for triangle in triangles {
             
-            let chunk = chunk(for: tile) ?? .init(tile)
+            let chunk = chunk(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                         .chunk))
             
             if chunk.parent == nil {
                 

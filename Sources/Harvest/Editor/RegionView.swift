@@ -97,9 +97,11 @@ extension RegionView {
         return .init(coordinate: triangle.vertex.position,
                      identifier: terrain.name,
                      biomes: biosphere.chunks(intersecting: triangle),
-                     foliage: foliage.region(for: triangle),
+                     foliage: foliage.region(for: triangle,
+                                             .region),
                      terrain: terrain,
-                     water: water.region(for: triangle))
+                     water: water.region(for: triangle,
+                                         .region))
     }
 }
 
@@ -141,6 +143,7 @@ extension RegionView {
                       for: vertex)
         
         terrain.terraform(vertex: vertex)
+        foliage.propagate(vertex: vertex)
     }
 }
 
@@ -151,6 +154,11 @@ extension RegionView {
     public func set(foliage triangle: Triangle) {
         
         foliage.set(foliage: triangle)
+    }
+    
+    public func remove(foliage triangle: Triangle) {
+        
+        foliage.remove(foliage: triangle)
     }
 }
 

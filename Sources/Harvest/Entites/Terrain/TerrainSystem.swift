@@ -49,7 +49,7 @@ internal struct TerrainSystem: System {
             
             emptyChunks.forEach {
                 
-                region.removeChild($0)
+                $0.removeFromParent()
             }
             
             if region.isEmpty {
@@ -60,7 +60,7 @@ internal struct TerrainSystem: System {
         
         emptyRegions.forEach {
             
-            terrain.removeChild($0)
+            $0.removeFromParent()
         }
     }
 }

@@ -62,26 +62,4 @@ extension HasWaterComponent {
      
         waterComponent.tiles[triangle]
     }
-    
-    internal func set(_ waterType: WaterType,
-                      _ elevation: Int,
-                      for triangle: Triangle) {
-        
-        guard elevation > 0 else {
-            
-            return waterComponent.tiles[triangle] = nil
-        }
-     
-        waterComponent.tiles[triangle] = .init(triangle: triangle,
-                                               waterType: waterType,
-                                               elevation: elevation)
-    }
-    
-    internal func remove(tiles: [Triangle]) {
-        
-        tiles.forEach {
-            
-            waterComponent.tiles.removeValue(forKey: $0)
-        }
-    }
 }

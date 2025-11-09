@@ -29,7 +29,7 @@ public class TriangularEntity: Entity,
         
         name = triangle.id
         
-        reposition()
+        updatePosition()
     }
     
     @available(*, unavailable)
@@ -49,7 +49,7 @@ public class TriangularEntity: Entity,
         
         name = triangle.id
         
-        reposition()
+        updatePosition()
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -63,10 +63,10 @@ public class TriangularEntity: Entity,
                              forKey: .scale)
     }
 }
-
+import Euclid
 extension TriangularEntity {
     
-    private func reposition() {
+    private func updatePosition() {
         
         switch scale {
             
@@ -85,5 +85,30 @@ extension TriangularEntity {
             
             position = .zero
         }
+        
+        let color: Color = scale == .region ? (triangle.isPointy ? .black : .white) :
+                                            (triangle.isPointy ? .blue : .red)
+        
+        guard let program = ShaderProgram.shared.material(for: .customMaterial) else { return }
+        
+        guard let entity = try? ModelEntity(triangle.mesh(scale,
+                                                          color)) else { return }
+        
+        let origin = -triangle.position(scale)
+        
+        let offset = {
+            switch self.scale {
+                
+            case .chunk: Vector(0.0, 0.001, 0.0)
+            case .tile: Vector(0.0, 0.002, 0.0)
+            default: Vector.zero
+            }
+        }()
+        
+        entity.position = .init(origin + offset)
+        
+        entity.components[ModelComponent.self]?.materials = [program]
+        
+        addChild(entity)
     }
 }

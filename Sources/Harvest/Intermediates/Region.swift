@@ -50,6 +50,7 @@ extension Region {
     @MainActor
     public convenience init(empty triangle: Triangle) {
         
+        //TODO: Tidy up empty region generation
         let tile = triangle.transpose(.region,
                                       .tile)
         let hexagons = Array(Set(tile.vertices.map {

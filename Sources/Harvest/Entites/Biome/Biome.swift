@@ -52,4 +52,12 @@ extension Biome {
                             "71A2A6")
         }
     }
+    
+    public var foliage: ColorPalette {
+        
+        .init("FFC4C4",
+              "EE6983",
+              "C4A484",
+              "B87C4C")
+    }
 }
