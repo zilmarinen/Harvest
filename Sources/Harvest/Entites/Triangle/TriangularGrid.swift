@@ -7,8 +7,11 @@
 import Deltille
 import RealityKit
 
-public class TriangularGrid<R: TriangularRegion<C>,
-                            C: TriangularEntity>: Entity {
+public class TriangularGrid<R: TriangularRegion<C, T>,
+                            C: TriangularChunk<T>,
+                            T: Codable>: Entity {}
+
+extension TriangularGrid {
     
     internal var isEmpty: Bool {
         
@@ -25,6 +28,36 @@ public class TriangularGrid<R: TriangularRegion<C>,
 }
 
 extension TriangularGrid {
+    
+    internal func value(for tile: Triangle) -> T? {
+        
+        guard let region = region(for: tile) else { return nil }
+        
+        return region.value(for: tile)
+    }
+    
+    internal func set(_ value: T?,
+                      for tile: Triangle) {
+        
+        let region = region(for: tile) ?? R(tile.transpose(.tile,
+                                                           .region))
+        if region.parent == nil {
+            
+            addChild(region)
+        }
+        
+        region.set(value,
+                   for: tile)
+        
+        if let region = region as? HasSoilableComponent {
+         
+            region.becomeDirty()
+        }
+        
+        guard region.isEmpty else { return }
+        
+        region.removeFromParent()
+    }
     
     internal func region(for triangle: Triangle,
                          _ scale: Triangle.Scale = .tile) -> R? {

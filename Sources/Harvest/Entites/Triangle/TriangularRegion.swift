@@ -7,14 +7,15 @@
 import Deltille
 import RealityKit
 
-public class TriangularRegion<C: TriangularEntity>: TriangularEntity {
+public class TriangularRegion<C: TriangularChunk<T>,
+                              T: Codable>: TriangularEntity {
     
     internal enum CodingKeys: CodingKey {
         
         case chunks
     }
     
-    internal init(_ triangle: Triangle) {
+    required internal init(_ triangle: Triangle) {
         
         super.init(triangle,
                    .region)
@@ -63,6 +64,36 @@ extension TriangularRegion {
 }
 
 extension TriangularRegion {
+    
+    internal func value(for tile: Triangle) -> T? {
+        
+        guard let chunk = chunk(for: tile) else { return nil }
+        
+        return chunk.value(for: tile)
+    }
+    
+    internal func set(_ value: T?,
+                      for tile: Triangle) {
+        
+        let chunk = chunk(for: tile) ?? .init(tile.transpose(.tile,
+                                                             .chunk))
+        if chunk.parent == nil {
+            
+            addChild(chunk)
+        }
+        
+        chunk.set(value,
+                  for: tile)
+        
+        if let chunk = chunk as? HasSoilableComponent {
+         
+            chunk.becomeDirty()
+        }
+        
+        guard chunk.isEmpty else { return }
+        
+        chunk.removeFromParent()
+    }
     
     internal func chunk(for triangle: Triangle,
                         _ scale: Triangle.Scale = .tile) -> C? {

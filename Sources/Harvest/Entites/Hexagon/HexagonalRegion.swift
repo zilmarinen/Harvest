@@ -7,14 +7,15 @@
 import Deltille
 import RealityKit
 
-public class HexagonalRegion<C: HexagonalEntity>: HexagonalEntity {
+public class HexagonalRegion<C: HexagonalChunk<V>,
+                             V: Codable>: HexagonalEntity {
     
     internal enum CodingKeys: CodingKey {
         
         case chunks
     }
     
-    internal init(_ hexagon: Hexagon) {
+    required internal init(_ hexagon: Hexagon) {
         
         super.init(hexagon,
                    .region)
@@ -44,6 +45,22 @@ public class HexagonalRegion<C: HexagonalEntity>: HexagonalEntity {
         try container.encode(chunks,
                              forKey: .chunks)
     }
+    
+    internal func merge(_ chunk: C) {
+        
+        guard let existing = self.chunk(for: chunk.hexagon) else {
+        
+            addChild(chunk)
+            
+            return
+        }
+        
+        existing.merge(chunk.dataSource)
+        
+        guard let existing = existing as? HasSoilableComponent else { return }
+        
+        existing.becomeDirty()
+    }
 }
 
 extension HexagonalRegion {
@@ -63,6 +80,42 @@ extension HexagonalRegion {
 }
 
 extension HexagonalRegion {
+    
+    internal func value(for vertex: Triangle.Vertex) -> V? {
+        
+        let hexagon = Hexagon(vertex.position(.tile),
+                              .chunk)
+        
+        guard let chunk = chunk(for: hexagon) else { return nil }
+        
+        return chunk.value(for: vertex)
+    }
+    
+    internal func set(_ value: V?,
+                      for vertex: Triangle.Vertex) {
+        
+        let hexagon = Hexagon(vertex.position(.tile),
+                              .chunk)
+        
+        let chunk = chunk(for: hexagon) ?? C(hexagon)
+        
+        if chunk.parent == nil {
+            
+            addChild(chunk)
+        }
+        
+        chunk.set(value,
+                  for: vertex)
+        
+        if let chunk = chunk as? HasSoilableComponent {
+         
+            chunk.becomeDirty()
+        }
+        
+        guard chunk.isEmpty else { return }
+        
+        chunk.removeFromParent()
+    }
     
     internal func chunk(for hexagon: Hexagon) -> C? {
         

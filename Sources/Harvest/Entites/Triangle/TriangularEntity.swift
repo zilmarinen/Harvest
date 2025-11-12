@@ -5,6 +5,8 @@
 //
 
 import Deltille
+import Euclid
+import Lattice
 import RealityKit
 
 public class TriangularEntity: Entity,
@@ -63,7 +65,7 @@ public class TriangularEntity: Entity,
                              forKey: .scale)
     }
 }
-import Euclid
+
 extension TriangularEntity {
     
     private func updatePosition() {
@@ -87,12 +89,17 @@ extension TriangularEntity {
         }
         
         let color: Color = scale == .region ? (triangle.isPointy ? .black : .white) :
-                                            (triangle.isPointy ? .blue : .red)
+                                                (triangle.isPointy ? .blue : .red)
+        
+        let mesh = triangle.mesh(scale,
+                                 color)
         
         guard let program = ShaderProgram.shared.material(for: .customMaterial) else { return }
         
-        guard let entity = try? ModelEntity(triangle.mesh(scale,
-                                                          color)) else { return }
+        let resource = MeshResource(mesh: mesh)
+        
+        guard let entity = try? ModelEntity(mesh: resource,
+                                            materials: [program]) else { return }
         
         let origin = -triangle.position(scale)
         
@@ -106,8 +113,6 @@ extension TriangularEntity {
         }()
         
         entity.position = .init(origin + offset)
-        
-        entity.components[ModelComponent.self]?.materials = [program]
         
         addChild(entity)
     }

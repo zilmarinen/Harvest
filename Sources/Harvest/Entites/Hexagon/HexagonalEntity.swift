@@ -29,7 +29,7 @@ public class HexagonalEntity: Entity,
         
         name = hexagon.id
         
-        reposition()
+        updatePosition()
     }
     
     @available(*, unavailable)
@@ -49,7 +49,7 @@ public class HexagonalEntity: Entity,
         
         name = hexagon.id
         
-        reposition()
+        updatePosition()
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -66,7 +66,7 @@ public class HexagonalEntity: Entity,
 
 extension HexagonalEntity {
     
-    private func reposition() {
+    private func updatePosition() {
         
         switch scale {
             
