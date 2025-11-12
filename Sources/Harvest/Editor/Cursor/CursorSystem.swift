@@ -63,7 +63,7 @@ extension CursorSystem {
             
             let vertex = vertex.vertices[i]
             
-            let biome = biosphere.get(biome: vertex)
+            let biome = biosphere.value(for: vertex)
             
             let elevation = Double(biome?.elevation ?? 0)
             
@@ -88,7 +88,7 @@ extension CursorSystem {
             
             let vertex = triangle.vertices[i % triangle.vertices.count]
             
-            let biome = biosphere.get(biome: vertex)
+            let biome = biosphere.value(for: vertex)
             
             let elevation = Double(biome?.elevation ?? 0)
             
@@ -105,7 +105,7 @@ extension CursorSystem {
                         biosphere: Biosphere,
                         vertex: Triangle.Vertex) {
         
-        let biome = biosphere.get(biome: vertex)
+        let biome = biosphere.value(for: vertex)
         
         let elevation = Double(biome?.elevation ?? 0)
         

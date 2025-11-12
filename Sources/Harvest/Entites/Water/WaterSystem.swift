@@ -75,7 +75,11 @@ extension WaterSystem {
                                              water: water))
         }
         
-        chunk.remove(tiles: invalidTiles)
+        invalidTiles.forEach {
+            
+            chunk.set(nil,
+                      for: $0)
+        }
         
         guard !polygons.isEmpty else { return }
         
@@ -100,7 +104,7 @@ extension WaterSystem {
          
             let adjacent = tile.triangle.neighbour(edge)
 
-            let elevation = water.get(tile: adjacent)?.elevation ?? 0
+            let elevation = water.value(for: adjacent)?.elevation ?? 0
 
             guard tile.elevation > elevation else { continue }
             

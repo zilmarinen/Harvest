@@ -11,17 +11,20 @@ internal struct BiomeSlice {
     internal let sieve: Triangle.Sieve
     
     internal let vertices: [Triangle.Vertex : BiomeVertex]
-}
-
-extension BiomeSlice {
     
-    internal var tiles: [Triangle.Vertex : BiomeTile] {
+    internal let tiles: [Triangle.Vertex : BiomeTile]
+    
+    internal init(sieve: Triangle.Sieve,
+                  vertices: [Triangle.Vertex : BiomeVertex]) {
         
-        sieve.tiles.reduce(into: [Triangle.Vertex : BiomeTile]()) { result, tile in
-
+        self.sieve = sieve
+        self.vertices = vertices
+        
+        self.tiles = sieve.tiles.reduce(into: [Triangle.Vertex : BiomeTile]()) { result, tile in
+            
             let vertices = tile.vertices.compactMap {
 
-                self.vertices[$0]
+                vertices[$0]
             }
 
             guard !vertices.isEmpty else { return }

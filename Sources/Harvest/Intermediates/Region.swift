@@ -11,22 +11,25 @@ public final class Region: Codable,
                            Hashable {
     
     public let coordinate: Coordinate
-    public var identifier: String
     
     internal let biomes: [BiomeChunk]
     internal let foliage: FoliageRegion?
     internal let terrain: TerrainRegion
     internal let water: WaterRegion?
     
+    public var identifier: String {
+        
+        get { terrain.name ?? "" }
+        set { terrain.name = newValue }
+    }
+    
     internal init(coordinate: Coordinate,
-                  identifier: String,
                   biomes: [BiomeChunk],
                   foliage: FoliageRegion? = nil,
                   terrain: TerrainRegion,
                   water: WaterRegion? = nil) {
      
         self.coordinate = coordinate
-        self.identifier = identifier
         self.biomes = biomes
         self.foliage = foliage
         self.terrain = terrain
@@ -68,8 +71,9 @@ extension Region {
                 guard $0.contains(vertex.position(.tile),
                                   .chunk) else { continue }
                 
-                chunk.set(.prairie,
-                          1,
+                chunk.set(.init(vertex: vertex,
+                                biome: .prairie,
+                                elevation: 1),
                           for: vertex)
             }
             
@@ -77,7 +81,6 @@ extension Region {
         }
         
         self.init(coordinate: triangle.vertex.position,
-                  identifier: triangle.id,
                   biomes: biomes,
                   terrain: .init(empty: triangle))
     }

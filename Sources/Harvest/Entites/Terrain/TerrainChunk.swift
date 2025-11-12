@@ -8,7 +8,7 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class TerrainChunk: TriangularEntity,
+internal class TerrainChunk: TriangularChunk<Triangle>,
                              HasCollision,
                              HasMesh,
                              HasSoilableComponent {
@@ -28,10 +28,9 @@ internal class TerrainChunk: TriangularEntity,
     
     internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
     
-    internal init(_ triangle: Triangle) {
+    required internal init(_ triangle: Triangle) {
         
-        super.init(triangle,
-                   .chunk)
+        super.init(triangle)
     }
     
     required internal init(from decoder: any Decoder) throws {

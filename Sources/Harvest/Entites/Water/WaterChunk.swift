@@ -8,15 +8,13 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class WaterChunk: TriangularEntity,
+internal class WaterChunk: TriangularChunk<WaterTile>,
                            HasCollision,
                            HasMesh,
-                           HasSoilableComponent,
-                           HasWaterComponent {
+                           HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
-        case tiles
         case mesh
     }
     
@@ -30,10 +28,9 @@ internal class WaterChunk: TriangularEntity,
     
     internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .water) }
     
-    internal init(_ triangle: Triangle) {
+    required internal init(_ triangle: Triangle) {
         
-        super.init(triangle,
-                   .chunk)
+        super.init(triangle)
     }
     
     required internal init(from decoder: any Decoder) throws {
@@ -41,9 +38,6 @@ internal class WaterChunk: TriangularEntity,
         try super.init(from: decoder)
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        self.waterComponent = try container.decode(WaterComponent.self,
-                                                   forKey: .tiles)
         
         self.mesh = try container.decode(Mesh.self,
                                          forKey: .mesh)
@@ -57,39 +51,7 @@ internal class WaterChunk: TriangularEntity,
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(waterComponent,
-                             forKey: .tiles)
-        
         try container.encode(mesh,
                              forKey: .mesh)
-    }
-}
-
-extension WaterChunk {
-    
-    internal func set(_ waterType: WaterType,
-                      _ elevation: Int,
-                      for triangle: Triangle) {
-        
-        guard elevation > 0 else {
-            
-            return waterComponent.tiles[triangle] = nil
-        }
-     
-        waterComponent.tiles[triangle] = .init(triangle: triangle,
-                                               waterType: waterType,
-                                               elevation: elevation)
-        
-        becomeDirty()
-    }
-    
-    internal func remove(tiles: [Triangle]) {
-        
-        tiles.forEach {
-            
-            waterComponent.tiles.removeValue(forKey: $0)
-        }
-        
-        becomeDirty()
     }
 }

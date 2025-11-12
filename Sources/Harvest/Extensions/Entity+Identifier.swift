@@ -15,7 +15,10 @@ extension Entity {
         case biosphere
         case camera
         case cursor
+        case edifices
         case foliage
+        case footpaths
+        case stairs
         case terrain
         case water
         

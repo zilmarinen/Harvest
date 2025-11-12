@@ -57,8 +57,9 @@ extension FoliageSystem {
         
         var invalidTiles: [Triangle] = []
         
-        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
+        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
+            let (triangle, _) = item
             let biome = biosphere.tile(for: triangle)
             
             guard let elevation = biome.uniformElevation else {
@@ -72,7 +73,11 @@ extension FoliageSystem {
                                              elevation: elevation))
         }
         
-        chunk.remove(tiles: invalidTiles)
+        invalidTiles.forEach {
+            
+            chunk.set(nil,
+                      for: $0)
+        }
         
         guard !polygons.isEmpty else { return }
         

@@ -9,9 +9,10 @@ import Foundation
 import RealityKit
 
 internal class Terrain: TriangularGrid<TerrainRegion,
-                                       TerrainChunk> {
+                                       TerrainChunk,
+                                       Triangle> {
     
-    internal required init() {
+    required internal init() {
         
         super.init()
         

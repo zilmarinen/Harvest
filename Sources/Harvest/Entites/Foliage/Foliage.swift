@@ -9,9 +9,10 @@ import Foundation
 import RealityKit
 
 internal class Foliage: TriangularGrid<FoliageRegion,
-                                       FoliageChunk> {
+                                       FoliageChunk,
+                                       Triangle> {
     
-    internal required init() {
+    required internal init() {
         
         super.init()
         
@@ -28,25 +29,6 @@ extension Foliage {
 }
 
 extension Foliage {
-    
-    internal func set(foliage triangle: Triangle) {
-        
-        let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
-                                                                       .region))
-        if region.parent == nil {
-            
-            addChild(region)
-        }
-        
-        region.set(foliage: triangle)
-    }
-    
-    internal func remove(foliage triangle: Triangle) {
-        
-        guard let chunk = chunk(for: triangle) else { return }
-        
-        chunk.remove(tiles: [triangle])
-    }
     
     internal func propagate(vertex: Triangle.Vertex) {
         

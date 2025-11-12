@@ -12,7 +12,9 @@ import RealityKit
 public class RegionView: EditorView {
     
     internal let biosphere = Biosphere()
+    internal let edifices = Edifices()
     internal let foliage = Foliage()
+    internal let footpaths = Footpaths()
     internal let terrain = Terrain()
     internal let water = Water()
         
@@ -21,7 +23,9 @@ public class RegionView: EditorView {
         super.init(frame: frame)
         
         world.addChild(biosphere)
+        world.addChild(edifices)
         world.addChild(foliage)
+        world.addChild(footpaths)
         world.addChild(terrain)
         world.addChild(water)
     }
@@ -30,9 +34,12 @@ public class RegionView: EditorView {
         
         super.registerComponents()
         
-        BiomeComponent.registerComponent()
-        FoliageComponent.registerComponent()
-        WaterComponent.registerComponent()
+        TileDataSource<Triangle>.registerComponent()
+        TileDataSource<Triangle.Septomino>.registerComponent()
+        TileDataSource<WaterTile>.registerComponent()
+        VertexDataSource<BiomeVertex>.registerComponent()
+        VertexDataSource<FootpathType>.registerComponent()
+        VertexDataSource<Triangle.Vertex>.registerComponent()
     }
     
     public override func registerSystems() {
@@ -40,6 +47,7 @@ public class RegionView: EditorView {
         super.registerSystems()
         
         FoliageSystem.registerSystem()
+        FootpathSystem.registerSystem()
         TerrainSystem.registerSystem()
         WaterSystem.registerSystem()
     }
@@ -58,8 +66,6 @@ extension RegionView {
     }
     
     private func load(region: Region) {
-        
-        region.terrain.name = region.identifier
         
         biosphere.merge(region.biomes)
         terrain.addChild(region.terrain)
@@ -95,7 +101,6 @@ extension RegionView {
         let triangle = terrain.triangle
         
         return .init(coordinate: triangle.vertex.position,
-                     identifier: terrain.name,
                      biomes: biosphere.chunks(intersecting: triangle),
                      foliage: foliage.region(for: triangle,
                                              .region),
@@ -111,10 +116,10 @@ extension RegionView {
     
     public func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
         
-        biosphere.get(biome: vertex)
+        biosphere.value(for: vertex)
     }
     
-    public func set(_ biome: Biome,
+    public func set(_ biome: Biome?,
                     for vertex: Triangle.Vertex) {
         
         guard let existing = get(biome: vertex) else { return }
@@ -134,12 +139,19 @@ extension RegionView {
             for: vertex)
     }
     
-    public func set(_ biome: Biome,
+    public func set(_ biome: Biome?,
                     _ elevation: Int,
                     for vertex: Triangle.Vertex) {
         
-        biosphere.set(biome,
-                      elevation,
+        guard let biome else {
+            
+            return biosphere.set(nil,
+                                 for: vertex)
+        }
+        
+        biosphere.set(.init(vertex: vertex,
+                            biome: biome,
+                            elevation: elevation),
                       for: vertex)
         
         terrain.terraform(vertex: vertex)
@@ -153,12 +165,26 @@ extension RegionView {
     
     public func set(foliage triangle: Triangle) {
         
-        foliage.set(foliage: triangle)
+        foliage.set(triangle,
+                    for: triangle)
     }
     
     public func remove(foliage triangle: Triangle) {
         
-        foliage.remove(foliage: triangle)
+        foliage.set(nil,
+                    for: triangle)
+    }
+}
+
+// MARK: Footpaths
+
+extension RegionView {
+    
+    public func set(_ footpathType: FootpathType?,
+                    for vertex: Triangle.Vertex) {
+        
+        footpaths.set(footpathType,
+                      for: vertex)
     }
 }
 
@@ -168,15 +194,16 @@ extension RegionView {
     
     public func get(water triangle: Triangle) -> WaterTile? {
         
-        water.get(tile: triangle)
+        water.value(for: triangle)
     }
     
     public func set(_ waterType: WaterType,
                     _ elevation: Int,
                     for triangle: Triangle) {
         
-        water.set(waterType,
-                  elevation,
+        water.set(.init(triangle: triangle,
+                        waterType: waterType,
+                        elevation: elevation),
                   for: triangle)
     }
 }

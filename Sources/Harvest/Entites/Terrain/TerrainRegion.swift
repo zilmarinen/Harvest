@@ -8,8 +8,14 @@ import Deltille
 import Foundation
 import RealityKit
 
-internal class TerrainRegion: TriangularRegion<TerrainChunk>,
+internal class TerrainRegion: TriangularRegion<TerrainChunk,
+                                               Triangle>,
                               HasSoilableComponent {
+    
+    internal enum CodingKeys: CodingKey {
+        
+        case name
+    }
     
     internal convenience init(empty triangle: Triangle) {
         
@@ -24,7 +30,7 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
         }
     }
     
-    internal override init(_ triangle: Triangle) {
+    required internal init(_ triangle: Triangle) {
         
         super.init(triangle)
     }
@@ -32,6 +38,21 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk>,
     required internal init(from decoder: any Decoder) throws {
         
         try super.init(from: decoder)
+        
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.name = try container.decode(String.self,
+                                         forKey: .name)
+    }
+    
+    internal override func encode(to encoder: any Encoder) throws {
+        
+        try super.encode(to: encoder)
+    
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(name,
+                             forKey: .name)
     }
 }
 

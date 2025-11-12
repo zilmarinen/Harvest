@@ -8,14 +8,12 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class FoliageChunk: TriangularEntity,
+internal class FoliageChunk: TriangularChunk<Triangle>,
                              HasMesh,
-                             HasFoliageComponent,
                              HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
-        case tiles
         case mesh
     }
     
@@ -29,10 +27,9 @@ internal class FoliageChunk: TriangularEntity,
     
     internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
     
-    internal init(_ triangle: Triangle) {
+    required internal init(_ triangle: Triangle) {
         
-        super.init(triangle,
-                   .chunk)
+        super.init(triangle)
     }
     
     required internal init(from decoder: any Decoder) throws {
@@ -40,9 +37,6 @@ internal class FoliageChunk: TriangularEntity,
         try super.init(from: decoder)
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        self.foliageComponent = try container.decode(FoliageComponent.self,
-                                                     forKey: .tiles)
         
         self.mesh = try container.decode(Mesh.self,
                                          forKey: .mesh)
@@ -56,27 +50,7 @@ internal class FoliageChunk: TriangularEntity,
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(foliageComponent,
-                             forKey: .tiles)
-        
         try container.encode(mesh,
                              forKey: .mesh)
-    }
-}
-
-extension FoliageChunk {
-    
-    internal func set(foliage triangle: Triangle) {
-        
-        foliageComponent.tiles.insert(triangle)
-        
-        becomeDirty()
-    }
-    
-    internal func remove(tiles: [Triangle]) {
-        
-        foliageComponent.tiles.subtract(tiles)
-        
-        becomeDirty()
     }
 }
