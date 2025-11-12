@@ -37,7 +37,7 @@ extension HasSoilableComponent {
         
         set {
             
-            components[SoilableComponent.self] = newValue
+            components.set(newValue)
         }
     }
     
