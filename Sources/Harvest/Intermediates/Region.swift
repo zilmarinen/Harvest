@@ -19,7 +19,7 @@ public final class Region: Codable,
     
     public var identifier: String {
         
-        get { terrain.name ?? "" }
+        get { terrain.name }
         set { terrain.name = newValue }
     }
     

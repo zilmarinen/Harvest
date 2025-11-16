@@ -5,7 +5,6 @@
 //
 
 import Deltille
-import Foundation
 import RealityKit
 
 internal class Footpaths: HexagonalGrid<FootpathRegion,

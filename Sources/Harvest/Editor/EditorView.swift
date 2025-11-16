@@ -82,6 +82,12 @@ extension EditorView {
 
 extension EditorView {
     
+    public func translate(x: Double,
+                          z: Double) {
+        
+        camera.translate(by: .init(x, 0.0, z))
+    }
+    
     public func set(camera focus: Vector) {
         
         // TODO: add has camera component protocol

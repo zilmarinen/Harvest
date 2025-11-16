@@ -31,6 +31,13 @@ public class Camera: Entity {
 
 extension Camera {
     
+    public func translate(by delta: Vector) {
+        
+        guard let focus = components[CameraFocusComponent.self]?.focus else { return }
+        
+        self.focus(on: focus + delta)
+    }
+    
     public func focus(on location: Vector) {
         
         components[CameraFocusComponent.self]?.focus = location

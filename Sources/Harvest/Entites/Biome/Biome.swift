@@ -55,9 +55,17 @@ extension Biome {
     
     public var foliage: ColorPalette {
         
-        .init("FFC4C4",
-              "EE6983",
-              "C4A484",
-              "B87C4C")
+        switch self {
+            
+        case .boreal: .init("FFC4C4",
+                            "EE6983",
+                            "C4A484",
+                            "B87C4C")
+            
+        default: .init("91C4C3",
+                       "B4DEBD",
+                       "D9CFC7",
+                       "C9B59C")
+        }
     }
 }

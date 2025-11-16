@@ -5,7 +5,6 @@
 //
 
 import Deltille
-import Foundation
 import RealityKit
 
 internal class TerrainRegion: TriangularRegion<TerrainChunk,
@@ -68,6 +67,7 @@ extension TerrainRegion {
     
     internal func terraform(vertex: Triangle.Vertex) {
         
+        //TODO: Can this be tidied up using .unique?
         let triangles = Set(vertex.tiles.compactMap {
             
             let region = $0.transpose(.tile,

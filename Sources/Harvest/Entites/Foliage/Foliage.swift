@@ -5,7 +5,6 @@
 //
 
 import Deltille
-import Foundation
 import RealityKit
 
 internal class Foliage: TriangularGrid<FoliageRegion,

@@ -87,33 +87,5 @@ extension TriangularEntity {
             
             position = .zero
         }
-        
-        let color: Color = scale == .region ? (triangle.isPointy ? .black : .white) :
-                                                (triangle.isPointy ? .blue : .red)
-        
-        let mesh = triangle.mesh(scale,
-                                 color)
-        
-        guard let program = ShaderProgram.shared.material(for: .customMaterial) else { return }
-        
-        let resource = MeshResource(mesh: mesh)
-        
-        guard let entity = try? ModelEntity(mesh: resource,
-                                            materials: [program]) else { return }
-        
-        let origin = -triangle.position(scale)
-        
-        let offset = {
-            switch self.scale {
-                
-            case .chunk: Vector(0.0, 0.001, 0.0)
-            case .tile: Vector(0.0, 0.002, 0.0)
-            default: Vector.zero
-            }
-        }()
-        
-        entity.position = .init(origin + offset)
-        
-        addChild(entity)
     }
 }

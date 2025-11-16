@@ -24,6 +24,7 @@ internal struct TerrainSystem: System {
     internal func update(context: SceneUpdateContext) {
         
         guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+              let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
         var emptyRegions: [TerrainRegion] = []
@@ -44,7 +45,8 @@ internal struct TerrainSystem: System {
                 }
                 
                 update(chunk: chunk,
-                       slice: slice)
+                       slice: slice,
+                       stairs: stairs)
             }
             
             emptyChunks.forEach {
@@ -68,7 +70,8 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: BiomeSlice) {
+                        slice: BiomeSlice,
+                        stairs: Stairs) {
         
         let polygons = slice.tiles.flatMap {
             
@@ -77,7 +80,20 @@ extension TerrainSystem {
         
         guard !polygons.isEmpty else { return }
         
-        let mesh = Mesh(polygons)
+        var mesh = Mesh(polygons)
+        
+        if let stairChunk = stairs.chunk(for: chunk.triangle, .chunk) {
+            
+            for (triangle, stoop) in stairChunk.tiles {
+                
+                let angle = Angle(radians: triangle.rotation)
+                let rotation = Rotation.yaw(angle)
+                
+                let template = stoop.template(displacement: 10.0)
+                
+                mesh = mesh.subtracting(template.rotated(by: rotation).translated(by: triangle.position(.tile)))
+            }
+        }
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false

@@ -11,13 +11,12 @@ let package = Package(
                  targets: ["Harvest"]),
     ],
     dependencies: [
-//        .package(url: "git@github.com:zilmarinen/Deltille.git",
-//                 branch: "develop"),
         .package(url: "git@github.com:nicklockwood/Euclid.git",
                  branch: "main"),
         .package(path: "../Alluvium"),
         .package(path: "../Deltille"),
         .package(path: "../Lattice"),
+        .package(path: "../Newel"),
         .package(path: "../Regolith"),
         .package(path: "../Verdure")
     ],
@@ -27,6 +26,7 @@ let package = Package(
                                "Deltille",
                                "Euclid",
                                "Lattice",
+                               "Newel",
                                "Regolith",
                                "Verdure"],
                 resources: [.process("Shaders")])

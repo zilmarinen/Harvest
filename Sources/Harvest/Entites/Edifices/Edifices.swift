@@ -5,7 +5,6 @@
 //
 
 import Deltille
-import Foundation
 import RealityKit
 
 internal class Edifices: TriangularGrid<EdificeRegion,

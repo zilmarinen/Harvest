@@ -90,7 +90,7 @@ extension FoliageSystem {
     private func render(biome: BiomeTile,
                         elevation: Int) -> [Euclid.Polygon] {
         
-        guard let uniform = biome.uniformBiome else { return [] }
+        guard let uniform = biome.vertices.first?.biome else { return [] }
         
         let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
         let origin = biome.triangle.position(.tile)

@@ -7,6 +7,7 @@
 import AppKit
 import Deltille
 import Lattice
+import Newel
 import RealityKit
 
 public class RegionView: EditorView {
@@ -15,6 +16,7 @@ public class RegionView: EditorView {
     internal let edifices = Edifices()
     internal let foliage = Foliage()
     internal let footpaths = Footpaths()
+    internal let stairs = Stairs()
     internal let terrain = Terrain()
     internal let water = Water()
         
@@ -26,6 +28,7 @@ public class RegionView: EditorView {
         world.addChild(edifices)
         world.addChild(foliage)
         world.addChild(footpaths)
+        world.addChild(stairs)
         world.addChild(terrain)
         world.addChild(water)
     }
@@ -34,6 +37,7 @@ public class RegionView: EditorView {
         
         super.registerComponents()
         
+        TileDataSource<Stoop>.registerComponent()
         TileDataSource<Triangle>.registerComponent()
         TileDataSource<Triangle.Septomino>.registerComponent()
         TileDataSource<WaterTile>.registerComponent()
@@ -48,6 +52,7 @@ public class RegionView: EditorView {
         
         FoliageSystem.registerSystem()
         FootpathSystem.registerSystem()
+        StairSystem.registerSystem()
         TerrainSystem.registerSystem()
         WaterSystem.registerSystem()
     }
@@ -143,16 +148,18 @@ extension RegionView {
                     _ elevation: Int,
                     for vertex: Triangle.Vertex) {
         
-        guard let biome else {
+        if let biome {
             
-            return biosphere.set(nil,
-                                 for: vertex)
+            biosphere.set(.init(vertex: vertex,
+                                biome: biome,
+                                elevation: elevation),
+                          for: vertex)
+            
+        } else {
+            
+            biosphere.set(nil,
+                          for: vertex)
         }
-        
-        biosphere.set(.init(vertex: vertex,
-                            biome: biome,
-                            elevation: elevation),
-                      for: vertex)
         
         terrain.terraform(vertex: vertex)
         foliage.propagate(vertex: vertex)
@@ -185,6 +192,34 @@ extension RegionView {
         
         footpaths.set(footpathType,
                       for: vertex)
+    }
+}
+
+// MARK: Stairs
+
+extension RegionView {
+    
+    public func set(_ stoop: Stoop,
+                    for triangle: Triangle) {
+        
+        stairs.set(stoop,
+                   for: triangle)
+        
+        triangle.vertices.forEach {
+            
+            terrain.terraform(vertex: $0)
+        }
+    }
+    
+    public func remove(staircase triangle: Triangle) {
+        
+        stairs.set(nil,
+                   for: triangle)
+        
+        triangle.vertices.forEach {
+            
+            terrain.terraform(vertex: $0)
+        }
     }
 }
 
