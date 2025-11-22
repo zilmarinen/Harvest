@@ -82,7 +82,8 @@ extension TerrainSystem {
         
         var mesh = Mesh(polygons)
         
-        if let stairChunk = stairs.chunk(for: chunk.triangle, .chunk) {
+        if let stairChunk = stairs.chunk(for: chunk.triangle,
+                                         .chunk) {
             
             for (triangle, stoop) in stairChunk.tiles {
                 

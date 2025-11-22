@@ -97,6 +97,13 @@ extension HexagonalGrid {
         }
     }
     
+    internal func chunk(for hexagon: Hexagon) -> C? {
+        
+        guard let region = region(for: hexagon.parent()) else { return nil }
+        
+        return region.chunk(for: hexagon)
+    }
+    
     internal func chunks(intersecting triangle: Triangle) -> [C] {
         
         regions.flatMap {

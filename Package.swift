@@ -14,6 +14,7 @@ let package = Package(
         .package(url: "git@github.com:nicklockwood/Euclid.git",
                  branch: "main"),
         .package(path: "../Alluvium"),
+        .package(path: "../Cobble"),
         .package(path: "../Deltille"),
         .package(path: "../Lattice"),
         .package(path: "../Newel"),
@@ -23,6 +24,7 @@ let package = Package(
     targets: [
         .target(name: "Harvest",
                 dependencies: ["Alluvium",
+                               "Cobble",
                                "Deltille",
                                "Euclid",
                                "Lattice",

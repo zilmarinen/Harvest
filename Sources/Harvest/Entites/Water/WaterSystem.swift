@@ -10,9 +10,7 @@ import Euclid
 import RealityKit
 
 @MainActor
-internal struct WaterSystem: @preconcurrency System {
-    
-    internal static var dependencies: [SystemDependency] = [.after(TerrainSystem.self)]
+internal struct WaterSystem: System {
     
     internal init(scene: Scene) {}
     

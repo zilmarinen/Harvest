@@ -187,10 +187,16 @@ extension RegionView {
 
 extension RegionView {
     
-    public func set(_ footpathType: FootpathType?,
+    public func set(_ footpathType: FootpathType,
                     for vertex: Triangle.Vertex) {
         
         footpaths.set(footpathType,
+                      for: vertex)
+    }
+    
+    public func remove(footpath vertex: Triangle.Vertex) {
+        
+        footpaths.set(nil,
                       for: vertex)
     }
 }

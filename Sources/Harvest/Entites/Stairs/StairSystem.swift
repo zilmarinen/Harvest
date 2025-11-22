@@ -11,15 +11,13 @@ import Newel
 import RealityKit
 
 @MainActor
-internal struct StairSystem: @preconcurrency System {
+internal struct StairSystem: System {
     
     internal enum Constant {
         
         static let apexHeight = 0.1
         static let baseHeight = 0.5
     }
-    
-    internal static var dependencies: [SystemDependency] = [.before(TerrainSystem.self)]
     
     internal init(scene: Scene) {}
     

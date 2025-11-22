@@ -10,9 +10,7 @@ import Euclid
 import RealityKit
 
 @MainActor
-internal struct FootpathSystem: @preconcurrency System {
-    
-    internal static var dependencies: [SystemDependency] = [.after(TerrainSystem.self)]
+internal struct FootpathSystem: System {
     
     internal init(scene: Scene) {}
     
@@ -26,14 +24,16 @@ internal struct FootpathSystem: @preconcurrency System {
         for region in footpaths.dirtyRegions {
             
             for chunk in region.dirtyChunks {
-            
-                update(chunk: chunk,
-                       footpaths: footpaths)
-            
-                if chunk.isEmpty {
-                    
-                    chunk.removeFromParent()
-                }
+                
+//                guard let biomeChunk = biosphere.chunk(for: chunk.hexagon) else {
+//                    
+//                    chunk.removeFromParent()
+//                    
+//                    continue
+//                }
+//            
+//                update(chunk: chunk,
+//                       biomeChunk: biomeChunk)
             }
             
             if region.isEmpty {
@@ -51,9 +51,19 @@ internal struct FootpathSystem: @preconcurrency System {
 
 extension FootpathSystem {
     
-    private func update(chunk: FootpathChunk,
-                        footpaths: Footpaths) {
-        
-        
-    }
+//    private func update(chunk: FootpathChunk,
+//                        biomeChunk: BiomeChunk) {
+//        
+//        var mesh = Mesh.empty
+//        
+//        for vertex in chunk.vertices
+//        
+//        chunk.mesh = mesh.translated(by: -chunk.hexagon.position(chunk.scale))
+//        chunk.isDirty = false
+//    }
+//    
+//    private func render(vertex: Triangle.Vertex) -> Mesh {
+//        
+//        .empty
+//    }
 }

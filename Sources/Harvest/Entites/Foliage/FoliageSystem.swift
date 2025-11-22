@@ -11,9 +11,7 @@ import RealityKit
 import Verdure
 
 @MainActor
-internal struct FoliageSystem: @preconcurrency System {
-    
-    internal static var dependencies: [SystemDependency] = [.after(TerrainSystem.self)]
+internal struct FoliageSystem: System {
     
     internal init(scene: Scene) {}
     
