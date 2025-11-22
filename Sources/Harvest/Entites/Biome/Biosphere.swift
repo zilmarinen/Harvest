@@ -7,9 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Biosphere: HexagonalGrid<BiomeRegion,
-                                        BiomeChunk,
-                                        BiomeVertex> {
+internal class Biosphere: HexagonalGridDataSource<BiomeVertex> {
     
     required internal init() {
         

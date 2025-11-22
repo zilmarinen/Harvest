@@ -7,4 +7,4 @@
 import Deltille
 import RealityKit
 
-internal class EdificeChunk: TriangularChunk<Triangle.Septomino> {}
+internal class EdificeChunk: TriangularChunkDataSource<Triangle.Septomino> {}

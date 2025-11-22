@@ -7,8 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class TerrainRegion: TriangularRegion<TerrainChunk,
-                                               Triangle> {
+internal class TerrainRegion: TriangularRegion<TerrainChunk> {
     
     internal enum CodingKeys: CodingKey {
         
@@ -51,13 +50,5 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk,
         
         try container.encode(name,
                              forKey: .name)
-    }
-}
-
-extension TerrainRegion {
- 
-    internal var dirtyChunks: [TerrainChunk] {
-        
-        chunks.filter { $0.isDirty }
     }
 }

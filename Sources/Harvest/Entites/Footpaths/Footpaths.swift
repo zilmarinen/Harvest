@@ -7,22 +7,14 @@
 import Deltille
 import RealityKit
 
-internal class Footpaths: TriangularGrid<FootpathRegion,
-                                         FootpathChunk,
-                                         FootpathType> {
+internal class Footpaths: TriangularGridDataSource<FootpathRegion,
+                                                   FootpathChunk,
+                                                   FootpathType> {
     
     required internal init() {
         
         super.init()
         
         name = Entity.Identifier.footpaths.id
-    }
-}
-
-extension Footpaths {
- 
-    internal var dirtyRegions: [FootpathRegion] {
-        
-        regions.filter { $0.isDirty }
     }
 }

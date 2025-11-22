@@ -12,7 +12,7 @@ public final class Region: Codable,
     
     public let coordinate: Coordinate
     
-    internal let biomes: [BiomeChunk]
+    internal let biomes: [HexagonalChunkDataSource<BiomeVertex>]
     internal let foliage: FoliageRegion?
     internal let terrain: TerrainRegion
     internal let water: WaterRegion?
@@ -24,7 +24,7 @@ public final class Region: Codable,
     }
     
     internal init(coordinate: Coordinate,
-                  biomes: [BiomeChunk],
+                  biomes: [HexagonalChunkDataSource<BiomeVertex>],
                   foliage: FoliageRegion? = nil,
                   terrain: TerrainRegion,
                   water: WaterRegion? = nil) {
@@ -64,7 +64,7 @@ extension Region {
         
         let biomes = hexagons.map {
             
-            let chunk = BiomeChunk($0)
+            let chunk = HexagonalChunkDataSource<BiomeVertex>($0)
             
             for vertex in tile.vertices {
                 

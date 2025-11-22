@@ -7,13 +7,5 @@
 import Deltille
 import RealityKit
 
-internal class FootpathRegion: TriangularRegion<FootpathChunk,
-                                                FootpathType> {}
-
-extension FootpathRegion {
- 
-    internal var dirtyChunks: [FootpathChunk] {
-        
-        chunks.filter { $0.isDirty }
-    }
-}
+internal class FootpathRegion: TriangularRegionDataSource<FootpathChunk,
+                                                          FootpathType> {}

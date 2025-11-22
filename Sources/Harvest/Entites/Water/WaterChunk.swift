@@ -8,7 +8,7 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class WaterChunk: TriangularChunk<WaterTile>,
+internal class WaterChunk: TriangularChunkDataSource<WaterTile>,
                            HasCollision,
                            HasMesh {
     

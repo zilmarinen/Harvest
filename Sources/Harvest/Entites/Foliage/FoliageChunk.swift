@@ -8,7 +8,7 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class FoliageChunk: TriangularChunk<Triangle>,
+internal class FoliageChunk: TriangularChunkDataSource<Triangle>,
                              HasMesh {
     
     internal enum CodingKeys: CodingKey {

@@ -7,22 +7,14 @@
 import Deltille
 import RealityKit
 
-internal class Foliage: TriangularGrid<FoliageRegion,
-                                       FoliageChunk,
-                                       Triangle> {
+internal class Foliage: TriangularGridDataSource<FoliageRegion,
+                                                 FoliageChunk,
+                                                 Triangle> {
     
     required internal init() {
         
         super.init()
         
         name = Entity.Identifier.foliage.id
-    }
-}
-
-extension Foliage {
- 
-    internal var dirtyRegions: [FoliageRegion] {
-        
-        regions.filter { $0.isDirty }
     }
 }

@@ -8,21 +8,12 @@ import Deltille
 import RealityKit
 
 internal class Terrain: TriangularGrid<TerrainRegion,
-                                       TerrainChunk,
-                                       Triangle> {
+                                       TerrainChunk> {
     
     required internal init() {
         
         super.init()
         
         name = Entity.Identifier.terrain.id
-    }
-}
-
-extension Terrain {
- 
-    internal var dirtyRegions: [TerrainRegion] {
-        
-        regions.filter { $0.isDirty }
     }
 }

@@ -8,13 +8,5 @@ import Deltille
 import Newel
 import RealityKit
 
-internal class StairRegion: TriangularRegion<StairChunk,
-                                             Stoop> {}
-
-extension StairRegion {
- 
-    internal var dirtyChunks: [StairChunk] {
-        
-        chunks.filter { $0.isDirty }
-    }
-}
+internal class StairRegion: TriangularRegionDataSource<StairChunk,
+                                                       Stoop> {}

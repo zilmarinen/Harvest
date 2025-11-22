@@ -7,9 +7,8 @@
 import Deltille
 import RealityKit
 
-public class TriangularRegion<C: TriangularChunk<T>,
-                              T: Codable>: TriangularEntity,
-                                           HasSoilableComponent {
+public class TriangularRegion<C: TriangularChunk>: TriangularEntity,
+                                                   HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
@@ -62,35 +61,28 @@ extension TriangularRegion {
             $0 as? C
         }
     }
+    
+    internal var dirtyChunks: [C] {
+        
+        chunks.filter {
+            
+            ($0 as? HasSoilableComponent)?.isDirty ?? false
+        }
+    }
 }
 
 extension TriangularRegion {
     
-    internal func value(for tile: Triangle) -> T? {
+    internal func chunk(for triangle: Triangle,
+                        _ scale: Triangle.Scale = .tile) -> C? {
         
-        guard let chunk = chunk(for: tile) else { return nil }
+        let match = triangle.transpose(scale,
+                                       .chunk)
         
-        return chunk.value(for: tile)
-    }
-    
-    internal func set(_ value: T?,
-                      for tile: Triangle) {
-        
-        let chunk = chunk(for: tile) ?? .init(tile.transpose(.tile,
-                                                             .chunk))
-        if chunk.parent == nil {
+        return chunks.first {
             
-            addChild(chunk)
+            $0.triangle == match
         }
-        
-        chunk.set(value,
-                  for: tile)
-        
-        becomeDirty()
-        
-        guard chunk.isEmpty else { return }
-        
-        chunk.removeFromParent()
     }
     
     internal func propagate(vertex: Triangle.Vertex) {
@@ -118,17 +110,5 @@ extension TriangularRegion {
         }
         
         becomeDirty()
-    }
-    
-    internal func chunk(for triangle: Triangle,
-                        _ scale: Triangle.Scale = .tile) -> C? {
-        
-        let match = triangle.transpose(scale,
-                                       .chunk)
-        
-        return chunks.first {
-            
-            $0.triangle == match
-        }
     }
 }

@@ -8,7 +8,7 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class TerrainChunk: TriangularChunk<Triangle>,
+internal class TerrainChunk: TriangularChunk,
                              HasCollision,
                              HasMesh {
     

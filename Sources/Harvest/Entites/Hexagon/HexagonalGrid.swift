@@ -7,27 +7,8 @@
 import Deltille
 import RealityKit
 
-internal class HexagonalGrid<R: HexagonalRegion<C, V>,
-                             C: HexagonalChunk<V>,
-                             V: Codable>: Entity {
-    
-    internal func merge(_ chunks: [C]) {
-        
-        chunks.forEach {
-            
-            let parent = $0.hexagon.parent()
-            
-            let region = region(for: parent) ?? R(parent)
-            
-            if region.parent == nil {
-                
-                addChild(region)
-            }
-            
-            region.merge($0)
-        }
-    }
-}
+internal class HexagonalGrid<R: HexagonalRegion<C>,
+                             C: HexagonalEntity>: Entity {}
 
 extension HexagonalGrid {
     
@@ -46,39 +27,6 @@ extension HexagonalGrid {
 }
 
 extension HexagonalGrid {
-    
-    internal func value(for vertex: Triangle.Vertex) -> V? {
-        
-        let hexagon = Hexagon(vertex.position(.tile),
-                              .chunk)
-        
-        guard let region = region(for: hexagon.parent()) else { return nil }
-        
-        return region.value(for: vertex)
-    }
-    
-    internal func set(_ value: V?,
-                      for vertex: Triangle.Vertex) {
-        
-        let hexagon = Hexagon(vertex.position(.tile),
-                              .chunk)
-        
-        let parent = hexagon.parent()
-        
-        let region = region(for: parent) ?? R(parent)
-        
-        if region.parent == nil {
-            
-            addChild(region)
-        }
-        
-        region.set(value,
-                   for: vertex)
-        
-        guard region.isEmpty else { return }
-        
-        region.removeFromParent()
-    }
     
     internal func region(for hexagon: Hexagon) -> R? {
         

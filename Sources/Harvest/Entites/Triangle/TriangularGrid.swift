@@ -7,9 +7,8 @@
 import Deltille
 import RealityKit
 
-public class TriangularGrid<R: TriangularRegion<C, T>,
-                            C: TriangularChunk<T>,
-                            T: Codable>: Entity {}
+public class TriangularGrid<R: TriangularRegion<C>,
+                            C: TriangularEntity>: Entity {}
 
 extension TriangularGrid {
     
@@ -25,50 +24,17 @@ extension TriangularGrid {
             $0 as? R
         }
     }
+    
+    internal var dirtyRegions: [R] {
+        
+        regions.filter {
+            
+            $0.isDirty
+        }
+    }
 }
 
 extension TriangularGrid {
-    
-    internal func value(for tile: Triangle) -> T? {
-        
-        guard let region = region(for: tile) else { return nil }
-        
-        return region.value(for: tile)
-    }
-    
-    internal func set(_ value: T?,
-                      for tile: Triangle) {
-        
-        let region = region(for: tile) ?? R(tile.transpose(.tile,
-                                                           .region))
-        if region.parent == nil {
-            
-            addChild(region)
-        }
-        
-        region.set(value,
-                   for: tile)
-        
-        guard region.isEmpty else { return }
-        
-        region.removeFromParent()
-    }
-    
-    internal func propagate(vertex: Triangle.Vertex) {
-        
-        for triangle in vertex.tiles {
-            
-            let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
-                                                                           .region))
-            
-            if region.parent == nil {
-                
-                addChild(region)
-            }
-            
-            region.propagate(vertex: vertex)
-        }
-    }
     
     internal func region(for triangle: Triangle,
                          _ scale: Triangle.Scale = .tile) -> R? {
@@ -90,5 +56,21 @@ extension TriangularGrid {
         
         return region.chunk(for: triangle,
                             scale)
+    }
+    
+    internal func propagate(vertex: Triangle.Vertex) {
+        
+        for triangle in vertex.tiles {
+            
+            let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                           .region))
+            
+            if region.parent == nil {
+                
+                addChild(region)
+            }
+            
+            region.propagate(vertex: vertex)
+        }
     }
 }

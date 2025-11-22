@@ -7,22 +7,14 @@
 import Deltille
 import RealityKit
 
-internal class Edifices: TriangularGrid<EdificeRegion,
-                                        EdificeChunk,
-                                        Triangle.Septomino> {
+internal class Edifices: TriangularGridDataSource<EdificeRegion,
+                                                  EdificeChunk,
+                                                  Triangle.Septomino> {
     
     required internal init() {
         
         super.init()
         
         name = Entity.Identifier.edifices.id
-    }
-}
-
-extension Edifices {
- 
-    internal var dirtyRegions: [EdificeRegion] {
-        
-        regions.filter { $0.isDirty }
     }
 }

@@ -7,13 +7,5 @@
 import Deltille
 import RealityKit
 
-internal class EdificeRegion: TriangularRegion<EdificeChunk,
-                                               Triangle.Septomino> {}
-
-extension EdificeRegion {
- 
-    internal var dirtyChunks: [EdificeChunk] {
-        
-        chunks.filter { $0.isDirty }
-    }
-}
+internal class EdificeRegion: TriangularRegionDataSource<EdificeChunk,
+                                                         Triangle.Septomino> {}

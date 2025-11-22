@@ -7,13 +7,5 @@
 import Deltille
 import RealityKit
 
-internal class FoliageRegion: TriangularRegion<FoliageChunk,
-                                               Triangle> {}
-
-extension FoliageRegion {
- 
-    internal var dirtyChunks: [FoliageChunk] {
-        
-        chunks.filter { $0.isDirty }
-    }
-}
+internal class FoliageRegion: TriangularRegionDataSource<FoliageChunk,
+                                                         Triangle> {}

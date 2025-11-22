@@ -1,28 +1,27 @@
 //
-//  HexagonalChunk.swift
+//  TriangularChunkDataSource.swift
 //
-//  Created by Zack Brown on 11/11/2025.
+//  Created by Zack Brown on 22/11/2025.
 //
 
 import Deltille
 import RealityKit
 
-public class HexagonalChunk<V: Codable>: HexagonalEntity,
-                                         HasVertexDataSource {
+public class TriangularChunkDataSource<T: Codable>: TriangularChunk,
+                                                    HasTileDataSource {
     
     internal enum CodingKeys: CodingKey {
         
         case dataSource
     }
     
-    internal let dataSource: VertexDataSource<V>
+    internal let dataSource: TileDataSource<T>
     
-    required internal init(_ hexagon: Hexagon) {
+    required internal init(_ triangle: Triangle) {
         
         self.dataSource = .init()
         
-        super.init(hexagon,
-                   .chunk)
+        super.init(triangle)
         
         components.set(dataSource)
     }
@@ -34,7 +33,7 @@ public class HexagonalChunk<V: Codable>: HexagonalEntity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.dataSource = try container.decode(VertexDataSource<V>.self,
+        self.dataSource = try container.decode(TileDataSource<T>.self,
                                                forKey: .dataSource)
         
         try super.init(from: decoder)
@@ -53,28 +52,25 @@ public class HexagonalChunk<V: Codable>: HexagonalEntity,
     }
 }
 
-extension HexagonalChunk {
+extension TriangularChunkDataSource {
     
-    internal func value(for vertex: Triangle.Vertex) -> V? {
+    internal func value(for tile: Triangle) -> T? {
         
-        dataSource.vertices[vertex]
+        dataSource.tiles[tile]
     }
     
-    internal func set(_ value: V?,
-                      for vertex: Triangle.Vertex) {
+    internal func set(_ value: T?,
+                      for tile: Triangle) {
         
         guard let value else {
             
-            dataSource.vertices.removeValue(forKey: vertex)
+            dataSource.tiles.removeValue(forKey: tile)
             
-            return
+            return becomeDirty()
         }
         
-        dataSource.vertices[vertex] = value
-    }
-    
-    internal func merge(_ other: VertexDataSource<V>) {
+        dataSource.tiles[tile] = value
         
-        dataSource.vertices.merge(other.vertices) { (current, _) in current }
+        becomeDirty()
     }
 }

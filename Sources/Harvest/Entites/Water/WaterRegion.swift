@@ -7,13 +7,5 @@
 import Deltille
 import RealityKit
 
-internal class WaterRegion: TriangularRegion<WaterChunk,
-                                             WaterTile> {}
-
-extension WaterRegion {
- 
-    internal var dirtyChunks: [WaterChunk] {
-        
-        chunks.filter { $0.isDirty }
-    }
-}
+internal class WaterRegion: TriangularRegionDataSource<WaterChunk,
+                                                       WaterTile> {}

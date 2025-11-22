@@ -8,22 +8,14 @@ import Deltille
 import Newel
 import RealityKit
 
-internal class Stairs: TriangularGrid<StairRegion,
-                                      StairChunk,
-                                      Stoop> {
+internal class Stairs: TriangularGridDataSource<StairRegion,
+                                                StairChunk,
+                                                Stoop> {
     
     required internal init() {
         
         super.init()
         
         name = Entity.Identifier.stairs.id
-    }
-}
-
-extension Stairs {
- 
-    internal var dirtyRegions: [StairRegion] {
-        
-        regions.filter { $0.isDirty }
     }
 }
