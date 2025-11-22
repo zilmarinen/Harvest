@@ -9,8 +9,7 @@ import Newel
 import RealityKit
 
 internal class StairRegion: TriangularRegion<StairChunk,
-                                             Stoop>,
-                            HasSoilableComponent {}
+                                             Stoop> {}
 
 extension StairRegion {
  

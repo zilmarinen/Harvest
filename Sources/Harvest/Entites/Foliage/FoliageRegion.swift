@@ -8,8 +8,7 @@ import Deltille
 import RealityKit
 
 internal class FoliageRegion: TriangularRegion<FoliageChunk,
-                                               Triangle>,
-                              HasSoilableComponent {}
+                                               Triangle> {}
 
 extension FoliageRegion {
  

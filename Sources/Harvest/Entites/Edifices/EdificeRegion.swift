@@ -8,8 +8,7 @@ import Deltille
 import RealityKit
 
 internal class EdificeRegion: TriangularRegion<EdificeChunk,
-                                               Triangle.Septomino>,
-                              HasSoilableComponent {}
+                                               Triangle.Septomino> {}
 
 extension EdificeRegion {
  

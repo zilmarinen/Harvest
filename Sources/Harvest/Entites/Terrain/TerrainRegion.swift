@@ -8,8 +8,7 @@ import Deltille
 import RealityKit
 
 internal class TerrainRegion: TriangularRegion<TerrainChunk,
-                                               Triangle>,
-                              HasSoilableComponent {
+                                               Triangle> {
     
     internal enum CodingKeys: CodingKey {
         
@@ -25,7 +24,7 @@ internal class TerrainRegion: TriangularRegion<TerrainChunk,
         
         for vertex in tile.vertices {
             
-            terraform(vertex: vertex)
+            propagate(vertex: vertex)
         }
     }
     
@@ -60,35 +59,5 @@ extension TerrainRegion {
     internal var dirtyChunks: [TerrainChunk] {
         
         chunks.filter { $0.isDirty }
-    }
-}
-
-extension TerrainRegion {
-    
-    internal func terraform(vertex: Triangle.Vertex) {
-        
-        //TODO: Can this be tidied up using .unique?
-        let triangles = Set(vertex.tiles.compactMap {
-            
-            let region = $0.transpose(.tile,
-                                      .region)
-            
-            return region == triangle ? $0 : nil
-        })
-        
-        for triangle in triangles {
-            
-            let chunk = chunk(for: triangle) ?? .init(triangle.transpose(.tile,
-                                                                         .chunk))
-            
-            if chunk.parent == nil {
-                
-                addChild(chunk)
-            }
-            
-            chunk.becomeDirty()
-        }
-        
-        becomeDirty()
     }
 }

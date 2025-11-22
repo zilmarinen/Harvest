@@ -10,8 +10,7 @@ import RealityKit
 
 internal class WaterChunk: TriangularChunk<WaterTile>,
                            HasCollision,
-                           HasMesh,
-                           HasSoilableComponent {
+                           HasMesh {
     
     internal enum CodingKeys: CodingKey {
         

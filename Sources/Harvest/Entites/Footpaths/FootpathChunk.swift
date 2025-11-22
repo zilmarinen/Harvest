@@ -8,9 +8,8 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class FootpathChunk: HexagonalChunk<FootpathType>,
-                              HasMesh,
-                              HasSoilableComponent {
+internal class FootpathChunk: TriangularChunk<FootpathType>,
+                              HasMesh {
     
     internal enum CodingKeys: CodingKey {
         
@@ -27,9 +26,9 @@ internal class FootpathChunk: HexagonalChunk<FootpathType>,
     
     internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
     
-    required internal init(_ hexagon: Hexagon) {
+    required internal init(_ triangle: Triangle) {
         
-        super.init(hexagon)
+        super.init(triangle)
     }
     
     required internal init(from decoder: any Decoder) throws {

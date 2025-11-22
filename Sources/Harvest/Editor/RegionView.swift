@@ -161,7 +161,7 @@ extension RegionView {
                           for: vertex)
         }
         
-        terrain.terraform(vertex: vertex)
+        terrain.propagate(vertex: vertex)
         foliage.propagate(vertex: vertex)
     }
 }
@@ -190,14 +190,14 @@ extension RegionView {
     public func set(_ footpathType: FootpathType,
                     for vertex: Triangle.Vertex) {
         
-        footpaths.set(footpathType,
-                      for: vertex)
+//        footpaths.set(footpathType,
+//                      for: vertex)
     }
     
     public func remove(footpath vertex: Triangle.Vertex) {
         
-        footpaths.set(nil,
-                      for: vertex)
+//        footpaths.set(nil,
+//                      for: vertex)
     }
 }
 
@@ -213,7 +213,7 @@ extension RegionView {
         
         triangle.vertices.forEach {
             
-            terrain.terraform(vertex: $0)
+            terrain.propagate(vertex: $0)
         }
     }
     
@@ -224,7 +224,7 @@ extension RegionView {
         
         triangle.vertices.forEach {
             
-            terrain.terraform(vertex: $0)
+            terrain.propagate(vertex: $0)
         }
     }
 }

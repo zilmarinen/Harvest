@@ -10,8 +10,7 @@ import Newel
 import RealityKit
 
 internal class StairChunk: TriangularChunk<Stoop>,
-                           HasMesh,
-                           HasSoilableComponent {
+                           HasMesh {
     
     internal var mesh: Mesh? {
         

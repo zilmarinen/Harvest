@@ -8,6 +8,7 @@ import Deltille
 import RealityKit
 
 public class TriangularChunk<T: Codable>: TriangularEntity,
+                                          HasSoilableComponent,
                                           HasTileDataSource {
     
     internal enum CodingKeys: CodingKey {
@@ -67,9 +68,11 @@ extension TriangularChunk {
             
             dataSource.tiles.removeValue(forKey: tile)
             
-            return
+            return becomeDirty()
         }
         
         dataSource.tiles[tile] = value
+        
+        becomeDirty()
     }
 }

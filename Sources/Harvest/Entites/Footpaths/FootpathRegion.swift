@@ -7,9 +7,8 @@
 import Deltille
 import RealityKit
 
-internal class FootpathRegion: HexagonalRegion<FootpathChunk,
-                                               FootpathType>,
-                               HasSoilableComponent {}
+internal class FootpathRegion: TriangularRegion<FootpathChunk,
+                                                FootpathType> {}
 
 extension FootpathRegion {
  

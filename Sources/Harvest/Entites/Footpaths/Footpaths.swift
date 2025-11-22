@@ -7,9 +7,9 @@
 import Deltille
 import RealityKit
 
-internal class Footpaths: HexagonalGrid<FootpathRegion,
-                                        FootpathChunk,
-                                        FootpathType> {
+internal class Footpaths: TriangularGrid<FootpathRegion,
+                                         FootpathChunk,
+                                         FootpathType> {
     
     required internal init() {
         

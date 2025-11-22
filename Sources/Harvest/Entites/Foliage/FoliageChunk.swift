@@ -9,8 +9,7 @@ import Euclid
 import RealityKit
 
 internal class FoliageChunk: TriangularChunk<Triangle>,
-                             HasMesh,
-                             HasSoilableComponent {
+                             HasMesh {
     
     internal enum CodingKeys: CodingKey {
         

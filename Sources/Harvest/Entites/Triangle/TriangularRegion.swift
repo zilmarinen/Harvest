@@ -8,7 +8,8 @@ import Deltille
 import RealityKit
 
 public class TriangularRegion<C: TriangularChunk<T>,
-                              T: Codable>: TriangularEntity {
+                              T: Codable>: TriangularEntity,
+                                           HasSoilableComponent {
     
     internal enum CodingKeys: CodingKey {
         
@@ -85,14 +86,38 @@ extension TriangularRegion {
         chunk.set(value,
                   for: tile)
         
-        if let chunk = chunk as? HasSoilableComponent {
-         
-            chunk.becomeDirty()
-        }
+        becomeDirty()
         
         guard chunk.isEmpty else { return }
         
         chunk.removeFromParent()
+    }
+    
+    internal func propagate(vertex: Triangle.Vertex) {
+        
+        //TODO: Can this be tidied up using .unique?
+        let triangles = Set(vertex.tiles.compactMap {
+            
+            let region = $0.transpose(.tile,
+                                      .region)
+            
+            return region == triangle ? $0 : nil
+        })
+        
+        for triangle in triangles {
+            
+            let chunk = chunk(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                         .chunk))
+            
+            if chunk.parent == nil {
+                
+                addChild(chunk)
+            }
+            
+            chunk.becomeDirty()
+        }
+        
+        becomeDirty()
     }
     
     internal func chunk(for triangle: Triangle,

@@ -26,22 +26,3 @@ extension Terrain {
         regions.filter { $0.isDirty }
     }
 }
-
-extension Terrain {
-    
-    internal func terraform(vertex: Triangle.Vertex) {
-        
-        for triangle in vertex.tiles {
-            
-            let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
-                                                                           .region))
-            
-            if region.parent == nil {
-                
-                addChild(region)
-            }
-            
-            region.terraform(vertex: vertex)
-        }
-    }
-}

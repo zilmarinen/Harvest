@@ -26,16 +26,3 @@ extension Foliage {
         regions.filter { $0.isDirty }
     }
 }
-
-extension Foliage {
-    
-    internal func propagate(vertex: Triangle.Vertex) {
-        
-        for triangle in vertex.tiles {
-            
-            guard let chunk = chunk(for: triangle) else { return }
-            
-            chunk.becomeDirty()
-        }
-    }
-}

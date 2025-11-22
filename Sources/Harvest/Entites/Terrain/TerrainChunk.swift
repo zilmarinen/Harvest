@@ -10,8 +10,7 @@ import RealityKit
 
 internal class TerrainChunk: TriangularChunk<Triangle>,
                              HasCollision,
-                             HasMesh,
-                             HasSoilableComponent {
+                             HasMesh {
     
     internal enum CodingKeys: CodingKey {
         

@@ -8,8 +8,7 @@ import Deltille
 import RealityKit
 
 internal class WaterRegion: TriangularRegion<WaterChunk,
-                                             WaterTile>,
-                            HasSoilableComponent {}
+                                             WaterTile> {}
 
 extension WaterRegion {
  

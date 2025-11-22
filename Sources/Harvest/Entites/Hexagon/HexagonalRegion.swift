@@ -56,10 +56,6 @@ public class HexagonalRegion<C: HexagonalChunk<V>,
         }
         
         existing.merge(chunk.dataSource)
-        
-        guard let existing = existing as? HasSoilableComponent else { return }
-        
-        existing.becomeDirty()
     }
 }
 
@@ -106,11 +102,6 @@ extension HexagonalRegion {
         
         chunk.set(value,
                   for: vertex)
-        
-        if let chunk = chunk as? HasSoilableComponent {
-         
-            chunk.becomeDirty()
-        }
         
         guard chunk.isEmpty else { return }
         

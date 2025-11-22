@@ -7,5 +7,4 @@
 import Deltille
 import RealityKit
 
-internal class EdificeChunk: TriangularChunk<Triangle.Septomino>,
-                             HasSoilableComponent {}
+internal class EdificeChunk: TriangularChunk<Triangle.Septomino> {}

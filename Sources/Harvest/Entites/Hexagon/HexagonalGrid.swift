@@ -25,10 +25,6 @@ internal class HexagonalGrid<R: HexagonalRegion<C, V>,
             }
             
             region.merge($0)
-            
-            guard let region = region as? HasSoilableComponent else { return }
-            
-            region.becomeDirty()
         }
     }
 }
@@ -78,11 +74,6 @@ extension HexagonalGrid {
         
         region.set(value,
                    for: vertex)
-        
-        if let region = region as? HasSoilableComponent {
-         
-            region.becomeDirty()
-        }
         
         guard region.isEmpty else { return }
         

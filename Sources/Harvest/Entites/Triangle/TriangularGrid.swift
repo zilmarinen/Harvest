@@ -49,14 +49,25 @@ extension TriangularGrid {
         region.set(value,
                    for: tile)
         
-        if let region = region as? HasSoilableComponent {
-         
-            region.becomeDirty()
-        }
-        
         guard region.isEmpty else { return }
         
         region.removeFromParent()
+    }
+    
+    internal func propagate(vertex: Triangle.Vertex) {
+        
+        for triangle in vertex.tiles {
+            
+            let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
+                                                                           .region))
+            
+            if region.parent == nil {
+                
+                addChild(region)
+            }
+            
+            region.propagate(vertex: vertex)
+        }
     }
     
     internal func region(for triangle: Triangle,
