@@ -7,5 +7,4 @@
 import Deltille
 import RealityKit
 
-internal class FootpathRegion: TriangularRegionDataSource<FootpathChunk,
-                                                          FootpathType> {}
+internal class FootpathRegion: TriangularRegion<FootpathChunk> {}

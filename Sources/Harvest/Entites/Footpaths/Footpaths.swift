@@ -7,9 +7,10 @@
 import Deltille
 import RealityKit
 
-internal class Footpaths: TriangularGridDataSource<FootpathRegion,
-                                                   FootpathChunk,
-                                                   FootpathType> {
+internal class Footpaths: TriangularGrid<FootpathRegion,
+                                         FootpathChunk> {
+    
+    internal let dataSource = HexagonalGridDataSource<FootpathType>()
     
     required internal init() {
         

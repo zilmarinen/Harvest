@@ -8,7 +8,7 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class FootpathChunk: TriangularChunkDataSource<FootpathType>,
+internal class FootpathChunk: TriangularChunk,
                               HasMesh {
     
     internal enum CodingKeys: CodingKey {

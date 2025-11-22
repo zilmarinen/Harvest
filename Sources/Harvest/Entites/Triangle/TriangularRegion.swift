@@ -87,13 +87,10 @@ extension TriangularRegion {
     
     internal func propagate(vertex: Triangle.Vertex) {
         
-        //TODO: Can this be tidied up using .unique?
-        let triangles = Set(vertex.tiles.compactMap {
+        let triangles = Set(vertex.tiles.filter {
             
-            let region = $0.transpose(.tile,
-                                      .region)
-            
-            return region == triangle ? $0 : nil
+            $0.transpose(.tile,
+                         .region) == triangle
         })
         
         for triangle in triangles {

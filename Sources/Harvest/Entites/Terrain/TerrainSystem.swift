@@ -73,28 +73,21 @@ extension TerrainSystem {
                         slice: BiomeSlice,
                         stairs: Stairs) {
         
-        let polygons = slice.tiles.flatMap {
+        let stairChunk = stairs.chunk(for: chunk.triangle,
+                                         .chunk)
+        
+        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
-            render(tile: $1)
+            let (_, tile) = item
+            
+            guard stairChunk?.value(for: tile.triangle) == nil else { return }
+            
+            result.append(contentsOf: render(tile: tile))
         }
         
         guard !polygons.isEmpty else { return }
         
-        var mesh = Mesh(polygons)
-        
-        if let stairChunk = stairs.chunk(for: chunk.triangle,
-                                         .chunk) {
-            
-            for (triangle, stoop) in stairChunk.tiles {
-                
-                let angle = Angle(radians: triangle.rotation)
-                let rotation = Rotation.yaw(angle)
-                
-                let template = stoop.template(displacement: 10.0)
-                
-                mesh = mesh.subtracting(template.rotated(by: rotation).translated(by: triangle.position(.tile)))
-            }
-        }
+        let mesh = Mesh(polygons)
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false
