@@ -70,7 +70,7 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: BiomeSlice,
+                        slice: HexagonalGridDataSourceSlice<BiomeVertex>,
                         stairs: Stairs) {
         
         let stairChunk = stairs.chunk(for: chunk.triangle,
@@ -93,7 +93,7 @@ extension TerrainSystem {
         chunk.isDirty = false
     }
     
-    private func render(tile: BiomeTile) -> [Euclid.Polygon] {
+    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>) -> [Euclid.Polygon] {
         
         let stencil = tile.triangle.stencil(.tile)
         
@@ -111,7 +111,7 @@ extension TerrainSystem {
                       elevation: elevation)
     }
     
-    private func render(tile: BiomeTile,
+    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>,
                         stencil: Triangle.Stencil) -> [Euclid.Polygon] {
         
         let origin = tile.triangle.position(.tile)
@@ -135,7 +135,7 @@ extension TerrainSystem {
         }
     }
     
-    private func render(tile: BiomeTile,
+    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>,
                         stencil: Triangle.Stencil,
                         kite: Triangle.Kite,
                         biome: Biome,

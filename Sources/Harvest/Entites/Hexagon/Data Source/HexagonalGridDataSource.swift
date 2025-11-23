@@ -66,3 +66,32 @@ extension HexagonalGridDataSource {
         region.removeFromParent()
     }
 }
+
+extension HexagonalGridDataSource {
+    
+    internal func slice(for chunk: Triangle) -> HexagonalGridDataSourceSlice<V> {
+        
+        let sieve = chunk.sieve(for: .chunk)
+        
+        let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
+            
+            guard let value = value(for: vertex) else { return }
+            
+            result[vertex] = value
+        }
+        
+        return .init(sieve: sieve,
+                     vertices: vertices)
+    }
+    
+    internal func tile(for triangle: Triangle) -> HexagonalGridDataSourceTile<V> {
+        
+        let vertices = triangle.vertices.compactMap {
+            
+            value(for: $0)
+        }
+        
+        return .init(triangle: triangle,
+                     vertices: vertices)
+    }
+}

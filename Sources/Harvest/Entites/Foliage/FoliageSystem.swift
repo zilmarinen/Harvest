@@ -53,53 +53,53 @@ extension FoliageSystem {
     private func update(chunk: FoliageChunk,
                         biosphere: Biosphere) {
         
-        var invalidTiles: [Triangle] = []
-        
-        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
-            
-            let (triangle, _) = item
-            let biome = biosphere.tile(for: triangle)
-            
-            guard let elevation = biome.uniformElevation else {
-                
-                invalidTiles.append(triangle)
-                
-                return
-            }
-            
-            result.append(contentsOf: render(biome: biome,
-                                             elevation: elevation))
-        }
-        
-        invalidTiles.forEach {
-            
-            chunk.set(nil,
-                      for: $0)
-        }
-        
-        guard !polygons.isEmpty else { return }
-        
-        let mesh = Mesh(polygons)
-        
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        chunk.isDirty = false
-    }
-    
-    private func render(biome: BiomeTile,
-                        elevation: Int) -> [Euclid.Polygon] {
-        
-        guard let uniform = biome.vertices.first?.biome else { return [] }
-        
-        let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
-        let origin = biome.triangle.position(.tile)
-        let angle = Angle(radians: biome.triangle.rotation)
-        let rotation = Rotation.yaw(angle)
-        
-        let mesh = Mesh.foliage(.antlia,
-                                .columnar,
-                                uniform.foliage,
-                                uniform.foliage).rotated(by: rotation).translated(by: origin + apexElevation)
-        
-        return mesh.polygons
+//        var invalidTiles: [Triangle] = []
+//        
+//        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
+//            
+//            let (triangle, _) = item
+//            let biome = biosphere.tile(for: triangle)
+//            
+//            guard let elevation = biome.uniformElevation else {
+//                
+//                invalidTiles.append(triangle)
+//                
+//                return
+//            }
+//            
+//            result.append(contentsOf: render(biome: biome,
+//                                             elevation: elevation))
+//        }
+//        
+//        invalidTiles.forEach {
+//            
+//            chunk.set(nil,
+//                      for: $0)
+//        }
+//        
+//        guard !polygons.isEmpty else { return }
+//        
+//        let mesh = Mesh(polygons)
+//        
+//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+//        chunk.isDirty = false
+//    }
+//    
+//    private func render(biome: BiomeTile,
+//                        elevation: Int) -> [Euclid.Polygon] {
+//        
+//        guard let uniform = biome.vertices.first?.biome else { return [] }
+//        
+//        let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
+//        let origin = biome.triangle.position(.tile)
+//        let angle = Angle(radians: biome.triangle.rotation)
+//        let rotation = Rotation.yaw(angle)
+//        
+//        let mesh = Mesh.foliage(.antlia,
+//                                .columnar,
+//                                uniform.foliage,
+//                                uniform.foliage).rotated(by: rotation).translated(by: origin + apexElevation)
+//        
+//        return mesh.polygons
     }
 }
