@@ -29,9 +29,6 @@ internal class HexagonalGridDataSource<V: Codable>: HexagonalGrid<HexagonalRegio
             region.merge($0)
         }
     }
-}
-
-extension HexagonalGridDataSource {
     
     internal func value(for vertex: Triangle.Vertex) -> V? {
         
@@ -86,9 +83,9 @@ extension HexagonalGridDataSource {
     
     internal func tile(for triangle: Triangle) -> HexagonalGridDataSourceTile<V> {
         
-        let vertices = triangle.vertices.compactMap {
+        let vertices = triangle.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
             
-            value(for: $0)
+            result[vertex] = value(for: vertex)
         }
         
         return .init(triangle: triangle,

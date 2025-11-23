@@ -5,8 +5,10 @@
 //
 
 import AppKit
+import Cobble
 import Deltille
 import Euclid
+import Lattice
 import RealityKit
 
 @MainActor
@@ -23,17 +25,27 @@ internal struct FootpathSystem: System {
         
         for region in footpaths.dirtyRegions {
             
+            var emptyChunks: [FootpathChunk] = []
+            
             for chunk in region.dirtyChunks {
                 
-//                guard let biomeChunk = biosphere.chunk(for: chunk.hexagon) else {
-//                    
-//                    chunk.removeFromParent()
-//                    
-//                    continue
-//                }
-//            
-//                update(chunk: chunk,
-//                       biomeChunk: biomeChunk)
+                let slice = footpaths.dataSource.slice(for: chunk.triangle)
+                
+                guard !slice.vertices.isEmpty else {
+                    
+                    emptyChunks.append(chunk)
+                    
+                    continue
+                }
+                
+                update(chunk: chunk,
+                       footpathSlice: slice,
+                       biomeSlice: biosphere.slice(for: chunk.triangle))
+            }
+            
+            emptyChunks.forEach {
+                
+                $0.removeFromParent()
             }
             
             if region.isEmpty {
@@ -51,21 +63,32 @@ internal struct FootpathSystem: System {
 
 extension FootpathSystem {
     
-//    private func update(chunk: FootpathChunk,
-//                        biomeChunk: BiomeChunk) {
-//        
-//        var mesh = Mesh.empty
-//        
-//        for vertex in chunk.vertices
-//        
-//        chunk.mesh = mesh.translated(by: -chunk.hexagon.position(chunk.scale))
-//        chunk.isDirty = false
-//    }
-//    
-//    private func render(vertex: Triangle.Vertex) -> Mesh {
-//        
-//        .empty
-//    }
+    private func update(chunk: FootpathChunk,
+                        footpathSlice: HexagonalGridDataSourceSlice<FootpathType>,
+                        biomeSlice: HexagonalGridDataSourceSlice<BiomeVertex>) {
+        
+        var mesh = Mesh.empty
+        
+        for (_, tile) in footpathSlice.tiles {
+            
+            guard let biomeTile = biomeSlice.tiles[tile.triangle] else { continue }
+            
+            let vertices = tile.vertices.keys.map { $0 }
+            
+            let apexElevation = Vector(0.0, (Double(biomeTile.apex) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight + 0.0001, 0.0)
+            
+            let wedge = Wedge(tile.triangle,
+                              vertices)
+            
+            let part = Mesh.footpath(tile.triangle,
+                                     wedge)
+            
+            mesh = mesh.union(part.translated(by: apexElevation))
+        }
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        chunk.isDirty = false
+    }
 }
 
 

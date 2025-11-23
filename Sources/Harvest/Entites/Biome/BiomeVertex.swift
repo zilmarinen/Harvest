@@ -27,60 +27,48 @@ extension HexagonalGridDataSourceTile where V == BiomeVertex {
         
         guard hasThreeVertices else { return false }
         
-        for i in 0..<vertices.count {
-            
-            if vertices[i].biome != vertices[(i + 1) % vertices.count].biome {
-                
-                return false
-            }
-        }
+        let values = Set(vertices.map { $0.value.biome })
         
-        return true
+        return values.count == 1
     }
     
     internal var hasUniformElevation: Bool {
         
         guard hasThreeVertices else { return false }
         
-        for i in 0..<vertices.count {
-            
-            if vertices[i].elevation != vertices[(i + 1) % vertices.count].elevation {
-                
-                return false
-            }
-        }
+        let values = Set(vertices.map { $0.value.elevation })
         
-        return true
+        return values.count == 1
     }
     
     internal var uniformBiome: Biome? {
         
         guard hasUniformBiome else { return nil }
         
-        return vertices.first?.biome
+        return vertices.first?.value.biome
     }
     
     internal var uniformElevation: Int? {
         
         guard hasUniformElevation else { return nil }
         
-        return vertices.first?.elevation
+        return vertices.first?.value.elevation
     }
     
     internal var apex: Int {
         
-        let elevation = vertices.map { $0.elevation }
+        let values = vertices.map { $0.value.elevation }
         
-        return elevation.sorted(by: >).first ?? 0
+        return values.sorted(by: >).first ?? 0
     }
     
     internal var base: Int {
         
         guard hasThreeVertices else { return 0 }
         
-        let elevation = vertices.map { $0.elevation }
+        let values = vertices.map { $0.value.elevation }
         
-        return elevation.sorted(by: <).first ?? 0
+        return values.sorted(by: <).first ?? 0
     }
 }
 
@@ -88,9 +76,6 @@ extension HexagonalGridDataSourceTile where V == BiomeVertex {
     
     internal func biome(for vertex: Triangle.Vertex) -> V? {
         
-        vertices.first {
-            
-            $0.vertex == vertex
-        }
+        vertices[vertex]
     }
 }

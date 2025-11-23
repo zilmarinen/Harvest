@@ -9,7 +9,7 @@ import Deltille
 internal struct HexagonalGridDataSourceTile<V: Codable> {
     
     internal let triangle: Triangle
-    internal let vertices: [V]
+    internal let vertices: [Triangle.Vertex : V]
 }
 
 extension HexagonalGridDataSourceTile {

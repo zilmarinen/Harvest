@@ -8,29 +8,34 @@ import Deltille
 
 internal struct HexagonalGridDataSourceSlice<V: Codable> {
     
+    typealias Tiles = [Triangle : HexagonalGridDataSourceTile<V>]
+    typealias Vertices = [Triangle.Vertex : V]
+    
     internal let sieve: Triangle.Sieve
     
-    internal let vertices: [Triangle.Vertex : V]
+    internal let vertices: Vertices
     
-    internal let tiles: [Triangle.Vertex : HexagonalGridDataSourceTile<V>]
+    internal let tiles: Tiles
     
     internal init(sieve: Triangle.Sieve,
-                  vertices: [Triangle.Vertex : V]) {
+                  vertices: Vertices) {
         
         self.sieve = sieve
         self.vertices = vertices
         
-        self.tiles = sieve.tiles.reduce(into: [Triangle.Vertex : HexagonalGridDataSourceTile<V>]()) { result, tile in
-                    
-            let vertices = tile.vertices.compactMap {
-
-                vertices[$0]
+        self.tiles = sieve.tiles.reduce(into: Tiles()) { result, tile in
+            
+            let vertices = tile.vertices.reduce(into: Vertices()) { result, vertex in
+                
+                guard let value = vertices[vertex] else { return }
+             
+                result[vertex] = value
             }
 
             guard !vertices.isEmpty else { return }
 
-            result[tile.vertex] = .init(triangle: tile,
-                                        vertices: vertices)
+            result[tile] = .init(triangle: tile,
+                                 vertices: vertices)
         }
     }
 }

@@ -17,5 +17,24 @@ internal class Footpaths: TriangularGrid<FootpathRegion,
         super.init()
         
         name = Entity.Identifier.footpaths.id
+        
+        addChild(dataSource)
+    }
+}
+
+extension Footpaths {
+    
+    internal func value(for vertex: Triangle.Vertex) -> FootpathType? {
+     
+        dataSource.value(for: vertex)
+    }
+    
+    internal func set(_ value: FootpathType?,
+                      for vertex: Triangle.Vertex) {
+     
+        dataSource.set(value,
+                       for: vertex)
+        
+        propagate(vertex: vertex)
     }
 }

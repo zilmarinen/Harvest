@@ -76,13 +76,10 @@ extension TerrainSystem {
         let stairChunk = stairs.chunk(for: chunk.triangle,
                                          .chunk)
         
-        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = slice.tiles.flatMap {
             
-            let (_, tile) = item
-            
-            guard stairChunk?.value(for: tile.triangle) == nil else { return }
-            
-            result.append(contentsOf: render(tile: tile))
+            render(tile: $1,
+                   stairChunk: stairChunk)
         }
         
         guard !polygons.isEmpty else { return }
@@ -93,7 +90,8 @@ extension TerrainSystem {
         chunk.isDirty = false
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>) -> [Euclid.Polygon] {
+    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>,
+                        stairChunk: StairChunk?) -> [Euclid.Polygon] {
         
         let stencil = tile.triangle.stencil(.tile)
         
@@ -118,7 +116,7 @@ extension TerrainSystem {
         
         return tile.vertices.reduce(into: [Euclid.Polygon]()) { result, vertex in
             
-            guard let corner = tile.triangle.corner(vertex.vertex) else { return }
+            guard let corner = tile.triangle.corner(vertex.value.vertex) else { return }
             
             let kite = tile.triangle.kite(index: corner.rawValue)
             
@@ -128,8 +126,8 @@ extension TerrainSystem {
             let polygons = render(tile: tile,
                                   stencil: stencil,
                                   kite: kite,
-                                  biome: vertex.biome,
-                                  elevation: vertex.elevation)
+                                  biome: vertex.value.biome,
+                                  elevation: vertex.value.elevation)
             
             result.append(contentsOf: polygons.translated(by: -origin).rotated(by: rotation).translated(by: origin))
         }
