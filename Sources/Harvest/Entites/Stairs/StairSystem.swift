@@ -23,7 +23,7 @@ internal struct StairSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let stairs = context.scene.find(entity: .stairs) as? Stairs else { return }
         
         var emptyRegions: [StairRegion] = []
@@ -34,7 +34,7 @@ internal struct StairSystem: System {
             
             for chunk in region.dirtyChunks {
                 
-                let slice = biosphere.slice(for: chunk.triangle)
+                let slice = terrain.slice(for: chunk.triangle)
                 
                 guard !slice.vertices.isEmpty else {
                     
@@ -44,7 +44,7 @@ internal struct StairSystem: System {
                 }
                 
                 update(chunk: chunk,
-                       biosphere: biosphere)
+                       terrain: terrain)
             }
             
             emptyChunks.forEach {
@@ -68,13 +68,13 @@ internal struct StairSystem: System {
 extension StairSystem {
     
     private func update(chunk: StairChunk,
-                        biosphere: Biosphere) {
+                        terrain: Terrain) {
         
         var mesh = Mesh.empty
         
         for (triangle, stoop) in chunk.tiles {
             
-            let biome = biosphere.tile(for: triangle)
+            let biome = terrain.tile(for: triangle)
             
             let apexElevation = Vector(0.0, (Double(biome.base) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
             

@@ -12,7 +12,6 @@ import RealityKit
 
 public class RegionView: EditorView {
     
-    internal let biosphere = Biosphere()
     internal let edifices = Edifices()
     internal let foliage = Foliage()
     internal let footpaths = Footpaths()
@@ -24,7 +23,6 @@ public class RegionView: EditorView {
         
         super.init(frame: frame)
         
-        world.addChild(biosphere)
         world.addChild(edifices)
         world.addChild(foliage)
         world.addChild(footpaths)
@@ -72,18 +70,20 @@ extension RegionView {
     
     private func load(region: Region) {
         
-        biosphere.merge(region.biomes)
-        terrain.addChild(region.terrain)
+        if let slice = region.terrain { terrain.merge(slice: slice) }
         
-        if let child = region.foliage {
-            
-            foliage.addChild(child)
-        }
-        
-        if let child = region.water {
-            
-            water.addChild(child)
-        }
+//        biosphere.merge(region.biomes)
+//        terrain.addChild(region.terrain)
+//        
+//        if let child = region.foliage {
+//            
+//            foliage.addChild(child)
+//        }
+//        
+//        if let child = region.water {
+//            
+//            water.addChild(child)
+//        }
     }
 }
 
@@ -91,78 +91,30 @@ extension RegionView {
 
 extension RegionView {
     
-    public func save() -> [Region] {
+    public func save(regions triangle: Triangle) -> [Region] {
         
-        terrain.regions.compactMap {
+        triangle.perimeter.compactMap {
             
             save(region: $0)
         }
     }
     
-    private func save(region terrain: TerrainRegion) -> Region? {
+    private func save(region triangle: Triangle) -> Region? {
         
-        guard !terrain.isEmpty else { return nil }
+        .init(triangle: triangle,
+              terrain: terrain.slice(region: triangle))
         
-        let triangle = terrain.triangle
-        
-        return .init(coordinate: triangle.vertex.position,
-                     biomes: biosphere.chunks(intersecting: triangle),
-                     foliage: foliage.region(for: triangle,
-                                             .region),
-                     terrain: terrain,
-                     water: water.region(for: triangle,
-                                         .region))
-    }
-}
-
-// MARK: Biome
-
-extension RegionView {
-    
-    public func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
-        
-        biosphere.value(for: vertex)
-    }
-    
-    public func set(_ biome: Biome?,
-                    for vertex: Triangle.Vertex) {
-        
-        guard let existing = get(biome: vertex) else { return }
-        
-        set(biome,
-            existing.elevation,
-            for: vertex)
-    }
-    
-    public func set(_ elevation: Int,
-                    for vertex: Triangle.Vertex) {
-        
-        guard let existing = get(biome: vertex) else { return }
-        
-        set(existing.biome,
-            elevation,
-            for: vertex)
-    }
-    
-    public func set(_ biome: Biome?,
-                    _ elevation: Int,
-                    for vertex: Triangle.Vertex) {
-        
-        if let biome {
-            
-            biosphere.set(.init(vertex: vertex,
-                                biome: biome,
-                                elevation: elevation),
-                          for: vertex)
-            
-        } else {
-            
-            biosphere.set(nil,
-                          for: vertex)
-        }
-        
-        terrain.propagate(vertex: vertex)
-        foliage.propagate(vertex: vertex)
+//        guard !terrain.isEmpty else { return nil }
+//        
+//        let triangle = terrain.triangle
+//        
+//        return .init(coordinate: triangle.vertex.position,
+//                     biomes: biosphere.chunks(intersecting: triangle),
+//                     foliage: foliage.region(for: triangle,
+//                                             .region),
+//                     terrain: terrain,
+//                     water: water.region(for: triangle,
+//                                         .region))
     }
 }
 
@@ -226,6 +178,56 @@ extension RegionView {
             
             terrain.propagate(vertex: $0)
         }
+    }
+}
+
+// MARK: Terrain
+
+extension RegionView {
+    
+    public func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
+        
+        terrain.value(for: vertex)
+    }
+    
+    public func set(_ biome: Biome?,
+                    for vertex: Triangle.Vertex) {
+        
+        guard let existing = get(biome: vertex) else { return }
+        
+        set(biome,
+            existing.elevation,
+            for: vertex)
+    }
+    
+    public func set(_ elevation: Int,
+                    for vertex: Triangle.Vertex) {
+        
+        guard let existing = get(biome: vertex) else { return }
+        
+        set(existing.biome,
+            elevation,
+            for: vertex)
+    }
+    
+    public func set(_ biome: Biome?,
+                    _ elevation: Int,
+                    for vertex: Triangle.Vertex) {
+        
+        if let biome {
+            
+            terrain.set(.init(vertex: vertex,
+                              biome: biome,
+                              elevation: elevation),
+                        for: vertex)
+            
+        } else {
+            
+            terrain.set(nil,
+                        for: vertex)
+        }
+        
+        foliage.propagate(vertex: vertex)
     }
 }
 

@@ -17,7 +17,7 @@ internal struct FoliageSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let foliage = context.scene.find(entity: .foliage) as? Foliage else { return }
         
         var emptyRegions: [FoliageRegion] = []
@@ -27,7 +27,7 @@ internal struct FoliageSystem: System {
             for chunk in region.dirtyChunks {
                 
                 update(chunk: chunk,
-                       biosphere: biosphere)
+                       terrain: terrain)
                 
                 if chunk.isEmpty {
                     
@@ -51,14 +51,14 @@ internal struct FoliageSystem: System {
 extension FoliageSystem {
     
     private func update(chunk: FoliageChunk,
-                        biosphere: Biosphere) {
+                        terrain: Terrain) {
         
         var invalidTiles: [Triangle] = []
         
         let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
             let (triangle, _) = item
-            let biome = biosphere.tile(for: triangle)
+            let biome = terrain.tile(for: triangle)
             
             guard let elevation = biome.uniformElevation else {
                 

@@ -16,7 +16,7 @@ internal struct WaterSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
         var emptyRegions: [WaterRegion] = []
@@ -26,7 +26,7 @@ internal struct WaterSystem: System {
             for chunk in region.dirtyChunks {
             
                 update(chunk: chunk,
-                       biosphere: biosphere,
+                       terrain: terrain,
                        water: water)
             
                 if chunk.isEmpty {
@@ -51,7 +51,7 @@ internal struct WaterSystem: System {
 extension WaterSystem {
     
     private func update(chunk: WaterChunk,
-                        biosphere: Biosphere,
+                        terrain: Terrain,
                         water: Water) {
         
         var invalidTiles: [Triangle] = []
@@ -59,7 +59,7 @@ extension WaterSystem {
         let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
             let (triangle, tile) = item
-            let biome = biosphere.tile(for: triangle)
+            let biome = terrain.tile(for: triangle)
             
             guard !biome.hasThreeVertices ||
                   biome.base > tile.elevation else {

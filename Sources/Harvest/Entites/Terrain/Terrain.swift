@@ -7,8 +7,8 @@
 import Deltille
 import RealityKit
 
-internal class Terrain: TriangularGrid<TerrainRegion,
-                                       TerrainChunk> {
+internal class Terrain: DataStore<TerrainChunk,
+                                  BiomeVertex> {
     
     required internal init() {
         

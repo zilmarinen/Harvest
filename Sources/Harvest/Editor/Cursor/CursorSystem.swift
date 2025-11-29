@@ -18,7 +18,7 @@ internal struct CursorSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
         for entity in context.entities(matching: Self.query,
@@ -36,15 +36,15 @@ internal struct CursorSystem: System {
             switch component.cursorStyle {
                 
             case .hexagonal: layout(cursors: cursor.children,
-                                    biosphere: biosphere,
+                                    terrain: terrain,
                                     hexagonal: vertex)
                 
             case .triangle: update(cursors: cursor.children,
-                                   biosphere: biosphere,
+                                   terrain: terrain,
                                    triangle: triangle)
                 
             case .vertex: update(cursors: cursor.children,
-                                 biosphere: biosphere,
+                                 terrain: terrain,
                                  vertex: vertex)
             }
         }
@@ -54,7 +54,7 @@ internal struct CursorSystem: System {
 extension CursorSystem {
     
     private func layout(cursors: Entity.ChildCollection,
-                        biosphere: Biosphere,
+                        terrain: Terrain,
                         hexagonal vertex: Triangle.Vertex) {
         
         for i in vertex.vertices.indices {
@@ -63,7 +63,7 @@ extension CursorSystem {
             
             let vertex = vertex.vertices[i]
             
-            let biome = biosphere.value(for: vertex)
+            let biome = terrain.value(for: vertex)
             
             let elevation = Double(biome?.elevation ?? 0)
             
@@ -79,7 +79,7 @@ extension CursorSystem {
     }
     
     private func update(cursors: Entity.ChildCollection,
-                        biosphere: Biosphere,
+                        terrain: Terrain,
                         triangle: Triangle) {
         
         for i in cursors.indices {
@@ -88,7 +88,7 @@ extension CursorSystem {
             
             let vertex = triangle.vertices[i % triangle.vertices.count]
             
-            let biome = biosphere.value(for: vertex)
+            let biome = terrain.value(for: vertex)
             
             let elevation = Double(biome?.elevation ?? 0)
             
@@ -102,10 +102,10 @@ extension CursorSystem {
     }
     
     private func update(cursors: Entity.ChildCollection,
-                        biosphere: Biosphere,
+                        terrain: Terrain,
                         vertex: Triangle.Vertex) {
         
-        let biome = biosphere.value(for: vertex)
+        let biome = terrain.value(for: vertex)
         
         let elevation = Double(biome?.elevation ?? 0)
         
