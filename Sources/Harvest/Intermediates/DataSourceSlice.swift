@@ -34,27 +34,48 @@ internal class DataSourceSlice<C: TriangularChunk,
     }
 }
 
+extension DataSourceSlice {
+    
+    internal var isEmpty: Bool {
+        
+        region == nil || chunks.isEmpty
+    }
+}
+
+// MARK: Terrain
+
 extension DataSourceSlice where C == TerrainChunk,
                                 V == BiomeVertex {
     
     internal convenience init(empty triangle: Triangle) {
         
-        let region = TriangularRegion<TerrainChunk>(triangle)
+        let region = TriangularRegion<C>(triangle)
         
         let tile = triangle.transpose(.region,
                                       .tile)
+        
         let hexagons = Array(Set(tile.vertices.map {
             
             Hexagon($0.position(.tile),
                     .chunk)
         }))
         
+        let chunks = hexagons.map { HexagonalChunkDataSource<V>($0) }
+        
         for vertex in tile.vertices {
             
             region.propagate(vertex: vertex)
+            
+            for chunk in chunks  {
+                
+                chunk.set(.init(vertex: vertex,
+                                biome: .boreal,
+                                elevation: 1),
+                          for: vertex)
+            }
         }
         
         self.init(region: region,
-                  chunks: hexagons.map { .init($0) })
+                  chunks: chunks)
     }
 }

@@ -85,9 +85,9 @@ extension HexagonalEntity {
             position = .init(hexagon.position(scale))
         }
         
-//        guard let entity = try? ModelEntity(hexagon.mesh(scale)) else { return }
+//        guard let entity = try? ModelEntity(hexagon.mesh(.chunk)) else { return }
 //                
-//        entity.position = -.init(hexagon.position(scale)) + [0.0, scale == .region ? 0.001 : 0.002, 0.0]
+//        entity.position = -.init(hexagon.position(.chunk)) + [0.0, scale == .region ? 0.002 : 0.001, 0.0]
 //        entity.model?.materials = [SimpleMaterial(color: scale == .region ? .systemIndigo : .systemPink,
 //                                                  isMetallic: false)]
 //        

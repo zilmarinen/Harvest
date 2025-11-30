@@ -30,9 +30,19 @@ public struct Region: Codable,
 
 extension Region {
     
+    public var isEmpty: Bool {
+        
+        terrain?.isEmpty ?? true
+    }
+}
+
+extension Region {
+    
     public init(empty triangle: Triangle) {
         
         self.init(triangle: triangle,
                   terrain: .init(empty: triangle))
+        
+        self.identifier = triangle.id
     }
 }

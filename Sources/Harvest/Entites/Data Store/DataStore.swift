@@ -31,13 +31,13 @@ extension DataStore {
         
         guard let region = slice.region else { return }
         
-        //TODO: Check region does not exists and merge region chunks
-        grid.addChild(region)
+        grid.merge(region)
     }
     
     internal func slice(region triangle: Triangle) -> DataSourceSlice<C, V>? {
         
-        .init(region: grid.region(for: triangle),
+        .init(region: grid.region(for: triangle,
+                                  .region),
               chunks: dataSource.chunks(intersecting: triangle))
     }
 }

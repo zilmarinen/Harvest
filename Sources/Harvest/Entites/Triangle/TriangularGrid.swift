@@ -8,7 +8,24 @@ import Deltille
 import RealityKit
 
 public class TriangularGrid<R: TriangularRegion<C>,
-                            C: TriangularEntity>: Entity {}
+                            C: TriangularEntity>: Entity {
+    
+    internal func merge(_ region: R) {
+        
+        guard let existing = self.region(for: region.triangle,
+                                         .region) else {
+            
+            return addChild(region)
+        }
+        
+        for chunk in region.chunks {
+            
+            guard existing.chunk(for: chunk.triangle) == nil else { continue }
+            
+            existing.addChild(chunk)
+        }
+    }
+}
 
 extension TriangularGrid {
     

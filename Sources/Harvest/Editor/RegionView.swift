@@ -93,7 +93,9 @@ extension RegionView {
     
     public func save(regions triangle: Triangle) -> [Region] {
         
-        triangle.perimeter.compactMap {
+        let regions = [triangle] + triangle.perimeter
+        
+        return regions.compactMap {
             
             save(region: $0)
         }
@@ -102,6 +104,7 @@ extension RegionView {
     private func save(region triangle: Triangle) -> Region? {
         
         .init(triangle: triangle,
+              identifier: world.name,
               terrain: terrain.slice(region: triangle))
         
 //        guard !terrain.isEmpty else { return nil }
