@@ -72,18 +72,11 @@ extension RegionView {
         
         if let slice = region.terrain { terrain.merge(slice: slice) }
         
-//        biosphere.merge(region.biomes)
-//        terrain.addChild(region.terrain)
-//        
-//        if let child = region.foliage {
-//            
-//            foliage.addChild(child)
-//        }
-//        
-//        if let child = region.water {
-//            
-//            water.addChild(child)
-//        }
+        if let slice = region.edifices { edifices.merge(slice) }
+        if let slice = region.foliage { foliage.merge(slice) }
+        if let slice = region.footpaths { footpaths.merge(slice: slice) }
+        if let slice = region.stairs { stairs.merge(slice) }
+        if let slice = region.water { water.merge(slice) }
     }
 }
 
@@ -105,19 +98,16 @@ extension RegionView {
         
         .init(triangle: triangle,
               identifier: world.name,
-              terrain: terrain.slice(region: triangle))
-        
-//        guard !terrain.isEmpty else { return nil }
-//        
-//        let triangle = terrain.triangle
-//        
-//        return .init(coordinate: triangle.vertex.position,
-//                     biomes: biosphere.chunks(intersecting: triangle),
-//                     foliage: foliage.region(for: triangle,
-//                                             .region),
-//                     terrain: terrain,
-//                     water: water.region(for: triangle,
-//                                         .region))
+              edifices: edifices.region(for: triangle,
+                                        .region),
+              foliage: foliage.region(for: triangle,
+                                      .region),
+              footpaths: footpaths.slice(region: triangle),
+              stairs: stairs.region(for: triangle,
+                                    .region),
+              terrain: terrain.slice(region: triangle),
+              water: water.region(for: triangle,
+                                  .region))
     }
 }
 
