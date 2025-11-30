@@ -18,10 +18,10 @@ internal struct FootpathSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
+        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let footpaths = context.scene.find(entity: .footpaths) as? Footpaths else { return }
         
-        var emptyRegions: [FootpathRegion] = []
+        var emptyRegions: [TriangularRegion<FootpathChunk>] = []
         
         for region in footpaths.dirtyRegions {
             
@@ -40,7 +40,7 @@ internal struct FootpathSystem: System {
                 
                 update(chunk: chunk,
                        footpathSlice: slice,
-                       biomeSlice: biosphere.slice(for: chunk.triangle))
+                       biomeSlice: terrain.slice(for: chunk.triangle))
             }
             
             emptyChunks.forEach {

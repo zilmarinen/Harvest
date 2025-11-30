@@ -87,5 +87,13 @@ extension TriangularEntity {
             
             position = .zero
         }
+        
+        guard let entity = try? ModelEntity(triangle.mesh(scale)) else { return }
+                
+        entity.position = -.init(triangle.position(scale)) + [0.0, scale == .region ? 0.001 : 0.002, 0.0]
+        entity.model?.materials = [SimpleMaterial(color: scale == .region ? (triangle.isPointy ? .systemMint : .systemCyan) : (triangle.isPointy ? .systemOrange : .systemYellow),
+                                                  isMetallic: false)]
+        
+        addChild(entity)
     }
 }

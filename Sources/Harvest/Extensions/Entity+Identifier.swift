@@ -12,7 +12,6 @@ extension Entity {
                               Identifiable,
                               Sendable {
         
-        case biosphere
         case camera
         case cursor
         case edifices

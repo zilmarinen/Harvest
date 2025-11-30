@@ -7,10 +7,8 @@
 import Deltille
 import RealityKit
 
-internal class Footpaths: TriangularGrid<FootpathRegion,
-                                         FootpathChunk> {
-    
-    internal let dataSource = HexagonalGridDataSource<FootpathType>()
+internal class Footpaths: DataStore<FootpathChunk,
+                                    FootpathType> {
     
     required internal init() {
         
@@ -19,22 +17,5 @@ internal class Footpaths: TriangularGrid<FootpathRegion,
         name = Entity.Identifier.footpaths.id
         
         addChild(dataSource)
-    }
-}
-
-extension Footpaths {
-    
-    internal func value(for vertex: Triangle.Vertex) -> FootpathType? {
-     
-        dataSource.value(for: vertex)
-    }
-    
-    internal func set(_ value: FootpathType?,
-                      for vertex: Triangle.Vertex) {
-     
-        dataSource.set(value,
-                       for: vertex)
-        
-        propagate(vertex: vertex)
     }
 }

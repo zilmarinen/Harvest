@@ -29,11 +29,9 @@ extension WorldView {
         }
     }
     
-    public func add(region coordinate: Coordinate) {
+    public func add(region triangle: Triangle) {
         
         let scale = Triangle.Scale.region
-        
-        let triangle = Triangle(coordinate)
     
         let color: NSColor = triangle.isPointy ? .black : .white
         

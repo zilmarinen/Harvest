@@ -23,11 +23,10 @@ internal struct TerrainSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let biosphere = context.scene.find(entity: .biosphere) as? Biosphere,
-              let stairs = context.scene.find(entity: .stairs) as? Stairs,
+        guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        var emptyRegions: [TerrainRegion] = []
+        var emptyRegions: [TriangularRegion<TerrainChunk>] = []
         
         for region in terrain.dirtyRegions {
             
@@ -35,7 +34,7 @@ internal struct TerrainSystem: System {
             
             for chunk in region.dirtyChunks {
                 
-                let slice = biosphere.slice(for: chunk.triangle)
+                let slice = terrain.slice(for: chunk.triangle)
                 
                 guard !slice.vertices.isEmpty else {
                     
