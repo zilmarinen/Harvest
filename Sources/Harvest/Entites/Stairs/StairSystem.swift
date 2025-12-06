@@ -91,6 +91,5 @@ extension StairSystem {
 //        }
 //        
 //        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-//        chunk.isDirty = false
 //    }
 }

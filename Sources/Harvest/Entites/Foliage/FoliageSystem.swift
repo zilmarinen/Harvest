@@ -65,7 +65,6 @@ extension FoliageSystem {
         let mesh = Mesh(polygons)
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        chunk.isDirty = false
         
         return !dataSource.isEmpty
     }
