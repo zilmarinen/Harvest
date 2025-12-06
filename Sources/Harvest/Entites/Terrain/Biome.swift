@@ -26,30 +26,39 @@ public enum Biome: String,
 
 extension Biome {
     
-    public var colorPalette: ColorPalette {
+    var colp: ColorPalette { .init(.borealPrimary, .borealSecondary) }
+    
+    public var terrain: ColorPalette {
         
         switch self {
             
-        case .boreal: .init("63424B",
-                            "3A243B")
+        case .boreal: .init(.borealPrimary,
+                            .borealSecondary,
+                            .borealTertiary)
             
-        case .chaparral: .init("BDA928",
-                               "473F2D")
+        case .chaparral: .init(.chaparralPrimary,
+                               .chaparralSecondary,
+                               .chaparralTertiary)
             
-        case .deciduous: .init("8B7D3A",
-                               "534A32")
+        case .deciduous: .init(.deciduousPrimary,
+                               .deciduousSecondary,
+                               .deciduousTertiary)
             
-        case .prairie: .init("FFA631",
-                             "CB7E1F")
+        case .prairie: .init(.prairiePrimary,
+                             .prairieSecondary,
+                             .prairieTertiary)
           
-        case .rainforest: .init("6B9362",
-                                "2A603B")
+        case .rainforest: .init(.rainforestPrimary,
+                                .rainforestSecondary,
+                                .rainforestTertiary)
              
-        case .scrubland: .init("F08F90",
-                               "F2666C")
+        case .scrubland: .init(.scrublandPrimary,
+                               .scrublandSecondary,
+                               .scrublandTertiary)
             
-        case .tundra: .init("C2DBDF",
-                            "71A2A6")
+        case .tundra: .init(.tundraPrimary,
+                            .tundraSecondary,
+                            .tundraTertiary)
         }
     }
     

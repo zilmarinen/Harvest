@@ -19,6 +19,11 @@ internal struct TerrainSystem: System {
         static let baseHeight = 0.5
     }
     
+    internal static func unitHeight(for elevation: Int) -> Double {
+        
+        (Constant.baseHeight * Double(elevation)) + Constant.apexHeight
+    }
+    
     internal init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
@@ -43,7 +48,10 @@ extension TerrainSystem {
             
             let (_, tile) = item
             
-            result.append(contentsOf: render(tile: tile))
+            let stencil = tile.triangle.stencil(.tile)
+            
+            result.append(contentsOf: render(tile: tile,
+                                             stencil: stencil))
         }
 
         guard !polygons.isEmpty else { return false }
@@ -54,24 +62,6 @@ extension TerrainSystem {
         chunk.isDirty = false
         
         return true
-    }
-    
-    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>) -> [Euclid.Polygon] {
-        
-        let stencil = tile.triangle.stencil(.tile)
-        
-        guard let biome = tile.uniformBiome,
-              let elevation = tile.uniformElevation else {
-            
-            return render(tile: tile,
-                          stencil: stencil)
-        }
-        
-        return render(tile: tile,
-                      stencil: stencil,
-                      kite: .uniform,
-                      biome: biome,
-                      elevation: elevation)
     }
     
     private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
@@ -89,6 +79,7 @@ extension TerrainSystem {
             let rotation = Rotation.yaw(angle)
             
             let polygons = render(tile: tile,
+                                  vertex: vertex.value.vertex,
                                   stencil: stencil,
                                   kite: kite,
                                   biome: vertex.value.biome,
@@ -99,14 +90,20 @@ extension TerrainSystem {
     }
     
     private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
+                        vertex: Triangle.Vertex,
                         stencil: Triangle.Stencil,
                         kite: Triangle.Kite,
                         biome: Biome,
                         elevation: Int) -> [Euclid.Polygon] {
         
-        let apexElevation = Vector(0.0, (Double(elevation) * Constant.baseHeight) + Constant.apexHeight, 0.0)
+        let identifier = tile.triangle.vertex.position.identifier % vertex.position.identifier
+        let apexColor = biome.terrain.color(for: identifier,
+                                            [.primary,
+                                             .secondary])
+        
+        let apexElevation = Vector(0.0, Self.unitHeight(for: elevation), 0.0)
         let vertices = kite.vertices.map { stencil.vertex($0) + apexElevation }
-        let apexPath = vertices.path(biome.colorPalette.primary)
+        let apexPath = vertices.path(apexColor)
         let tileBase = tile.base
         
         guard let apex = Polygon(shape: apexPath) else { return [] }
@@ -131,8 +128,8 @@ extension TerrainSystem {
             let v4 = v0 + apexElevation
             let v5 = v1 + apexElevation
             
-            let crownPath = [v5, v4, v2, v3].path(biome.colorPalette.primary)
-            let mantlePath = [v3, v2, v0 + mantleElevation, v1 + mantleElevation].path(biome.colorPalette.secondary)
+            let crownPath = [v5, v4, v2, v3].path(apexColor)
+            let mantlePath = [v3, v2, v0 + mantleElevation, v1 + mantleElevation].path(biome.terrain.color(for: .tertiary))
             
             guard let crown = Polygon(shape: crownPath),
                   let mantle = Polygon(shape: mantlePath) else { continue }
