@@ -7,8 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Terrain: DataStore<TerrainChunk,
-                                  BiomeVertex> {
+internal class Terrain: HexagonalDataStore<TerrainChunk, TerrainVertex> {
     
     required internal init() {
         

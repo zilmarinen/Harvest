@@ -7,9 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Water: TriangularGridDataSource<WaterRegion,
-                                               WaterChunk,
-                                               WaterTile> {
+internal class Water: TriangularDataStore<WaterChunk, WaterTile> {
     
     required internal init() {
         

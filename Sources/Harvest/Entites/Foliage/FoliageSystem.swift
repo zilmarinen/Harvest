@@ -20,30 +20,16 @@ internal struct FoliageSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let foliage = context.scene.find(entity: .foliage) as? Foliage else { return }
         
-        var emptyRegions: [FoliageRegion] = []
-        
-        for region in foliage.dirtyRegions {
+        foliage.clean { dataSource, chunk in
             
-            for chunk in region.dirtyChunks {
-                
-                update(chunk: chunk,
-                       terrain: terrain)
-                
-                if chunk.isEmpty {
-                    
-                    chunk.removeFromParent()
-                }
-            }
+            let terrainSlice = terrain.slice(for: chunk.triangle,
+                                             .chunk)
             
-            if region.isEmpty {
-                
-                emptyRegions.append(region)
-            }
-        }
-        
-        emptyRegions.forEach {
+            guard !terrainSlice.isEmpty else { return false }
             
-            $0.removeFromParent()
+            return update(chunk: chunk,
+                          dataSource: dataSource,
+                          terrainSlice: terrainSlice)
         }
     }
 }
@@ -51,48 +37,47 @@ internal struct FoliageSystem: System {
 extension FoliageSystem {
     
     private func update(chunk: FoliageChunk,
-                        terrain: Terrain) {
+                        dataSource: TriangularChunkDataSource<Triangle>,
+                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = dataSource.data.reduce(into: [Euclid.Polygon]()) { result, item in
             
             let (triangle, _) = item
-            let biome = terrain.tile(for: triangle)
             
-            guard let elevation = biome.uniformElevation else {
+            guard let terrainTile = terrainSlice.tiles[triangle],
+                  let elevation = terrainTile.uniformElevation else {
                 
                 invalidTiles.append(triangle)
                 
                 return
             }
             
-            result.append(contentsOf: render(biome: biome,
+            result.append(contentsOf: render(terrainTile: terrainTile,
                                              elevation: elevation))
         }
         
-        invalidTiles.forEach {
-            
-            chunk.set(nil,
-                      for: $0)
-        }
+        dataSource.remove(values: invalidTiles)
         
-        guard !polygons.isEmpty else { return }
+        guard !polygons.isEmpty else { return false }
         
         let mesh = Mesh(polygons)
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false
+        
+        return !dataSource.isEmpty
     }
     
-    private func render(biome: HexagonalGridDataSourceTile<BiomeVertex>,
+    private func render(terrainTile: HexagonalGridDataSourceTile<TerrainVertex>,
                         elevation: Int) -> [Euclid.Polygon] {
         
-        guard let uniform = biome.vertices.first?.value.biome else { return [] }
+        guard let uniform = terrainTile.vertices.first?.value.biome else { return [] }
         
         let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
-        let origin = biome.triangle.position(.tile)
-        let angle = Angle(radians: biome.triangle.rotation)
+        let origin = terrainTile.triangle.position(.tile)
+        let angle = Angle(radians: terrainTile.triangle.rotation)
         let rotation = Rotation.yaw(angle)
         
         let mesh = Mesh.foliage(.antlia,

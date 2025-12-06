@@ -21,43 +21,45 @@ internal struct FootpathSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let footpaths = context.scene.find(entity: .footpaths) as? Footpaths else { return }
         
-        var emptyRegions: [TriangularRegion<FootpathChunk>] = []
-        
-        for region in footpaths.dirtyRegions {
-            
-            var emptyChunks: [FootpathChunk] = []
-            
-            for chunk in region.dirtyChunks {
-                
-                let slice = footpaths.dataSource.slice(for: chunk.triangle)
-                
-                guard !slice.vertices.isEmpty else {
-                    
-                    emptyChunks.append(chunk)
-                    
-                    continue
-                }
-                
-                update(chunk: chunk,
-                       footpathSlice: slice,
-                       biomeSlice: terrain.slice(for: chunk.triangle))
-            }
-            
-            emptyChunks.forEach {
-                
-                $0.removeFromParent()
-            }
-            
-            if region.isEmpty {
-                
-                emptyRegions.append(region)
-            }
-        }
-        
-        emptyRegions.forEach {
-            
-            $0.removeFromParent()
-        }
+//        var emptyRegions: [TriangularRegion<FootpathChunk>] = []
+//        
+//        for region in footpaths.dirtyRegions {
+//            
+//            var emptyChunks: [FootpathChunk] = []
+//            
+//            for chunk in region.dirtyChunks {
+//                
+//                let slice = footpaths.dataSource.slice(for: chunk.triangle,
+//                                                       .chunk)
+//                
+//                guard !slice.vertices.isEmpty else {
+//                    
+//                    emptyChunks.append(chunk)
+//                    
+//                    continue
+//                }
+//                
+//                update(chunk: chunk,
+//                       footpathSlice: slice,
+//                       biomeSlice: terrain.slice(for: chunk.triangle,
+//                                                 .chunk))
+//            }
+//            
+//            emptyChunks.forEach {
+//                
+//                $0.removeFromParent()
+//            }
+//            
+//            if region.isEmpty {
+//                
+//                emptyRegions.append(region)
+//            }
+//        }
+//        
+//        emptyRegions.forEach {
+//            
+//            $0.removeFromParent()
+//        }
     }
 }
 
@@ -65,7 +67,7 @@ extension FootpathSystem {
     
     private func update(chunk: FootpathChunk,
                         footpathSlice: HexagonalGridDataSourceSlice<FootpathType>,
-                        biomeSlice: HexagonalGridDataSourceSlice<BiomeVertex>) {
+                        biomeSlice: HexagonalGridDataSourceSlice<TerrainVertex>) {
         
         var mesh = Mesh.empty
         

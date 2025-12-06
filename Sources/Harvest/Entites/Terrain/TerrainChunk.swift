@@ -36,21 +36,21 @@ internal class TerrainChunk: TriangularChunk,
         
         try super.init(from: decoder)
         
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        
-//        self.mesh = try container.decode(Mesh.self,
-//                                         forKey: .mesh)
-//        
-//        updateModel()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.mesh = try container.decode(Mesh.self,
+                                         forKey: .mesh)
+        
+        updateModel()
     }
     
     internal override func encode(to encoder: any Encoder) throws {
         
         try super.encode(to: encoder)
-//    
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        
-//        try container.encode(mesh,
-//                             forKey: .mesh)
+    
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(mesh,
+                             forKey: .mesh)
     }
 }

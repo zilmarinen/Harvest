@@ -26,42 +26,10 @@ internal struct TerrainSystem: System {
         guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        var emptyRegions: [TriangularRegion<TerrainChunk>] = []
-        
-        for region in terrain.dirtyRegions {
+        terrain.clean { dataSource, chunk in
             
-            var emptyChunks: [TerrainChunk] = []
-            
-            for chunk in region.dirtyChunks {
-                
-                let slice = terrain.slice(for: chunk.triangle)
-                
-                guard !slice.vertices.isEmpty else {
-                    
-                    emptyChunks.append(chunk)
-                    
-                    continue
-                }
-                
-                update(chunk: chunk,
-                       slice: slice,
-                       stairs: stairs)
-            }
-            
-            emptyChunks.forEach {
-                
-                $0.removeFromParent()
-            }
-            
-            if region.isEmpty {
-                
-                emptyRegions.append(region)
-            }
-        }
-        
-        emptyRegions.forEach {
-            
-            $0.removeFromParent()
+            update(chunk: chunk,
+                   dataSource: dataSource)
         }
     }
 }
@@ -69,28 +37,26 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: HexagonalGridDataSourceSlice<BiomeVertex>,
-                        stairs: Stairs) {
+                        dataSource: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
-        let stairChunk = stairs.chunk(for: chunk.triangle,
-                                         .chunk)
-        
-        let polygons = slice.tiles.flatMap {
+        let polygons = dataSource.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
-            render(tile: $1,
-                   stairChunk: stairChunk)
+            let (_, tile) = item
+            
+            result.append(contentsOf: render(tile: tile))
         }
-        
-        guard !polygons.isEmpty else { return }
+
+        guard !polygons.isEmpty else { return false }
         
         let mesh = Mesh(polygons)
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false
+        
+        return true
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>,
-                        stairChunk: StairChunk?) -> [Euclid.Polygon] {
+    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>) -> [Euclid.Polygon] {
         
         let stencil = tile.triangle.stencil(.tile)
         
@@ -108,7 +74,7 @@ extension TerrainSystem {
                       elevation: elevation)
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>,
+    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
                         stencil: Triangle.Stencil) -> [Euclid.Polygon] {
         
         let origin = tile.triangle.position(.tile)
@@ -132,7 +98,7 @@ extension TerrainSystem {
         }
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<BiomeVertex>,
+    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
                         stencil: Triangle.Stencil,
                         kite: Triangle.Kite,
                         biome: Biome,

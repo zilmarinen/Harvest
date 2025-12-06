@@ -19,32 +19,32 @@ internal struct WaterSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        var emptyRegions: [WaterRegion] = []
-        
-        for region in water.dirtyRegions {
-            
-            for chunk in region.dirtyChunks {
-            
-                update(chunk: chunk,
-                       terrain: terrain,
-                       water: water)
-            
-                if chunk.isEmpty {
-                    
-                    chunk.removeFromParent()
-                }
-            }
-            
-            if region.isEmpty {
-                
-                emptyRegions.append(region)
-            }
-        }
-        
-        emptyRegions.forEach {
-            
-            $0.removeFromParent()
-        }
+//        var emptyRegions: [TriangularRegion<WaterChunk>] = []
+//        
+//        for region in water.dirtyRegions {
+//            
+//            for chunk in region.dirtyChunks {
+//            
+//                update(chunk: chunk,
+//                       terrain: terrain,
+//                       water: water)
+//            
+//                if chunk.isEmpty {
+//                    
+//                    chunk.removeFromParent()
+//                }
+//            }
+//            
+//            if region.isEmpty {
+//                
+//                emptyRegions.append(region)
+//            }
+//        }
+//        
+//        emptyRegions.forEach {
+//            
+//            $0.removeFromParent()
+//        }
     }
 }
 
@@ -56,7 +56,7 @@ extension WaterSystem {
         
         var invalidTiles: [Triangle] = []
         
-        let polygons = chunk.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = chunk.data.reduce(into: [Euclid.Polygon]()) { result, item in
             
             let (triangle, tile) = item
             let biome = terrain.tile(for: triangle)

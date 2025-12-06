@@ -7,7 +7,7 @@
 import Deltille
 
 public struct WaterTile: Codable,
-                           Hashable {
+                         Hashable {
     
     public let triangle: Triangle
     

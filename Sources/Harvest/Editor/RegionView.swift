@@ -35,13 +35,11 @@ public class RegionView: EditorView {
         
         super.registerComponents()
         
-        TileDataSource<Stoop>.registerComponent()
-        TileDataSource<Triangle>.registerComponent()
-        TileDataSource<Triangle.Septomino>.registerComponent()
-        TileDataSource<WaterTile>.registerComponent()
-        VertexDataSource<BiomeVertex>.registerComponent()
-        VertexDataSource<FootpathType>.registerComponent()
-        VertexDataSource<Triangle.Vertex>.registerComponent()
+        DataSource<Triangle, Stoop>.registerComponent()
+        DataSource<Triangle, Triangle.Septomino>.registerComponent()
+        DataSource<Triangle, WaterTile>.registerComponent()
+        DataSource<Triangle.Vertex, TerrainVertex>.registerComponent()
+        DataSource<Triangle.Vertex, FootpathType>.registerComponent()
     }
     
     public override func registerSystems() {
@@ -70,11 +68,16 @@ extension RegionView {
     
     private func load(region: Region) {
         
-        if let slice = region.terrain { terrain.merge(slice: slice) }
+        if let slice = region.terrain {
+            
+            slice.grid?.name = region.identifier
+            
+            terrain.merge(slice)
+        }
         
         if let slice = region.edifices { edifices.merge(slice) }
         if let slice = region.foliage { foliage.merge(slice) }
-        if let slice = region.footpaths { footpaths.merge(slice: slice) }
+        if let slice = region.footpaths { footpaths.merge(slice) }
         if let slice = region.stairs { stairs.merge(slice) }
         if let slice = region.water { water.merge(slice) }
     }
@@ -96,18 +99,17 @@ extension RegionView {
     
     private func save(region triangle: Triangle) -> Region? {
         
-        .init(triangle: triangle,
-              identifier: world.name,
-              edifices: edifices.region(for: triangle,
-                                        .region),
-              foliage: foliage.region(for: triangle,
-                                      .region),
-              footpaths: footpaths.slice(region: triangle),
-              stairs: stairs.region(for: triangle,
-                                    .region),
-              terrain: terrain.slice(region: triangle),
-              water: water.region(for: triangle,
-                                  .region))
+        let terrain = terrain.slice(region: triangle)
+        
+        return .init(triangle: triangle,
+                     identifier: terrain?.grid?.name ?? triangle.id,
+                     edifices: edifices.region(for: triangle,
+                                               .region),
+                     foliage: foliage.slice(region: triangle),
+                     footpaths: footpaths.slice(region: triangle),
+                     stairs: stairs.slice(region: triangle),
+                     terrain: terrain,
+                     water: water.slice(region: triangle))
     }
 }
 
@@ -153,7 +155,12 @@ extension RegionView {
     public func set(_ stoop: Stoop,
                     for triangle: Triangle) {
         
-        stairs.set(stoop,
+        let footprint = Triangle.Footprint(triangle, stoop.footprint.tiles)
+        
+        let tile = StairTile(footprint: stoop.footprint,
+                             stoop: stoop)
+        
+        stairs.set(tile,
                    for: triangle)
         
         triangle.vertices.forEach {
@@ -178,7 +185,7 @@ extension RegionView {
 
 extension RegionView {
     
-    public func get(biome vertex: Triangle.Vertex) -> BiomeVertex? {
+    public func get(biome vertex: Triangle.Vertex) -> TerrainVertex? {
         
         terrain.value(for: vertex)
     }

@@ -7,8 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Footpaths: DataStore<FootpathChunk,
-                                    FootpathType> {
+internal class Footpaths: HexagonalDataStore<FootpathChunk, FootpathType> {
     
     required internal init() {
         

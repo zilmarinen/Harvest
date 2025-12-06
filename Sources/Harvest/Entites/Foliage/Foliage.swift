@@ -7,9 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Foliage: TriangularGridDataSource<FoliageRegion,
-                                                 FoliageChunk,
-                                                 Triangle> {
+internal class Foliage: TriangularDataStore<FoliageChunk, Triangle> {
     
     required internal init() {
         

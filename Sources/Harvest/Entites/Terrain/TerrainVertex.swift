@@ -1,13 +1,13 @@
 //
-//  BiomeVertex.swift
+//  TerrainVertex.swift
 //
 //  Created by Zack Brown on 17/10/2025.
 //
 
 import Deltille
 
-public struct BiomeVertex: Codable,
-                           Hashable {
+public struct TerrainVertex: Codable,
+                             Hashable {
     
     public let vertex: Triangle.Vertex
     
@@ -15,7 +15,7 @@ public struct BiomeVertex: Codable,
     public let elevation: Int
 }
 
-extension HexagonalGridDataSourceTile where V == BiomeVertex {
+extension HexagonalGridDataSourceTile where V == TerrainVertex {
     
     internal var isUniform: Bool {
         
@@ -72,7 +72,7 @@ extension HexagonalGridDataSourceTile where V == BiomeVertex {
     }
 }
 
-extension HexagonalGridDataSourceTile where V == BiomeVertex {
+extension HexagonalGridDataSourceTile where V == TerrainVertex {
     
     internal func biome(for vertex: Triangle.Vertex) -> V? {
         

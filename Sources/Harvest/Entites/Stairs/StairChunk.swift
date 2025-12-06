@@ -9,7 +9,7 @@ import Euclid
 import Newel
 import RealityKit
 
-internal class StairChunk: TriangularChunkDataSource<Stoop>,
+internal class StairChunk: TriangularChunk,
                            HasMesh {
     
     internal var mesh: Mesh? {
