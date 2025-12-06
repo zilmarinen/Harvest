@@ -24,11 +24,13 @@ extension WaterType {
         
         switch self {
             
-        case .ocean: .init("CBDCEB",
-                           "6D94C5")
+        case .ocean: .init(.tundraPrimary,
+                           .tundraSecondary,
+                           .tundraTertiary)
             
-        case .river: .init("48B3AF",
-                           "A7E399")
+        case .river: .init(.tundraPrimary,
+                           .tundraSecondary,
+                           .tundraTertiary)
         }
     }
 }

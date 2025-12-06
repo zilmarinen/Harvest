@@ -69,9 +69,15 @@ extension WaterSystem {
     private func render(tile: WaterTile,
                         dataSource: TriangularChunkDataSource<WaterTile>) -> [Euclid.Polygon] {
         
+        let identifier = tile.triangle.vertex.position.identifier
+        let apexColor = tile.waterType.colorPalette.color(for: identifier,
+                                                          [.primary,
+                                                           .secondary,
+                                                           .tertiary])
+        
         let apexElevation = Vector(0.0, (Double(tile.elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
         let vertices = tile.triangle.vertices.map { $0.position(.tile) + apexElevation }
-        let apexPath = vertices.path(tile.waterType.colorPalette.primary)
+        let apexPath = vertices.path(apexColor)
         
         guard let apex = Polygon(shape: apexPath) else { return [] }
         
@@ -94,7 +100,7 @@ extension WaterSystem {
             let face =  corners.reversed().map { $0 + mantleElevation } +
                         corners.map { $0 + apexElevation }
 
-            let path = face.path(tile.waterType.colorPalette.secondary)
+            let path = face.path(tile.waterType.colorPalette.quaternary)
 
             guard let polygon = Polygon(shape: path) else { continue }
 
