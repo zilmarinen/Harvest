@@ -19,76 +19,55 @@ internal struct WaterSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-//        var emptyRegions: [TriangularRegion<WaterChunk>] = []
-//        
-//        for region in water.dirtyRegions {
-//            
-//            for chunk in region.dirtyChunks {
-//            
-//                update(chunk: chunk,
-//                       terrain: terrain,
-//                       water: water)
-//            
-//                if chunk.isEmpty {
-//                    
-//                    chunk.removeFromParent()
-//                }
-//            }
-//            
-//            if region.isEmpty {
-//                
-//                emptyRegions.append(region)
-//            }
-//        }
-//        
-//        emptyRegions.forEach {
-//            
-//            $0.removeFromParent()
-//        }
+        water.clean { dataSource, chunk in
+            
+            let terrainSlice = terrain.slice(for: chunk.triangle,
+                                             .chunk)
+            
+            return update(chunk: chunk,
+                          dataSource: dataSource,
+                          terrainSlice: terrainSlice)
+        }
     }
 }
 
 extension WaterSystem {
     
     private func update(chunk: WaterChunk,
-                        terrain: Terrain,
-                        water: Water) {
+                        dataSource: TriangularChunkDataSource<WaterTile>,
+                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>?) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let polygons = chunk.data.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = dataSource.data.reduce(into: [Euclid.Polygon]()) { result, item in
             
-            let (triangle, tile) = item
-            let biome = terrain.tile(for: triangle)
+            let (triangle, waterTile) = item
             
-            guard !biome.hasThreeVertices ||
-                  biome.base > tile.elevation else {
+            guard terrainSlice?.tiles[triangle]?.base ?? 0 < waterTile.elevation else {
                 
                 invalidTiles.append(triangle)
                 
                 return
             }
             
-            result.append(contentsOf: render(tile: tile,
-                                             water: water))
+            result.append(contentsOf: render(tile: waterTile,
+                                             dataSource: dataSource))
         }
         
-        invalidTiles.forEach {
-            
-            chunk.set(nil,
-                      for: $0)
-        }
+        dataSource.remove(values: invalidTiles)
         
-        guard !polygons.isEmpty else { return }
+        guard !polygons.isEmpty else { return false }
         
         let mesh = Mesh(polygons)
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         chunk.isDirty = false
+        
+        return !dataSource.isEmpty
     }
     
     private func render(tile: WaterTile,
-                        water: Water) -> [Euclid.Polygon] {
+                        dataSource: TriangularChunkDataSource<WaterTile>) -> [Euclid.Polygon] {
         
         let apexElevation = Vector(0.0, (Double(tile.elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
         let vertices = tile.triangle.vertices.map { $0.position(.tile) + apexElevation }
@@ -101,9 +80,8 @@ extension WaterSystem {
         for edge in tile.triangle.edges {
          
             let adjacent = tile.triangle.neighbour(edge)
-
-            let elevation = water.value(for: adjacent)?.elevation ?? 0
-
+            let elevation = dataSource.value(for: adjacent)?.elevation ?? 0
+            
             guard tile.elevation > elevation else { continue }
             
             let mantleElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)

@@ -89,7 +89,7 @@ extension TriangularGrid {
     
     internal func propagate(triangle: Triangle,
                             _ scale: Triangle.Scale = .tile) {
-     
+        
         let region = region(for: triangle) ?? .init(triangle.transpose(scale,
                                                                        .region))
         

@@ -63,12 +63,16 @@ extension TriangularDataStore {
                     
                     continue
                 }
+                
+                chunk.isDirty = false
             }
             
             emptyChunks.forEach {
                 
                 $0.removeFromParent()
             }
+            
+            region.isDirty = false
             
             guard region.isEmpty else { continue }
             

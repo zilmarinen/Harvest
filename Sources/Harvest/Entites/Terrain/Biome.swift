@@ -34,31 +34,38 @@ extension Biome {
             
         case .boreal: .init(.borealPrimary,
                             .borealSecondary,
-                            .borealTertiary)
+                            .borealTertiary,
+                            .borealQuaternary)
             
         case .chaparral: .init(.chaparralPrimary,
                                .chaparralSecondary,
-                               .chaparralTertiary)
+                               .chaparralTertiary,
+                               .chaparralQuaternary)
             
         case .deciduous: .init(.deciduousPrimary,
                                .deciduousSecondary,
-                               .deciduousTertiary)
+                               .deciduousTertiary,
+                               .deciduousQuaternary)
             
         case .prairie: .init(.prairiePrimary,
                              .prairieSecondary,
-                             .prairieTertiary)
+                             .prairieTertiary,
+                             .prairieQuaternary)
           
         case .rainforest: .init(.rainforestPrimary,
                                 .rainforestSecondary,
-                                .rainforestTertiary)
+                                .rainforestTertiary,
+                                .rainforestQuaternary)
              
         case .scrubland: .init(.scrublandPrimary,
                                .scrublandSecondary,
-                               .scrublandTertiary)
+                               .scrublandTertiary,
+                               .scrublandQuaternary)
             
         case .tundra: .init(.tundraPrimary,
                             .tundraSecondary,
-                            .tundraTertiary)
+                            .tundraTertiary,
+                            .tundraQuaternary)
         }
     }
     

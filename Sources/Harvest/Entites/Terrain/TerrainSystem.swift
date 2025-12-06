@@ -31,10 +31,10 @@ internal struct TerrainSystem: System {
         guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        terrain.clean { dataSource, chunk in
+        terrain.clean { slice, chunk in
             
             update(chunk: chunk,
-                   dataSource: dataSource)
+                   slice: slice)
         }
     }
 }
@@ -42,9 +42,9 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        dataSource: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
-        let polygons = dataSource.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
             let (_, tile) = item
             
@@ -53,7 +53,7 @@ extension TerrainSystem {
             result.append(contentsOf: render(tile: tile,
                                              stencil: stencil))
         }
-
+        
         guard !polygons.isEmpty else { return false }
         
         let mesh = Mesh(polygons)
@@ -99,7 +99,8 @@ extension TerrainSystem {
         let identifier = tile.triangle.vertex.position.identifier % vertex.position.identifier
         let apexColor = biome.terrain.color(for: identifier,
                                             [.primary,
-                                             .secondary])
+                                             .secondary,
+                                             .tertiary])
         
         let apexElevation = Vector(0.0, Self.unitHeight(for: elevation), 0.0)
         let vertices = kite.vertices.map { stencil.vertex($0) + apexElevation }
@@ -129,7 +130,7 @@ extension TerrainSystem {
             let v5 = v1 + apexElevation
             
             let crownPath = [v5, v4, v2, v3].path(apexColor)
-            let mantlePath = [v3, v2, v0 + mantleElevation, v1 + mantleElevation].path(biome.terrain.color(for: .tertiary))
+            let mantlePath = [v3, v2, v0 + mantleElevation, v1 + mantleElevation].path(biome.terrain.color(for: .quaternary))
             
             guard let crown = Polygon(shape: crownPath),
                   let mantle = Polygon(shape: mantlePath) else { continue }

@@ -73,9 +73,7 @@ extension HexagonalGridDataSource {
         
         let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
             
-            guard let value = value(for: vertex) else { return }
-            
-            result[vertex] = value
+            result[vertex] = value(for: vertex)
         }
         
         return .init(sieve: sieve,

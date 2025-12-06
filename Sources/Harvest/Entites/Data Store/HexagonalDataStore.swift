@@ -34,7 +34,7 @@ internal class HexagonalDataStore<C: TriangularChunk,
 
 extension HexagonalDataStore {
     
-    internal typealias Cleaner = ((_ dataSource: HexagonalGridDataSourceSlice<V>, _ chunk: C) -> Bool)
+    internal typealias Cleaner = ((_ slice: HexagonalGridDataSourceSlice<V>, _ chunk: C) -> Bool)
     
     internal func clean(_ cleaner: Cleaner) {
         
@@ -46,23 +46,27 @@ extension HexagonalDataStore {
             
             for chunk in region.dirtyChunks {
                 
-                let data = dataSource.slice(for: chunk.triangle,
-                                                  .chunk)
+                let slice = dataSource.slice(for: chunk.triangle,
+                                             .chunk)
                 
-                guard !data.isEmpty,
-                      cleaner(data,
+                guard !slice.isEmpty,
+                      cleaner(slice,
                               chunk) else {
                     
                     emptyChunks.append(chunk)
                     
                     continue
                 }
+                
+                chunk.isDirty = false
             }
             
             emptyChunks.forEach {
                 
                 $0.removeFromParent()
             }
+            
+            region.isDirty = false
             
             guard region.isEmpty else { continue }
             

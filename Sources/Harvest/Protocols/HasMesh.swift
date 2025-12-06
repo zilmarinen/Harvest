@@ -21,7 +21,6 @@ extension HasMesh {
         guard let mesh,
               let material else { return }
         
-        
         let resource = MeshResource(mesh: mesh)
         
         self.model = .init(mesh: resource,

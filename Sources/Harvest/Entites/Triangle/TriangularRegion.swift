@@ -116,11 +116,12 @@ extension TriangularRegion {
     internal func propagate(vertex: Triangle.Vertex) {
         
         let triangles = vertex.tiles.unique(.tile,
-                                            .region)
+                                            .chunk)
         
         for triangle in triangles {
             
-            propagate(triangle: triangle)
+            propagate(triangle: triangle,
+                      .chunk)
         }
     }
 }
