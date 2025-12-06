@@ -1,5 +1,5 @@
 //
-//  DataSourceSlice.swift
+//  HexagonalDataSourceSlice.swift
 //
 //  Created by Zack Brown on 29/11/2025.
 //
@@ -7,45 +7,45 @@
 import Deltille
 
 @MainActor
-internal class DataSourceSlice<C: TriangularChunk,
-                               V: Codable>: Codable,
-                                            @preconcurrency Equatable,
-                                            @preconcurrency Hashable  {
+internal class HexagonalDataSourceSlice<C: TriangularChunk,
+                                        V: Codable>: Codable,
+                                                     @preconcurrency Equatable,
+                                                     @preconcurrency Hashable  {
     
-    internal let region: TriangularRegion<C>?
-    internal let chunks: [HexagonalChunkDataSource<V>]
+    internal let dataSource: [HexagonalChunkDataSource<V>]
+    internal let grid: TriangularRegion<C>?
     
-    internal init(region: TriangularRegion<C>?,
-                  chunks: [HexagonalChunkDataSource<V>]) {
+    internal init(dataSource: [HexagonalChunkDataSource<V>],
+                  grid: TriangularRegion<C>?) {
         
-        self.region = region
-        self.chunks = chunks
+        self.dataSource = dataSource
+        self.grid = grid
     }
     
     public func hash(into hasher: inout Hasher) {
         
-        hasher.combine(region?.triangle)
+        hasher.combine(grid?.triangle)
     }
     
-    public static func == (lhs: DataSourceSlice,
-                           rhs: DataSourceSlice) -> Bool {
+    public static func == (lhs: HexagonalDataSourceSlice,
+                           rhs: HexagonalDataSourceSlice) -> Bool {
         
-        lhs.region?.triangle == rhs.region?.triangle
+        lhs.grid?.triangle == rhs.grid?.triangle
     }
 }
 
-extension DataSourceSlice {
+extension HexagonalDataSourceSlice {
     
     internal var isEmpty: Bool {
         
-        region == nil || chunks.isEmpty
+        dataSource.isEmpty || grid == nil
     }
 }
 
 // MARK: Terrain
 
-extension DataSourceSlice where C == TerrainChunk,
-                                V == BiomeVertex {
+extension HexagonalDataSourceSlice where C == TerrainChunk,
+                                         V == TerrainVertex {
     
     internal convenience init(empty triangle: Triangle) {
         
@@ -75,7 +75,7 @@ extension DataSourceSlice where C == TerrainChunk,
             }
         }
         
-        self.init(region: region,
-                  chunks: chunks)
+        self.init(dataSource: chunks,
+                  grid: region)
     }
 }

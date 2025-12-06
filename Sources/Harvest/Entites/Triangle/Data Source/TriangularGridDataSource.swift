@@ -7,31 +7,46 @@
 import Deltille
 import RealityKit
 
-public class TriangularGridDataSource<R: TriangularRegionDataSource<C, T>,
-                                      C: TriangularChunkDataSource<T>,
-                                      T: Codable>: TriangularGrid<R, C> {}
-
-extension TriangularGridDataSource {
+public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
+                                      C: TriangularChunkDataSource<V>,
+                                      V: Codable>: TriangularGrid<R, C> {
     
-    internal func value(for tile: Triangle) -> T? {
+    internal func merge(_ chunks: [C]) {
         
-        guard let region = region(for: tile) else { return nil }
-        
-        return region.value(for: tile)
+        chunks.forEach {
+            
+            let region = region(for: $0.triangle,
+                                .chunk) ?? R($0.triangle.transpose(.tile,
+                                                                   .chunk))
+            
+            if region.parent == nil {
+                
+                addChild(region)
+            }
+            
+            region.merge($0)
+        }
     }
     
-    internal func set(_ value: T?,
-                      for tile: Triangle) {
+    internal func value(for key: Triangle) -> V? {
         
-        let region = region(for: tile) ?? R(tile.transpose(.tile,
-                                                           .region))
+        guard let region = region(for: key) else { return nil }
+        
+        return region.value(for: key)
+    }
+    
+    internal func set(_ value: V?,
+                      for key: Triangle) {
+        
+        let region = region(for: key) ?? R(key.transpose(.tile,
+                                                         .region))
         if region.parent == nil {
             
             addChild(region)
         }
         
         region.set(value,
-                   for: tile)
+                   for: key)
         
         guard region.isEmpty else { return }
         

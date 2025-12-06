@@ -7,30 +7,38 @@
 import Deltille
 import RealityKit
 
-public class TriangularRegionDataSource<C: TriangularChunkDataSource<T>,
-                                        T: Codable>: TriangularRegion<C> {}
-
-extension TriangularRegionDataSource {
+public class TriangularRegionDataSource<C: TriangularChunkDataSource<V>,
+                                        V: Codable>: TriangularRegion<C> {
     
-    internal func value(for tile: Triangle) -> T? {
+    internal func merge(_ chunk: C) {
         
-        guard let chunk = chunk(for: tile) else { return nil }
+        guard let existing = self.chunk(for: chunk.triangle) else {
+            
+            return addChild(chunk)
+        }
         
-        return chunk.value(for: tile)
+        existing.merge(chunk.dataSource)
     }
     
-    internal func set(_ value: T?,
-                      for tile: Triangle) {
+    internal func value(for key: Triangle) -> V? {
         
-        let chunk = chunk(for: tile) ?? .init(tile.transpose(.tile,
-                                                             .chunk))
+        guard let chunk = chunk(for: key) else { return nil }
+        
+        return chunk.value(for: key)
+    }
+    
+    internal func set(_ value: V?,
+                      for key: Triangle) {
+        
+        let chunk = chunk(for: key) ?? .init(key.transpose(.tile,
+                                                           .chunk))
         if chunk.parent == nil {
             
             addChild(chunk)
         }
         
         chunk.set(value,
-                  for: tile)
+                  for: key)
         
         becomeDirty()
         

@@ -30,20 +30,20 @@ internal class HexagonalGridDataSource<V: Codable>: HexagonalGrid<HexagonalRegio
         }
     }
     
-    internal func value(for vertex: Triangle.Vertex) -> V? {
+    internal func value(for key: Triangle.Vertex) -> V? {
         
-        let hexagon = Hexagon(vertex.position(.tile),
+        let hexagon = Hexagon(key.position(.tile),
                               .chunk)
         
         guard let region = region(for: hexagon.parent()) else { return nil }
         
-        return region.value(for: vertex)
+        return region.value(for: key)
     }
     
     internal func set(_ value: V?,
-                      for vertex: Triangle.Vertex) {
+                      for key: Triangle.Vertex) {
         
-        let hexagon = Hexagon(vertex.position(.tile),
+        let hexagon = Hexagon(key.position(.tile),
                               .chunk)
         
         let parent = hexagon.parent()
@@ -56,7 +56,7 @@ internal class HexagonalGridDataSource<V: Codable>: HexagonalGrid<HexagonalRegio
         }
         
         region.set(value,
-                   for: vertex)
+                   for: key)
         
         guard region.isEmpty else { return }
         
@@ -66,9 +66,10 @@ internal class HexagonalGridDataSource<V: Codable>: HexagonalGrid<HexagonalRegio
 
 extension HexagonalGridDataSource {
     
-    internal func slice(for chunk: Triangle) -> HexagonalGridDataSourceSlice<V> {
+    internal func slice(for triangle: Triangle,
+                        _ scale: Triangle.Scale = .region) -> HexagonalGridDataSourceSlice<V> {
         
-        let sieve = chunk.sieve(for: .chunk)
+        let sieve = triangle.sieve(for: scale)
         
         let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
             

@@ -75,19 +75,37 @@ extension TriangularGrid {
                             scale)
     }
     
+    internal func chunks(intersecting triangle: Triangle,
+                         _ scale: Triangle.Scale = .region) -> [C] {
+        
+        let match = triangle.transpose(scale,
+                                       .region)
+        
+        return regions.flatMap {
+         
+            $0.chunks(intersecting: match)
+        }
+    }
+    
+    internal func propagate(triangle: Triangle,
+                            _ scale: Triangle.Scale = .tile) {
+     
+        let region = region(for: triangle) ?? .init(triangle.transpose(scale,
+                                                                       .region))
+        
+        if region.parent == nil {
+            
+            addChild(region)
+        }
+        
+        region.propagate(triangle: triangle)
+    }
+    
     internal func propagate(vertex: Triangle.Vertex) {
         
         for triangle in vertex.tiles {
             
-            let region = region(for: triangle) ?? .init(triangle.transpose(.tile,
-                                                                           .region))
-            
-            if region.parent == nil {
-                
-                addChild(region)
-            }
-            
-            region.propagate(vertex: vertex)
+            propagate(triangle: triangle)
         }
     }
 }

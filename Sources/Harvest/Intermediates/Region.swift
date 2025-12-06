@@ -15,11 +15,11 @@ public struct Region: Codable,
     public var identifier: String = ""
     
     internal let edifices: EdificeRegion?
-    internal let foliage: FoliageRegion?
-    internal let footpaths: DataSourceSlice<FootpathChunk, FootpathType>?
-    internal let stairs: StairRegion?
-    internal let terrain: DataSourceSlice<TerrainChunk, BiomeVertex>?
-    internal let water: WaterRegion?
+    internal let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
+    internal let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
+    internal let stairs: TriangularDataSourceSlice<StairChunk, StairTile>?
+    internal let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
+    internal let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
     
     public func hash(into hasher: inout Hasher) {
         

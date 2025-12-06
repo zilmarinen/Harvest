@@ -7,15 +7,15 @@
 import Deltille
 import RealityKit
 
-public class TriangularChunkDataSource<T: Codable>: TriangularChunk,
-                                                    HasTileDataSource {
+public class TriangularChunkDataSource<V: Codable>: TriangularChunk,
+                                                    HasDataSource {
     
     internal enum CodingKeys: CodingKey {
         
         case dataSource
     }
     
-    internal let dataSource: TileDataSource<T>
+    internal let dataSource: DataSource<Triangle, V>
     
     required internal init(_ triangle: Triangle) {
         
@@ -33,7 +33,7 @@ public class TriangularChunkDataSource<T: Codable>: TriangularChunk,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.dataSource = try container.decode(TileDataSource<T>.self,
+        self.dataSource = try container.decode(DataSource<Triangle, V>.self,
                                                forKey: .dataSource)
         
         try super.init(from: decoder)
@@ -54,22 +54,19 @@ public class TriangularChunkDataSource<T: Codable>: TriangularChunk,
 
 extension TriangularChunkDataSource {
     
-    internal func value(for tile: Triangle) -> T? {
+    internal func set(_ value: V?,
+                      for key: K) {
         
-        dataSource.tiles[tile]
-    }
-    
-    internal func set(_ value: T?,
-                      for tile: Triangle) {
-        
-        guard let value else {
+        guard let value,
+              key.transpose(.tile,
+                            .chunk) == triangle else {
             
-            dataSource.tiles.removeValue(forKey: tile)
+            dataSource.data.removeValue(forKey: key)
             
             return becomeDirty()
         }
         
-        dataSource.tiles[tile] = value
+        dataSource.data[key] = value
         
         becomeDirty()
     }

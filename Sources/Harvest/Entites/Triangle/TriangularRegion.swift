@@ -66,7 +66,7 @@ extension TriangularRegion {
         
         chunks.filter {
             
-            ($0 as? HasSoilableComponent)?.isDirty ?? false
+            $0.isDirty
         }
     }
 }
@@ -85,27 +85,42 @@ extension TriangularRegion {
         }
     }
     
+    internal func chunks(intersecting triangle: Triangle,
+                         _ scale: Triangle.Scale = .region) -> [C] {
+        
+        let match = triangle.transpose(scale,
+                                       .chunk)
+     
+        return chunks.filter {
+            
+            $0.triangle == triangle
+        }
+    }
+    
+    internal func propagate(triangle: Triangle,
+                            _ scale: Triangle.Scale = .tile) {
+        
+        let chunk = chunk(for: triangle) ?? .init(triangle.transpose(scale,
+                                                                     .chunk))
+        
+        if chunk.parent == nil {
+            
+            addChild(chunk)
+        }
+        
+        chunk.becomeDirty()
+        
+        becomeDirty()
+    }
+    
     internal func propagate(vertex: Triangle.Vertex) {
         
-        let triangles = Set(vertex.tiles.filter {
-            
-            $0.transpose(.tile,
-                         .region) == triangle
-        })
+        let triangles = vertex.tiles.unique(.tile,
+                                            .region)
         
         for triangle in triangles {
             
-            let chunk = chunk(for: triangle) ?? .init(triangle.transpose(.tile,
-                                                                         .chunk))
-            
-            if chunk.parent == nil {
-                
-                addChild(chunk)
-            }
-            
-            chunk.becomeDirty()
+            propagate(triangle: triangle)
         }
-        
-        becomeDirty()
     }
 }

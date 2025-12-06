@@ -40,3 +40,10 @@ internal struct HexagonalGridDataSourceSlice<V: Codable> {
     }
 }
 
+extension HexagonalGridDataSourceSlice {
+    
+    internal var isEmpty: Bool {
+        
+        tiles.isEmpty || vertices.isEmpty
+    }
+}

@@ -72,14 +72,15 @@ extension HexagonalRegion {
         }
     }
     
-    internal func chunks(intersecting triangle: Triangle) -> [C] {
+    internal func chunks(intersecting triangle: Triangle,
+                         _ scale: Triangle.Scale = .region) -> [C] {
         
         chunks.filter {
             
             for vertex in $0.hexagon.vertices {
                 
                 let other = Triangle(vertex.position(.chunk),
-                                     .region)
+                                     scale)
                 
                 if other == triangle {
                     
@@ -89,7 +90,7 @@ extension HexagonalRegion {
             
             for vertex in triangle.vertices {
                 
-                let other = Hexagon(vertex.position(.region),
+                let other = Hexagon(vertex.position(scale),
                                     .chunk)
                 
                 if other == $0.hexagon {

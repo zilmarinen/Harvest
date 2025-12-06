@@ -14,9 +14,7 @@ public class HexagonalRegionDataSource<C: HexagonalChunkDataSource<V>,
         
         guard let existing = self.chunk(for: chunk.hexagon) else {
         
-            addChild(chunk)
-            
-            return
+            return addChild(chunk)
         }
         
         existing.merge(chunk.dataSource)
@@ -25,20 +23,20 @@ public class HexagonalRegionDataSource<C: HexagonalChunkDataSource<V>,
 
 extension HexagonalRegionDataSource {
     
-    internal func value(for vertex: Triangle.Vertex) -> V? {
+    internal func value(for key: Triangle.Vertex) -> V? {
         
-        let hexagon = Hexagon(vertex.position(.tile),
+        let hexagon = Hexagon(key.position(.tile),
                               .chunk)
         
         guard let chunk = chunk(for: hexagon) else { return nil }
         
-        return chunk.value(for: vertex)
+        return chunk.value(for: key)
     }
     
     internal func set(_ value: V?,
-                      for vertex: Triangle.Vertex) {
+                      for key: Triangle.Vertex) {
         
-        let hexagon = Hexagon(vertex.position(.tile),
+        let hexagon = Hexagon(key.position(.tile),
                               .chunk)
         
         let chunk = chunk(for: hexagon) ?? C(hexagon)
@@ -49,7 +47,7 @@ extension HexagonalRegionDataSource {
         }
         
         chunk.set(value,
-                  for: vertex)
+                  for: key)
         
         guard chunk.isEmpty else { return }
         

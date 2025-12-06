@@ -8,14 +8,14 @@ import Deltille
 import RealityKit
 
 public class HexagonalChunkDataSource<V: Codable>: HexagonalEntity,
-                                                   HasVertexDataSource {
+                                                   HasDataSource {
     
     internal enum CodingKeys: CodingKey {
         
         case dataSource
     }
     
-    internal let dataSource: VertexDataSource<V>
+    internal let dataSource: DataSource<Triangle.Vertex, V>
     
     required internal init(_ hexagon: Hexagon) {
         
@@ -34,7 +34,7 @@ public class HexagonalChunkDataSource<V: Codable>: HexagonalEntity,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.dataSource = try container.decode(VertexDataSource<V>.self,
+        self.dataSource = try container.decode(DataSource<Triangle.Vertex, V>.self,
                                                forKey: .dataSource)
         
         try super.init(from: decoder)
@@ -55,28 +55,18 @@ public class HexagonalChunkDataSource<V: Codable>: HexagonalEntity,
 
 extension HexagonalChunkDataSource {
     
-    internal func value(for vertex: Triangle.Vertex) -> V? {
-        
-        dataSource.vertices[vertex]
-    }
-    
     internal func set(_ value: V?,
-                      for vertex: Triangle.Vertex) {
+                      for key: K) {
         
         guard let value,
-              Hexagon(vertex.position(.tile),
+              Hexagon(key.position(.tile),
                       .chunk) == hexagon else {
             
-            dataSource.vertices.removeValue(forKey: vertex)
+            dataSource.data.removeValue(forKey: key)
             
             return
         }
         
-        dataSource.vertices[vertex] = value
-    }
-    
-    internal func merge(_ other: VertexDataSource<V>) {
-        
-        dataSource.vertices.merge(other.vertices) { (current, _) in current }
+        dataSource.data[key] = value
     }
 }
