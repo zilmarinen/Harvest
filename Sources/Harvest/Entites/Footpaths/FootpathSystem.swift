@@ -18,66 +18,38 @@ internal struct FootpathSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
-              let footpaths = context.scene.find(entity: .footpaths) as? Footpaths else { return }
+        guard let footpaths = context.scene.find(entity: .footpaths) as? Footpaths,
+              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-//        var emptyRegions: [TriangularRegion<FootpathChunk>] = []
-//        
-//        for region in footpaths.dirtyRegions {
-//            
-//            var emptyChunks: [FootpathChunk] = []
-//            
-//            for chunk in region.dirtyChunks {
-//                
-//                let slice = footpaths.dataSource.slice(for: chunk.triangle,
-//                                                       .chunk)
-//                
-//                guard !slice.vertices.isEmpty else {
-//                    
-//                    emptyChunks.append(chunk)
-//                    
-//                    continue
-//                }
-//                
-//                update(chunk: chunk,
-//                       footpathSlice: slice,
-//                       biomeSlice: terrain.slice(for: chunk.triangle,
-//                                                 .chunk))
-//            }
-//            
-//            emptyChunks.forEach {
-//                
-//                $0.removeFromParent()
-//            }
-//            
-//            if region.isEmpty {
-//                
-//                emptyRegions.append(region)
-//            }
-//        }
-//        
-//        emptyRegions.forEach {
-//            
-//            $0.removeFromParent()
-//        }
+        footpaths.clean { slice, chunk in
+            
+            let terrainSlice = terrain.slice(for: chunk.triangle,
+                                             .chunk)
+            
+            guard !terrainSlice.isEmpty else { return false }
+            
+            return update(chunk: chunk,
+                          slice: slice,
+                          terrainSlice: terrainSlice)
+        }
     }
 }
 
 extension FootpathSystem {
     
     private func update(chunk: FootpathChunk,
-                        footpathSlice: HexagonalGridDataSourceSlice<FootpathType>,
-                        biomeSlice: HexagonalGridDataSourceSlice<TerrainVertex>) {
+                        slice: HexagonalGridDataSourceSlice<FootpathType>,
+                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var mesh = Mesh.empty
         
-        for (_, tile) in footpathSlice.tiles {
+        for (_, tile) in slice.tiles {
             
-            guard let biomeTile = biomeSlice.tiles[tile.triangle] else { continue }
+            guard let terrainTile = terrainSlice.tiles[tile.triangle] else { continue }
             
             let vertices = tile.vertices.keys.map { $0 }
             
-            let apexElevation = Vector(0.0, (Double(biomeTile.apex) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight + 0.0001, 0.0)
+            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.apex) + 0.0001, 0.0)
             
             let wedge = Wedge(tile.triangle,
                               vertices)
@@ -89,7 +61,8 @@ extension FootpathSystem {
         }
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        chunk.isDirty = false
+        
+        return true
     }
 }
 
