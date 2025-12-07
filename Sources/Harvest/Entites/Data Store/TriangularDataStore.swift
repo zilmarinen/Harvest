@@ -107,6 +107,13 @@ extension TriangularDataStore {
 
 extension TriangularDataStore {
     
+    internal func propagate(triangle: Triangle,
+                            _ scale: Triangle.Scale = .tile) {
+        
+        grid.propagate(triangle: triangle,
+                       scale)
+    }
+    
     internal func propagate(vertex: Triangle.Vertex) {
         
         grid.propagate(vertex: vertex)

@@ -163,10 +163,7 @@ extension RegionView {
         stairs.set(tile,
                    for: triangle)
         
-        triangle.vertices.forEach {
-            
-            terrain.propagate(vertex: $0)
-        }
+        terrain.propagate(triangle: triangle)
     }
     
     public func remove(staircase triangle: Triangle) {
@@ -174,10 +171,7 @@ extension RegionView {
         stairs.set(nil,
                    for: triangle)
         
-        triangle.vertices.forEach {
-            
-            terrain.propagate(vertex: $0)
-        }
+        terrain.propagate(triangle: triangle)
     }
 }
 

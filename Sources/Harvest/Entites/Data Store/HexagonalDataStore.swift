@@ -120,6 +120,13 @@ extension HexagonalDataStore {
 }
 
 extension HexagonalDataStore {
+    
+    internal func propagate(triangle: Triangle,
+                            _ scale: Triangle.Scale = .tile) {
+     
+        grid.propagate(triangle: triangle,
+                       scale)
+    }
 
     internal func propagate(vertex: Triangle.Vertex) {
         
