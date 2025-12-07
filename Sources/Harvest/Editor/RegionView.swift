@@ -235,6 +235,12 @@ extension RegionView {
                     _ elevation: Int,
                     for triangle: Triangle) {
         
+        guard elevation > 0 else {
+            
+            return water.set(nil,
+                             for: triangle)
+        }
+        
         water.set(.init(triangle: triangle,
                         waterType: waterType,
                         elevation: elevation),

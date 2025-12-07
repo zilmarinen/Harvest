@@ -8,6 +8,7 @@ import Alluvium
 import Euclid
 
 public enum WaterType: String,
+                       CaseIterable,
                        Codable,
                        Hashable,
                        Identifiable {
