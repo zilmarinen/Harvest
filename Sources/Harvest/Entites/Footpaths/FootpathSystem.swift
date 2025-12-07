@@ -47,6 +47,10 @@ extension FootpathSystem {
             
             guard let terrainTile = terrainSlice.tiles[tile.triangle] else { continue }
             
+            //
+            guard let vertex = tile.vertices.first else { continue }
+            //
+            
             let vertices = tile.vertices.keys.map { $0 }
             
             let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.apex) + 0.0001, 0.0)
@@ -55,7 +59,8 @@ extension FootpathSystem {
                               vertices)
             
             let part = Mesh.footpath(tile.triangle,
-                                     wedge)
+                                     wedge,
+                                     vertex.value.colorPalette)
             
             mesh = mesh.union(part.translated(by: apexElevation))
         }

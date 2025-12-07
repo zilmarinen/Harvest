@@ -155,12 +155,7 @@ extension RegionView {
     public func set(_ stoop: Stoop,
                     for triangle: Triangle) {
         
-        let footprint = Triangle.Footprint(triangle, stoop.footprint.tiles)
-        
-        let tile = StairTile(footprint: stoop.footprint,
-                             stoop: stoop)
-        
-        stairs.set(tile,
+        stairs.set(.init(stoop: stoop),
                    for: triangle)
         
         terrain.propagate(triangle: triangle)

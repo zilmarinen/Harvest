@@ -23,73 +23,61 @@ internal struct StairSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
-              let stairs = context.scene.find(entity: .stairs) as? Stairs else { return }
+        guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
+              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-//        var emptyRegions: [StairRegion] = []
-//        
-//        for region in stairs.dirtyRegions {
-//            
-//            var emptyChunks: [StairChunk] = []
-//            
-//            for chunk in region.dirtyChunks {
-//                
-//                let slice = terrain.slice(for: chunk.triangle,
-//                                          .chunk)
-//                
-//                guard !slice.vertices.isEmpty else {
-//                    
-//                    emptyChunks.append(chunk)
-//                    
-//                    continue
-//                }
-//                
-//                update(chunk: chunk,
-//                       terrain: terrain)
-//            }
-//            
-//            emptyChunks.forEach {
-//                
-//                $0.removeFromParent()
-//            }
-//            
-//            if region.isEmpty {
-//                
-//                emptyRegions.append(region)
-//            }
-//        }
-//        
-//        emptyRegions.forEach {
-//            
-//            $0.removeFromParent()
-//        }
+        stairs.clean { dataSource, chunk in
+            
+            let terrainSlice = terrain.slice(for: chunk.triangle,
+                                             .chunk)
+            
+            guard !terrainSlice.isEmpty else { return false }
+            
+            return update(chunk: chunk,
+                          dataSource: dataSource,
+                          terrainSlice: terrainSlice)
+        }
     }
 }
 
 extension StairSystem {
     
-//    private func update(chunk: StairChunk,
-//                        terrain: Terrain) {
-//        
-//        var mesh = Mesh.empty
-//        
-//        for (triangle, stoop) in chunk.data {
-//            
-//            let biome = terrain.tile(for: triangle)
-//            
-//            let apexElevation = Vector(0.0, (Double(biome.base) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
-//            
-//            let angle = Angle(radians: biome.triangle.rotation)
-//            let rotation = Rotation.yaw(angle)
-//            
-//            let stairs = Mesh.staircase(stoop,
-//                                        7,
-//                                        TerrainSystem.Constant.baseHeight,
-//                                        .ascending)
-//            
-//            mesh = mesh.merge(stairs.rotated(by: rotation).translated(by: triangle.position(.tile) + apexElevation))
-//        }
-//        
-//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-//    }
+    private func update(chunk: StairChunk,
+                        dataSource: TriangularChunkDataSource<StairTile>,
+                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+        
+        var invalidTiles: [Triangle] = []
+        
+        let mesh = dataSource.data.reduce(into: Mesh.empty) { result, item in
+            
+            let (triangle, stairTile) = item
+            
+            guard let terrainTile = terrainSlice.tiles[triangle] else {
+                
+                invalidTiles.append(triangle)
+                
+                return
+            }
+            
+            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
+            
+            let angle = Angle(radians: triangle.rotation)
+            let rotation = Rotation.yaw(angle)
+            
+            let stairs = Mesh.staircase(stairTile.stoop,
+                                        7,
+                                        TerrainSystem.Constant.baseHeight,
+                                        .ascending)
+
+            result = result.merge(stairs.rotated(by: rotation).translated(by: triangle.position(.tile) + apexElevation))
+        }
+        
+        dataSource.remove(values: invalidTiles)
+        
+        guard !mesh.polygons.isEmpty else { return false }
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        
+        return !dataSource.isEmpty
+    }
 }

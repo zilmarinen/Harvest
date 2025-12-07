@@ -9,7 +9,7 @@ import Newel
 
 internal struct StairTile: HasTriangleFootprint {
     
-    internal let footprint: Triangle.Footprint
+    internal var footprint: Triangle.Footprint { stoop.footprint }
     
     internal let stoop: Stoop
 }

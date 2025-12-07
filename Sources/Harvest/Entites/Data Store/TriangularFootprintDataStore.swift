@@ -14,6 +14,8 @@ internal class TriangularFootprintDataStore<C: TriangularChunk,
                       for key: Triangle) {
         
         //
+        super.set(value,
+                  for: key)
     }
     
     override func value(for key: Triangle) -> V? {
