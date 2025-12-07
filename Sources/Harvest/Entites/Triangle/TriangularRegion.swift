@@ -100,8 +100,9 @@ extension TriangularRegion {
     internal func propagate(triangle: Triangle,
                             _ scale: Triangle.Scale = .tile) {
         
-        let chunk = chunk(for: triangle) ?? .init(triangle.transpose(scale,
-                                                                     .chunk))
+        let chunk = chunk(for: triangle,
+                          scale) ?? .init(triangle.transpose(scale,
+                                                             .chunk))
         
         if chunk.parent == nil {
             

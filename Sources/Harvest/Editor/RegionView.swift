@@ -228,6 +228,8 @@ extension RegionView {
         }
         
         foliage.propagate(vertex: vertex)
+        footpaths.propagate(vertex: vertex)
+        water.propagate(vertex: vertex)
     }
 }
 

@@ -108,7 +108,7 @@ extension TriangularDataStore {
 extension TriangularDataStore {
     
     internal func propagate(vertex: Triangle.Vertex) {
-     
+        
         grid.propagate(vertex: vertex)
     }
 }

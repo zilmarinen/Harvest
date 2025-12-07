@@ -16,8 +16,8 @@ public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
         chunks.forEach {
             
             let region = region(for: $0.triangle,
-                                .chunk) ?? R($0.triangle.transpose(.tile,
-                                                                   .chunk))
+                                .chunk) ?? R($0.triangle.transpose(.chunk,
+                                                                   .region))
             
             if region.parent == nil {
                 
