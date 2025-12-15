@@ -30,6 +30,11 @@ internal class HexagonalDataStore<C: TriangularChunk,
         
         grid.propagate(vertex: key)
     }
+    
+    internal func value(for key: Triangle.Vertex) -> V? {
+        
+        dataSource.value(for: key)
+    }
 }
 
 extension HexagonalDataStore {
@@ -100,11 +105,6 @@ extension HexagonalDataStore {
 }
 
 extension HexagonalDataStore {
-    
-    internal func value(for key: Triangle.Vertex) -> V? {
-        
-        dataSource.value(for: key)
-    }
     
     internal func slice(for chunk: Triangle,
                         _ scale: Triangle.Scale = .region) -> HexagonalGridDataSourceSlice<V> {

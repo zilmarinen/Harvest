@@ -5,6 +5,19 @@
 //
 
 import Deltille
+import Euclid
 import RealityKit
 
-internal class EdificeChunk: TriangularChunkDataSource<Triangle.Septomino> {}
+internal class EdificeChunk: TriangularChunk,
+                             HasMesh {
+      
+      internal var mesh: Mesh? {
+          
+          didSet {
+              
+              updateModel()
+          }
+      }
+      
+      internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
+  }

@@ -13,20 +13,27 @@ internal class TriangularFootprintDataStore<C: TriangularChunk,
     override func set(_ value: V?,
                       for key: Triangle) {
         
-        //
-        super.set(value,
-                  for: key)
-    }
-    
-    override func value(for key: Triangle) -> V? {
-        
-        let sieve = key.sieve(for: .chunk)
-        
-        for tile in sieve.tiles {
+        guard let value else {
             
-            //
+            guard let existing = self.value(for: key) else { return }
+            
+            print("Removing existing tiles for \(existing.origin.id)")
+            return existing.footprint.tiles.forEach {
+                
+                super.set(value,
+                          for: $0)
+            }
         }
         
-        return nil
+        for tile in value.footprint.tiles {
+            
+            guard self.value(for: tile) == nil else { return }
+        }
+        print("Adding new tiles for \(key.id)")
+        for tile in value.footprint.tiles {
+            
+            super.set(value,
+                      for: tile)
+        }
     }
 }

@@ -91,20 +91,19 @@ extension RegionView {
         
         let regions = [triangle] + triangle.perimeter
         
-        return regions.compactMap {
+        return regions.map {
             
             save(region: $0)
         }
     }
     
-    private func save(region triangle: Triangle) -> Region? {
+    private func save(region triangle: Triangle) -> Region {
         
         let terrain = terrain.slice(region: triangle)
         
         return .init(triangle: triangle,
                      identifier: terrain?.grid?.name ?? triangle.id,
-                     edifices: edifices.region(for: triangle,
-                                               .region),
+                     edifices: edifices.slice(region: triangle),
                      foliage: foliage.slice(region: triangle),
                      footpaths: footpaths.slice(region: triangle),
                      stairs: stairs.slice(region: triangle),
@@ -155,18 +154,29 @@ extension RegionView {
     public func set(_ stoop: Stoop,
                     for triangle: Triangle) {
         
-        stairs.set(.init(stoop: stoop),
+        let value = StairFootprint(origin: triangle,
+                                   stoop: stoop)
+        
+        stairs.set(value,
                    for: triangle)
         
-        terrain.propagate(triangle: triangle)
+        for tile in value.footprint.tiles {
+         
+            terrain.propagate(triangle: tile)
+        }
     }
     
     public func remove(staircase triangle: Triangle) {
         
+        guard let existing = stairs.value(for: triangle) else { return }
+        
         stairs.set(nil,
                    for: triangle)
         
-        terrain.propagate(triangle: triangle)
+        for tile in existing.footprint.tiles {
+            
+            terrain.propagate(triangle: tile)
+        }
     }
 }
 
@@ -218,6 +228,7 @@ extension RegionView {
         
         foliage.propagate(vertex: vertex)
         footpaths.propagate(vertex: vertex)
+        stairs.propagate(vertex: vertex)
         water.propagate(vertex: vertex)
     }
 }

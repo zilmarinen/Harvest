@@ -107,6 +107,16 @@ extension TriangularDataStore {
 
 extension TriangularDataStore {
     
+    internal func chunks(intersecting triangle: Triangle,
+                         _ scale: Triangle.Scale = .region) -> [TriangularChunkDataSource<V>] {
+        
+        dataSource.chunks(intersecting: triangle,
+                          scale)
+    }
+}
+
+extension TriangularDataStore {
+    
     internal func propagate(triangle: Triangle,
                             _ scale: Triangle.Scale = .tile) {
         

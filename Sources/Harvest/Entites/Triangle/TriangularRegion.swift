@@ -87,13 +87,11 @@ extension TriangularRegion {
     
     internal func chunks(intersecting triangle: Triangle,
                          _ scale: Triangle.Scale = .region) -> [C] {
-        
-        let match = triangle.transpose(scale,
-                                       .chunk)
-     
-        return chunks.filter {
+
+        chunks.filter {
             
-            $0.triangle == triangle
+            $0.triangle.transpose(.chunk,
+                                  scale) == triangle
         }
     }
     

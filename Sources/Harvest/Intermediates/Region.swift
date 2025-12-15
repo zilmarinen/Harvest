@@ -14,10 +14,10 @@ public struct Region: Codable,
     public let triangle: Triangle
     public var identifier: String = ""
     
-    internal let edifices: EdificeRegion?
+    internal let edifices: TriangularDataSourceSlice<EdificeChunk, EdificeFootprint>?
     internal let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
     internal let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
-    internal let stairs: TriangularDataSourceSlice<StairChunk, StairTile>?
+    internal let stairs: TriangularDataSourceSlice<StairChunk, StairFootprint>?
     internal let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
     internal let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
     

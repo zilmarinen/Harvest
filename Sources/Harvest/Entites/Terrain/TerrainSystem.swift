@@ -33,8 +33,9 @@ internal struct TerrainSystem: System {
         
         terrain.clean { slice, chunk in
             
-            update(chunk: chunk,
-                   slice: slice)
+            return update(chunk: chunk,
+                          slice: slice,
+                          stairs: stairs)
         }
     }
 }
@@ -42,11 +43,14 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: HexagonalGridDataSourceSlice<TerrainVertex>,
+                        stairs: Stairs) -> Bool {
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
             
             let (_, tile) = item
+            
+            guard stairs.value(for: tile.triangle) == nil else { return }
             
             let stencil = tile.triangle.stencil(.tile)
             

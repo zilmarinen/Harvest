@@ -8,7 +8,7 @@ import Deltille
 import Newel
 import RealityKit
 
-internal class Stairs: TriangularFootprintDataStore<StairChunk, StairTile> {
+internal class Stairs: TriangularFootprintDataStore<StairChunk, StairFootprint> {
     
     required internal init() {
         

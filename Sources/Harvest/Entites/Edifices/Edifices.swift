@@ -7,9 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Edifices: TriangularGridDataSource<EdificeRegion,
-                                                  EdificeChunk,
-                                                  Triangle.Septomino> {
+internal class Edifices: TriangularFootprintDataStore<EdificeChunk, EdificeFootprint> {
     
     required internal init() {
         

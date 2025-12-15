@@ -43,25 +43,25 @@ internal struct StairSystem: System {
 extension StairSystem {
     
     private func update(chunk: StairChunk,
-                        dataSource: TriangularChunkDataSource<StairTile>,
+                        dataSource: TriangularChunkDataSource<StairFootprint>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let mesh = dataSource.data.reduce(into: Mesh.empty) { result, item in
+        let unique = Set(dataSource.data.values)
+        
+        let mesh = unique.reduce(into: Mesh.empty) { result, stairTile in
             
-            let (triangle, stairTile) = item
-            
-            guard let terrainTile = terrainSlice.tiles[triangle] else {
+            guard let terrainTile = terrainSlice.tiles[stairTile.origin] else {
                 
-                invalidTiles.append(triangle)
+                invalidTiles.append(stairTile.origin)
                 
                 return
             }
             
             let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
             
-            let angle = Angle(radians: triangle.rotation)
+            let angle = Angle(radians: stairTile.origin.rotation)
             let rotation = Rotation.yaw(angle)
             
             let stairs = Mesh.staircase(stairTile.stoop,
@@ -69,7 +69,7 @@ extension StairSystem {
                                         TerrainSystem.Constant.baseHeight,
                                         .ascending)
 
-            result = result.merge(stairs.rotated(by: rotation).translated(by: triangle.position(.tile) + apexElevation))
+            result = result.merge(stairs.rotated(by: rotation).translated(by: stairTile.origin.position(.tile) + apexElevation))
         }
         
         dataSource.remove(values: invalidTiles)
