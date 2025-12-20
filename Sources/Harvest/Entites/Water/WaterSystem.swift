@@ -21,8 +21,7 @@ internal struct WaterSystem: System {
         
         water.clean { dataSource, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle)
             
             return update(chunk: chunk,
                           dataSource: dataSource,
@@ -43,7 +42,7 @@ extension WaterSystem {
             
             let (triangle, waterTile) = item
             
-            guard terrainSlice?.tiles[triangle]?.base ?? 0 < waterTile.elevation else {
+            guard terrainSlice?.tile(for: triangle)?.base ?? 0 < waterTile.elevation else {
                 
                 invalidTiles.append(triangle)
                 

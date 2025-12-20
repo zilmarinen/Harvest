@@ -22,8 +22,7 @@ internal struct FoliageSystem: System {
         
         foliage.clean { dataSource, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle)
             
             guard !terrainSlice.isEmpty else { return false }
             
@@ -46,7 +45,7 @@ extension FoliageSystem {
             
             let (triangle, _) = item
             
-            guard let terrainTile = terrainSlice.tiles[triangle],
+            guard let terrainTile = terrainSlice.tile(for: triangle),
                   let elevation = terrainTile.uniformElevation else {
                 
                 invalidTiles.append(triangle)

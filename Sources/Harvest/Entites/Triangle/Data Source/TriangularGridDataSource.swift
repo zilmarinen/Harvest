@@ -15,9 +15,11 @@ public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
         
         chunks.forEach {
             
-            let region = region(for: $0.triangle,
-                                .chunk) ?? R($0.triangle.transpose(.chunk,
-                                                                   .region))
+            let match = $0.triangle.transpose(.chunk,
+                                              .tile)
+            
+            let region = region(for: match) ?? R($0.triangle.transpose(.chunk,
+                                                                       .region))
             
             if region.parent == nil {
                 
@@ -53,3 +55,11 @@ public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
         region.removeFromParent()
     }
 }
+
+//extension TriangularGridDataSource {
+//    
+//    internal func slice(for sieve: Triangle.Sieve) -> DataSourceSlice<V> {
+//     
+//        
+//    }
+//}

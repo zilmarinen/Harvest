@@ -12,7 +12,10 @@ public class TriangularRegionDataSource<C: TriangularChunkDataSource<V>,
     
     internal func merge(_ chunk: C) {
         
-        guard let existing = self.chunk(for: chunk.triangle) else {
+        let match = chunk.triangle.transpose(.chunk,
+                                             .tile)
+        
+        guard let existing = self.chunk(for: match) else {
             
             return addChild(chunk)
         }

@@ -28,8 +28,7 @@ internal struct StairSystem: System {
         
         stairs.clean { dataSource, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle)
             
             guard !terrainSlice.isEmpty else { return false }
             
@@ -52,7 +51,7 @@ extension StairSystem {
         
         let mesh = unique.reduce(into: Mesh.empty) { result, stairTile in
             
-            guard let terrainTile = terrainSlice.tiles[stairTile.origin] else {
+            guard let terrainTile = terrainSlice.tile(for: stairTile.origin) else {
                 
                 invalidTiles.append(stairTile.origin)
                 

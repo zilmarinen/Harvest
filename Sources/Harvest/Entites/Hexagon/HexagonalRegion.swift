@@ -64,36 +64,35 @@ extension HexagonalRegion {
 
 extension HexagonalRegion {
     
-    internal func chunk(for hexagon: Hexagon) -> C? {
+    internal func chunk(for chunk: Hexagon) -> C? {
         
         chunks.first {
             
-            $0.hexagon == hexagon
+            $0.hexagon == chunk
         }
     }
     
-    internal func chunks(intersecting triangle: Triangle,
-                         _ scale: Triangle.Scale = .region) -> [C] {
+    internal func chunks(intersecting region: Triangle) -> [C] {
         
         chunks.filter {
             
             for vertex in $0.hexagon.vertices {
                 
-                let other = Triangle(vertex.position(.chunk),
-                                     scale)
+                let match = Triangle(vertex.position(.chunk),
+                                     .region)
                 
-                if other == triangle {
+                if match == region {
                     
                     return true
                 }
             }
             
-            for vertex in triangle.vertices {
+            for vertex in region.vertices {
                 
-                let other = Hexagon(vertex.position(scale),
+                let match = Hexagon(vertex.position(.region),
                                     .chunk)
                 
-                if other == $0.hexagon {
+                if match == $0.hexagon {
                     
                     return true
                 }

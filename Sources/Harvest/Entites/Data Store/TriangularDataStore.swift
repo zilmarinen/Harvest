@@ -53,8 +53,8 @@ extension TriangularDataStore {
             
             for chunk in region.dirtyChunks {
                 
-                guard let data = dataSource.chunk(for: chunk.triangle,
-                                                  .chunk),
+                guard let data = dataSource.chunk(for: chunk.triangle.transpose(.chunk,
+                                                                                .tile)),
                       !data.isEmpty,
                       cleaner(data,
                               chunk) else {
@@ -97,31 +97,23 @@ extension TriangularDataStore {
         grid.merge(region)
     }
     
-    internal func slice(region triangle: Triangle) -> TriangularDataSourceSlice<C, V>? {
+    internal func slice(region: Triangle) -> TriangularDataSourceSlice<C, V>? {
         
-        .init(dataSource: dataSource.chunks(intersecting: triangle),
-              grid: grid.region(for: triangle,
-                                .region))
+        .init(dataSource: dataSource.chunks(intersecting: region),
+              grid: grid.region(for: region))
     }
 }
 
 extension TriangularDataStore {
     
-    internal func chunks(intersecting triangle: Triangle,
-                         _ scale: Triangle.Scale = .region) -> [TriangularChunkDataSource<V>] {
-        
-        dataSource.chunks(intersecting: triangle,
-                          scale)
-    }
+    
 }
 
 extension TriangularDataStore {
     
-    internal func propagate(triangle: Triangle,
-                            _ scale: Triangle.Scale = .tile) {
+    internal func propagate(triangle: Triangle) {
         
-        grid.propagate(triangle: triangle,
-                       scale)
+        grid.propagate(triangle: triangle)
     }
     
     internal func propagate(vertex: Triangle.Vertex) {

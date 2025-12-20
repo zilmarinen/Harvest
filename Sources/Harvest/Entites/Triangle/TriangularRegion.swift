@@ -73,33 +73,29 @@ extension TriangularRegion {
 
 extension TriangularRegion {
     
-    internal func chunk(for triangle: Triangle,
-                        _ scale: Triangle.Scale = .tile) -> C? {
+    internal func chunk(for tile: Triangle) -> C? {
         
-        let match = triangle.transpose(scale,
-                                       .chunk)
+        let chunk = tile.transpose(.tile,
+                                   .chunk)
         
         return chunks.first {
             
-            $0.triangle == match
+            $0.triangle == chunk
         }
     }
     
-    internal func chunks(intersecting triangle: Triangle,
-                         _ scale: Triangle.Scale = .region) -> [C] {
+    internal func chunks(intersecting region: Triangle) -> [C] {
 
         chunks.filter {
             
             $0.triangle.transpose(.chunk,
-                                  scale) == triangle
+                                  .region) == region
         }
     }
     
-    internal func propagate(triangle: Triangle,
-                            _ scale: Triangle.Scale = .tile) {
+    internal func propagate(triangle tile: Triangle) {
         
-        let chunk = chunk(for: triangle,
-                          scale) ?? .init(triangle.transpose(scale,
+        let chunk = chunk(for: tile) ?? .init(tile.transpose(.tile,
                                                              .chunk))
         
         if chunk.parent == nil {
@@ -119,8 +115,7 @@ extension TriangularRegion {
         
         for triangle in triangles {
             
-            propagate(triangle: triangle,
-                      .chunk)
+            propagate(triangle: triangle)
         }
     }
 }

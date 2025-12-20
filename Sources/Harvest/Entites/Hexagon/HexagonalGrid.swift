@@ -28,19 +28,19 @@ extension HexagonalGrid {
 
 extension HexagonalGrid {
     
-    internal func region(for hexagon: Hexagon) -> R? {
+    internal func region(for region: Hexagon) -> R? {
         
         regions.first {
             
-            $0.hexagon == hexagon
+            $0.hexagon == region
         }
     }
     
-    internal func chunk(for hexagon: Hexagon) -> C? {
+    internal func chunk(for chunk: Hexagon) -> C? {
         
-        guard let region = region(for: hexagon.parent()) else { return nil }
+        guard let region = region(for: chunk.parent()) else { return nil }
         
-        return region.chunk(for: hexagon)
+        return region.chunk(for: chunk)
     }
     
     internal func chunks(intersecting triangle: Triangle) -> [C] {

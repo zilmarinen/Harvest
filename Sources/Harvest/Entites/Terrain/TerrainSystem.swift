@@ -46,9 +46,7 @@ extension TerrainSystem {
                         slice: HexagonalGridDataSourceSlice<TerrainVertex>,
                         stairs: Stairs) -> Bool {
         
-        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, item in
-            
-            let (_, tile) = item
+        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
             guard stairs.value(for: tile.triangle) == nil else { return }
             

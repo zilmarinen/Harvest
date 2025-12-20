@@ -10,7 +10,9 @@ import RealityKit
 internal class HexagonalDataStore<C: TriangularChunk,
                                   V: Codable>: Entity {
     
-    internal let dataSource = HexagonalGridDataSource<V>()
+    typealias R = HexagonalRegionDataSource<HexagonalChunkDataSource<V>, V>
+    
+    internal let dataSource = HexagonalGridDataSource<R, HexagonalChunkDataSource<V>, V>()
     
     internal let grid = TriangularGrid<TriangularRegion<C>, C>()
     
@@ -51,8 +53,7 @@ extension HexagonalDataStore {
             
             for chunk in region.dirtyChunks {
                 
-                let slice = dataSource.slice(for: chunk.triangle,
-                                             .chunk)
+                let slice = dataSource.slice(for: chunk.triangle.sieve(for: .chunk))
                 
                 guard !slice.isEmpty,
                       cleaner(slice,
@@ -96,36 +97,31 @@ extension HexagonalDataStore {
         grid.merge(region)
     }
     
-    internal func slice(region triangle: Triangle) -> HexagonalDataSourceSlice<C, V>? {
+    internal func slice(region: Triangle) -> HexagonalDataSourceSlice<C, V>? {
         
-        .init(dataSource: dataSource.chunks(intersecting: triangle),
-              grid: grid.region(for: triangle,
-                                .region))
+        .init(dataSource: dataSource.chunks(intersecting: region),
+              grid: grid.region(for: region))
     }
 }
 
 extension HexagonalDataStore {
     
-    internal func slice(for chunk: Triangle,
-                        _ scale: Triangle.Scale = .region) -> HexagonalGridDataSourceSlice<V> {
+    internal func slice(for chunk: Triangle) -> HexagonalGridDataSourceSlice<V> {
         
-        dataSource.slice(for: chunk,
-                         scale)
+        dataSource.slice(for: chunk.sieve(for: .chunk))
     }
     
-    internal func tile(for triangle: Triangle) -> HexagonalGridDataSourceTile<V> {
+    internal func tile(for tile: Triangle) -> HexagonalGridDataSourceTile<V> {
         
-        dataSource.tile(for: triangle)
+        dataSource.tile(for: tile)
     }
 }
 
 extension HexagonalDataStore {
     
-    internal func propagate(triangle: Triangle,
-                            _ scale: Triangle.Scale = .tile) {
+    internal func propagate(triangle tile: Triangle) {
      
-        grid.propagate(triangle: triangle,
-                       scale)
+        grid.propagate(triangle: tile)
     }
 
     internal func propagate(vertex: Triangle.Vertex) {

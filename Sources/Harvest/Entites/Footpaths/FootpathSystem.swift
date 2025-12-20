@@ -23,8 +23,7 @@ internal struct FootpathSystem: System {
         
         footpaths.clean { slice, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle)
             
             guard !terrainSlice.isEmpty else { return false }
             
@@ -43,9 +42,9 @@ extension FootpathSystem {
         
         var mesh = Mesh.empty
         
-        for (_, tile) in slice.tiles {
+        for tile in slice.tiles {
             
-            guard let terrainTile = terrainSlice.tiles[tile.triangle] else { continue }
+            guard let terrainTile = terrainSlice.tile(for: tile.triangle) else { continue }
             
             //
             guard let vertex = tile.vertices.first else { continue }

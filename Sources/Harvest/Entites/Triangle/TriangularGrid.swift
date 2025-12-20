@@ -12,8 +12,10 @@ public class TriangularGrid<R: TriangularRegion<C>,
     
     internal func merge(_ region: R) {
         
-        guard let existing = self.region(for: region.triangle,
-                                         .region) else {
+        let match = region.triangle.transpose(.region,
+                                              .tile)
+        
+        guard let existing = self.region(for: match) else {
             
             return addChild(region)
         }
@@ -53,52 +55,43 @@ extension TriangularGrid {
 
 extension TriangularGrid {
     
-    internal func region(for triangle: Triangle,
-                         _ scale: Triangle.Scale = .tile) -> R? {
+    internal func region(for tile: Triangle) -> R? {
         
-        let match = triangle.transpose(scale,
-                                       .region)
+        let region = tile.transpose(.tile,
+                                    .region)
         
         return regions.first {
             
-            $0.triangle == match
+            $0.triangle == region
         }
     }
     
-    internal func chunk(for triangle: Triangle,
-                        _ scale: Triangle.Scale = .tile) -> C? {
+    internal func chunk(for tile: Triangle) -> C? {
         
-        guard let region = region(for: triangle,
-                                  scale) else { return nil }
+        guard let region = region(for: tile) else { return nil }
         
-        return region.chunk(for: triangle,
-                            scale)
+        return region.chunk(for: tile)
     }
     
-    internal func chunks(intersecting triangle: Triangle,
-                         _ scale: Triangle.Scale = .region) -> [C] {
+    internal func chunks(intersecting region: Triangle) -> [C] {
         
-        let match = triangle.transpose(scale,
-                                       .region)
-        
-        return regions.flatMap {
+        regions.flatMap {
          
-            $0.chunks(intersecting: match)
+            $0.chunks(intersecting: region)
         }
     }
     
-    internal func propagate(triangle: Triangle,
-                            _ scale: Triangle.Scale = .tile) {
+    internal func propagate(triangle tile: Triangle) {
         
-        let region = region(for: triangle) ?? .init(triangle.transpose(scale,
-                                                                       .region))
+        let region = region(for: tile) ?? .init(tile.transpose(.tile,
+                                                               .region))
         
         if region.parent == nil {
             
             addChild(region)
         }
         
-        region.propagate(triangle: triangle)
+        region.propagate(triangle: tile)
     }
     
     internal func propagate(vertex: Triangle.Vertex) {
