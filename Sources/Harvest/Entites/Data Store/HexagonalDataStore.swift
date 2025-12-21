@@ -8,7 +8,8 @@ import Deltille
 import RealityKit
 
 internal class HexagonalDataStore<C: TriangularChunk,
-                                  V: Codable>: Entity {
+                                  V: Codable>: Entity,
+                                               GridDataStore {
     
     typealias R = HexagonalRegionDataSource<HexagonalChunkDataSource<V>, V>
     
@@ -17,7 +18,7 @@ internal class HexagonalDataStore<C: TriangularChunk,
     internal let grid = TriangularGrid<TriangularRegion<C>, C>()
     
     internal required init() {
-        
+        
         super.init()
         
         addChild(dataSource)
@@ -37,52 +38,10 @@ internal class HexagonalDataStore<C: TriangularChunk,
         
         dataSource.value(for: key)
     }
-}
-
-extension HexagonalDataStore {
     
-    internal typealias Cleaner = ((_ slice: HexagonalGridDataSourceSlice<V>, _ chunk: C) -> Bool)
+    internal func slice(for sieve: Triangle.Sieve) -> HexagonalGridDataSourceSlice<V> {
     
-    internal func clean(_ cleaner: Cleaner) {
-        
-        var emptyRegions: [TriangularRegion<C>] = []
-        
-        for region in grid.dirtyRegions {
-            
-            var emptyChunks: [C] = []
-            
-            for chunk in region.dirtyChunks {
-                
-                let slice = dataSource.slice(for: chunk.triangle.sieve(for: .chunk))
-                
-                guard !slice.isEmpty,
-                      cleaner(slice,
-                              chunk) else {
-                    
-                    emptyChunks.append(chunk)
-                    
-                    continue
-                }
-                
-                chunk.isDirty = false
-            }
-            
-            emptyChunks.forEach {
-                
-                $0.removeFromParent()
-            }
-            
-            region.isDirty = false
-            
-            guard region.isEmpty else { continue }
-            
-            emptyRegions.append(region)
-        }
-        
-        emptyRegions.forEach {
-            
-            $0.removeFromParent()
-        }
+        dataSource.slice(for: sieve)
     }
 }
 
@@ -109,11 +68,6 @@ extension HexagonalDataStore {
     internal func slice(for chunk: Triangle) -> HexagonalGridDataSourceSlice<V> {
         
         dataSource.slice(for: chunk.sieve(for: .chunk))
-    }
-    
-    internal func tile(for tile: Triangle) -> HexagonalGridDataSourceTile<V> {
-        
-        dataSource.tile(for: tile)
     }
 }
 

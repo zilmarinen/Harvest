@@ -19,12 +19,12 @@ internal struct WaterSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        water.clean { dataSource, chunk in
+        water.clean { slice, chunk in
             
             let terrainSlice = terrain.slice(for: chunk.triangle)
             
             return update(chunk: chunk,
-                          dataSource: dataSource,
+                          slice: slice,
                           terrainSlice: terrainSlice)
         }
     }
@@ -33,27 +33,25 @@ internal struct WaterSystem: System {
 extension WaterSystem {
     
     private func update(chunk: WaterChunk,
-                        dataSource: TriangularChunkDataSource<WaterTile>,
+                        slice: TriangularGridDataSourceSlice<WaterTile>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>?) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let polygons = dataSource.data.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            let (triangle, waterTile) = item
-            
-            guard terrainSlice?.tile(for: triangle)?.base ?? 0 < waterTile.elevation else {
+            guard terrainSlice?.tile(for: tile.triangle)?.base ?? 0 < tile.elevation else {
                 
-                invalidTiles.append(triangle)
+                invalidTiles.append(tile.triangle)
                 
                 return
             }
             
-            result.append(contentsOf: render(tile: waterTile,
-                                             dataSource: dataSource))
+            result.append(contentsOf: render(tile: tile,
+                                             slice: slice))
         }
         
-        dataSource.remove(values: invalidTiles)
+        //dataSource.remove(values: invalidTiles)
         
         guard !polygons.isEmpty else { return false }
         
@@ -61,11 +59,11 @@ extension WaterSystem {
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         
-        return !dataSource.isEmpty
+        return true
     }
     
     private func render(tile: WaterTile,
-                        dataSource: TriangularChunkDataSource<WaterTile>) -> [Euclid.Polygon] {
+                        slice: TriangularGridDataSourceSlice<WaterTile>) -> [Euclid.Polygon] {
         
         let identifier = tile.triangle.vertex.position.identifier
         let apexColor = tile.waterType.colorPalette.color(for: identifier,
@@ -84,7 +82,7 @@ extension WaterSystem {
         for edge in tile.triangle.edges {
          
             let adjacent = tile.triangle.neighbour(edge)
-            let elevation = dataSource.value(for: adjacent)?.elevation ?? 0
+            let elevation = slice.tile(for: adjacent)?.elevation ?? 0
             
             guard tile.elevation > elevation else { continue }
             

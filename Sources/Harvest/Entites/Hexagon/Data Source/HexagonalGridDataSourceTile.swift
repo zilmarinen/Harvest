@@ -8,7 +8,7 @@ import Deltille
 
 internal struct HexagonalGridDataSourceTile<V: Codable> {
     
-    internal let triangle: Triangle
+    internal let tile: Triangle
     internal let vertices: [Triangle.Vertex : V]
 }
 

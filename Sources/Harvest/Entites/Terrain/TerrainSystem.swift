@@ -48,9 +48,9 @@ extension TerrainSystem {
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard stairs.value(for: tile.triangle) == nil else { return }
+            guard stairs.value(for: tile.tile) == nil else { return }
             
-            let stencil = tile.triangle.stencil(.tile)
+            let stencil = tile.tile.stencil(.tile)
             
             result.append(contentsOf: render(tile: tile,
                                              stencil: stencil))
@@ -68,13 +68,13 @@ extension TerrainSystem {
     private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
                         stencil: Triangle.Stencil) -> [Euclid.Polygon] {
         
-        let origin = tile.triangle.position(.tile)
+        let origin = tile.tile.position(.tile)
         
         return tile.vertices.reduce(into: [Euclid.Polygon]()) { result, vertex in
             
-            guard let corner = tile.triangle.corner(vertex.value.vertex) else { return }
+            guard let corner = tile.tile.corner(vertex.value.vertex) else { return }
             
-            let kite = tile.triangle.kite(index: corner.rawValue)
+            let kite = tile.tile.kite(index: corner.rawValue)
             
             let angle = Angle(radians: Triangle.Rotation.step * Double(-corner.rawValue))
             let rotation = Rotation.yaw(angle)
@@ -97,7 +97,7 @@ extension TerrainSystem {
                         biome: Biome,
                         elevation: Int) -> [Euclid.Polygon] {
         
-        let identifier = tile.triangle.vertex.position.identifier % vertex.position.identifier
+        let identifier = tile.tile.vertex.position.identifier % vertex.position.identifier
         let apexColor = biome.terrain.color(for: identifier,
                                             [.primary,
                                              .secondary,

@@ -85,13 +85,16 @@ extension TriangularRegion {
     }
     
     internal func chunks(intersecting region: Triangle) -> [C] {
-
+        
         chunks.filter {
             
             $0.triangle.transpose(.chunk,
                                   .region) == region
         }
     }
+}
+
+extension TriangularRegion {
     
     internal func propagate(triangle tile: Triangle) {
         

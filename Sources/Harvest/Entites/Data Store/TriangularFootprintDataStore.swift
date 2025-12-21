@@ -17,7 +17,6 @@ internal class TriangularFootprintDataStore<C: TriangularChunk,
             
             guard let existing = self.value(for: key) else { return }
             
-            print("Removing existing tiles for \(existing.origin.id)")
             return existing.footprint.tiles.forEach {
                 
                 super.set(value,
@@ -29,7 +28,7 @@ internal class TriangularFootprintDataStore<C: TriangularChunk,
             
             guard self.value(for: tile) == nil else { return }
         }
-        print("Adding new tiles for \(key.id)")
+        
         for tile in value.footprint.tiles {
             
             super.set(value,

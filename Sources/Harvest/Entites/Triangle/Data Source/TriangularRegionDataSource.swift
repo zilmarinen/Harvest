@@ -8,7 +8,8 @@ import Deltille
 import RealityKit
 
 public class TriangularRegionDataSource<C: TriangularChunkDataSource<V>,
-                                        V: Codable>: TriangularRegion<C> {
+                                        V: Codable>: TriangularRegion<C>,
+                                                     GridRegionDataSource {
     
     internal func merge(_ chunk: C) {
         

@@ -26,14 +26,14 @@ internal struct StairSystem: System {
         guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        stairs.clean { dataSource, chunk in
+        stairs.clean { slice, chunk in
             
             let terrainSlice = terrain.slice(for: chunk.triangle)
             
             guard !terrainSlice.isEmpty else { return false }
             
             return update(chunk: chunk,
-                          dataSource: dataSource,
+                          slice: slice,
                           terrainSlice: terrainSlice)
         }
     }
@@ -42,12 +42,12 @@ internal struct StairSystem: System {
 extension StairSystem {
     
     private func update(chunk: StairChunk,
-                        dataSource: TriangularChunkDataSource<StairFootprint>,
+                        slice: TriangularGridDataSourceSlice<StairFootprint>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let unique = Set(dataSource.data.values)
+        let unique = Set(slice.tiles)
         
         let mesh = unique.reduce(into: Mesh.empty) { result, stairTile in
             
@@ -71,12 +71,12 @@ extension StairSystem {
             result = result.merge(stairs.rotated(by: rotation).translated(by: stairTile.origin.position(.tile) + apexElevation))
         }
         
-        dataSource.remove(values: invalidTiles)
+        //dataSource.remove(values: invalidTiles)
         
         guard !mesh.polygons.isEmpty else { return false }
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         
-        return !dataSource.isEmpty
+        return true
     }
 }

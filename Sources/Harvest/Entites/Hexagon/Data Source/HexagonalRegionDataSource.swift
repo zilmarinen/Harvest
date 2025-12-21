@@ -8,7 +8,8 @@ import Deltille
 import RealityKit
 
 public class HexagonalRegionDataSource<C: HexagonalChunkDataSource<V>,
-                                       V: Codable>: HexagonalRegion<C> {
+                                       V: Codable>: HexagonalRegion<C>,
+                                                    GridRegionDataSource {
     
     internal func merge(_ chunk: C) {
         
@@ -19,9 +20,6 @@ public class HexagonalRegionDataSource<C: HexagonalChunkDataSource<V>,
         
         existing.merge(chunk.dataSource)
     }
-}
-
-extension HexagonalRegionDataSource {
     
     internal func value(for key: Triangle.Vertex) -> V? {
         

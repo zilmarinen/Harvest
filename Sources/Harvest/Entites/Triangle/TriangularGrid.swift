@@ -76,10 +76,13 @@ extension TriangularGrid {
     internal func chunks(intersecting region: Triangle) -> [C] {
         
         regions.flatMap {
-         
+            
             $0.chunks(intersecting: region)
         }
     }
+}
+
+extension TriangularGrid {
     
     internal func propagate(triangle tile: Triangle) {
         

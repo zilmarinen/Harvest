@@ -9,7 +9,8 @@ import RealityKit
 
 internal class HexagonalGridDataSource<R: HexagonalRegionDataSource<C, V>,
                                        C: HexagonalChunkDataSource<V>,
-                                       V: Codable>: HexagonalGrid<R, C> {
+                                       V: Codable>: HexagonalGrid<R, C>,
+                                                    GridDataSource {
     
     internal func merge(_ chunks: [C]) {
         
@@ -60,9 +61,6 @@ internal class HexagonalGridDataSource<R: HexagonalRegionDataSource<C, V>,
         
         region.removeFromParent()
     }
-}
-
-extension HexagonalGridDataSource {
     
     internal func slice(for sieve: Triangle.Sieve) -> HexagonalGridDataSourceSlice<V> {
         
@@ -72,17 +70,6 @@ extension HexagonalGridDataSource {
         }
         
         return .init(sieve: sieve,
-                     vertices: vertices)
-    }
-    
-    internal func tile(for tile: Triangle) -> HexagonalGridDataSourceTile<V> {
-        
-        let vertices = tile.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
-            
-            result[vertex] = value(for: vertex)
-        }
-        
-        return .init(triangle: tile,
                      vertices: vertices)
     }
 }

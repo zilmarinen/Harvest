@@ -8,7 +8,8 @@ import Deltille
 import RealityKit
 
 internal class TriangularDataStore<C: TriangularChunk,
-                                   V: Codable>: Entity {
+                                   V: Codable>: Entity,
+                                                GridDataStore {
     
     typealias R = TriangularRegionDataSource<TriangularChunkDataSource<V>, V>
     
@@ -37,52 +38,10 @@ internal class TriangularDataStore<C: TriangularChunk,
         
         dataSource.value(for: key)
     }
-}
-
-extension TriangularDataStore {
     
-    internal typealias Cleaner = ((_ dataSource: TriangularChunkDataSource<V>, _ chunk: C) -> Bool)
+    internal func slice(for sieve: Triangle.Sieve) -> TriangularGridDataSourceSlice<V> {
     
-    internal func clean(_ cleaner: Cleaner) {
-        
-        var emptyRegions: [TriangularRegion<C>] = []
-        
-        for region in grid.dirtyRegions {
-            
-            var emptyChunks: [C] = []
-            
-            for chunk in region.dirtyChunks {
-                
-                guard let data = dataSource.chunk(for: chunk.triangle.transpose(.chunk,
-                                                                                .tile)),
-                      !data.isEmpty,
-                      cleaner(data,
-                              chunk) else {
-                    
-                    emptyChunks.append(chunk)
-                    
-                    continue
-                }
-                
-                chunk.isDirty = false
-            }
-            
-            emptyChunks.forEach {
-                
-                $0.removeFromParent()
-            }
-            
-            region.isDirty = false
-            
-            guard region.isEmpty else { continue }
-            
-            emptyRegions.append(region)
-        }
-        
-        emptyRegions.forEach {
-            
-            $0.removeFromParent()
-        }
+        dataSource.slice(for: sieve)
     }
 }
 
@@ -102,11 +61,6 @@ extension TriangularDataStore {
         .init(dataSource: dataSource.chunks(intersecting: region),
               grid: grid.region(for: region))
     }
-}
-
-extension TriangularDataStore {
-    
-    
 }
 
 extension TriangularDataStore {

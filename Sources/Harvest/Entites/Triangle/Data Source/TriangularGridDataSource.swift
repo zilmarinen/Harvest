@@ -9,7 +9,8 @@ import RealityKit
 
 public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
                                       C: TriangularChunkDataSource<V>,
-                                      V: Codable>: TriangularGrid<R, C> {
+                                      V: Codable>: TriangularGrid<R, C>,
+                                                   GridDataSource {
     
     internal func merge(_ chunks: [C]) {
         
@@ -54,12 +55,14 @@ public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
         
         region.removeFromParent()
     }
+    
+    internal func slice(for sieve: Triangle.Sieve) -> TriangularGridDataSourceSlice<V> {
+        
+        let tiles = sieve.tiles.reduce(into: [Triangle.Vertex : V]()) { result, tile in
+            
+            result[tile.vertex] = value(for: tile)
+        }
+        
+        return .init(tiles: tiles)
+    }
 }
-
-//extension TriangularGridDataSource {
-//    
-//    internal func slice(for sieve: Triangle.Sieve) -> DataSourceSlice<V> {
-//     
-//        
-//    }
-//}

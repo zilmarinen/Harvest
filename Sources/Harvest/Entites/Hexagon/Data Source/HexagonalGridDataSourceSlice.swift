@@ -6,9 +6,9 @@
 
 import Deltille
 
-internal struct HexagonalGridDataSourceSlice<V: Codable> {
+internal struct HexagonalGridDataSourceSlice<V: Codable>: GridDataSourceSlice {
     
-    typealias Tiles = [Triangle : HexagonalGridDataSourceTile<V>]
+    typealias Tiles = [Triangle.Vertex : HexagonalGridDataSourceTile<V>]
     typealias Vertices = [Triangle.Vertex : V]
     
     private let data: Tiles
@@ -27,8 +27,8 @@ internal struct HexagonalGridDataSourceSlice<V: Codable> {
 
             guard !vertices.isEmpty else { return }
 
-            result[tile] = .init(triangle: tile,
-                                 vertices: vertices)
+            result[tile.vertex] = .init(tile: tile,
+                                        vertices: vertices)
         }
     }
 }
@@ -50,6 +50,6 @@ extension HexagonalGridDataSourceSlice {
  
     internal func tile(for tile: Triangle) -> HexagonalGridDataSourceTile<V>? {
         
-        data[tile]
+        data[tile.vertex]
     }
 }

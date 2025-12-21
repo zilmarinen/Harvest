@@ -55,7 +55,7 @@ extension HasDataSource {
     }
     
     internal func remove(values keys: [K]) {
-        print("Removing \(keys.count) values")
+        
         keys.forEach {
             
             dataSource.data.removeValue(forKey: $0)
