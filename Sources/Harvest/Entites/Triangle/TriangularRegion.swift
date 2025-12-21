@@ -110,15 +110,4 @@ extension TriangularRegion {
         
         becomeDirty()
     }
-    
-    internal func propagate(vertex: Triangle.Vertex) {
-        
-        let triangles = vertex.tiles.unique(.tile,
-                                            .chunk)
-        
-        for triangle in triangles {
-            
-            propagate(triangle: triangle)
-        }
-    }
 }

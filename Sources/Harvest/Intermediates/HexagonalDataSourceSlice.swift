@@ -64,8 +64,6 @@ extension HexagonalDataSourceSlice where C == TerrainChunk,
         
         for vertex in tile.vertices {
             
-            region.propagate(vertex: vertex)
-            
             for chunk in chunks  {
                 
                 chunk.set(.init(vertex: vertex,
@@ -74,6 +72,8 @@ extension HexagonalDataSourceSlice where C == TerrainChunk,
                           for: vertex)
             }
         }
+        
+        region.propagate(triangle: tile)
         
         self.init(dataSource: chunks,
                   grid: region)
