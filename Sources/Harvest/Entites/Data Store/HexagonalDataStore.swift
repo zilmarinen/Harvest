@@ -59,7 +59,8 @@ extension HexagonalDataStore {
     internal func slice(region: Triangle) -> HexagonalDataSourceSlice<C, V>? {
         
         .init(dataSource: dataSource.chunks(intersecting: region),
-              grid: grid.region(for: region))
+              grid: grid.region(for: region.transpose(.region,
+                                                      .tile)))
     }
 }
 
