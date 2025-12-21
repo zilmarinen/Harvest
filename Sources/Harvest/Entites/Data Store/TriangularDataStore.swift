@@ -63,16 +63,3 @@ extension TriangularDataStore {
                                                       .tile)))
     }
 }
-
-extension TriangularDataStore {
-    
-    internal func propagate(triangle: Triangle) {
-        
-        grid.propagate(triangle: triangle)
-    }
-    
-    internal func propagate(vertex: Triangle.Vertex) {
-        
-        grid.propagate(vertex: vertex)
-    }
-}

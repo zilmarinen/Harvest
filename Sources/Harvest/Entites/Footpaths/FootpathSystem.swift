@@ -23,7 +23,7 @@ internal struct FootpathSystem: System {
         
         footpaths.clean { slice, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle)
+            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
             guard !terrainSlice.isEmpty else { return false }
             

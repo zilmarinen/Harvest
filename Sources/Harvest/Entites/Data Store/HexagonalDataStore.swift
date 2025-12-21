@@ -63,24 +63,3 @@ extension HexagonalDataStore {
                                                       .tile)))
     }
 }
-
-extension HexagonalDataStore {
-    
-    internal func slice(for chunk: Triangle) -> HexagonalGridDataSourceSlice<V> {
-        
-        dataSource.slice(for: chunk.sieve(for: .chunk))
-    }
-}
-
-extension HexagonalDataStore {
-    
-    internal func propagate(triangle tile: Triangle) {
-     
-        grid.propagate(triangle: tile)
-    }
-
-    internal func propagate(vertex: Triangle.Vertex) {
-        
-        grid.propagate(vertex: vertex)
-    }
-}

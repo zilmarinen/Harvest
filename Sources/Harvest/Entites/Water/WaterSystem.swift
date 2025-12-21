@@ -21,7 +21,7 @@ internal struct WaterSystem: System {
         
         water.clean { slice, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle)
+            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
             return update(chunk: chunk,
                           slice: slice,

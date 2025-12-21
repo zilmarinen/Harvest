@@ -70,3 +70,16 @@ extension GridDataStore {
         }
     }
 }
+
+extension GridDataStore {
+    
+    internal func propagate(triangle tile: Triangle) {
+     
+        grid.propagate(triangle: tile)
+    }
+
+    internal func propagate(vertex: Triangle.Vertex) {
+        
+        grid.propagate(vertex: vertex)
+    }
+}
