@@ -9,15 +9,18 @@ import RealityKit
 
 public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
                                       C: TriangularChunkDataSource<V>,
-                                      V: Codable>: TriangularGrid<R, C> {
+                                      V: Codable>: TriangularGrid<R, C>,
+                                                   GridDataSource {
     
     internal func merge(_ chunks: [C]) {
         
         chunks.forEach {
             
-            let region = region(for: $0.triangle,
-                                .chunk) ?? R($0.triangle.transpose(.chunk,
-                                                                   .region))
+            let match = $0.triangle.transpose(.chunk,
+                                              .tile)
+            
+            let region = region(for: match) ?? R($0.triangle.transpose(.chunk,
+                                                                       .region))
             
             if region.parent == nil {
                 
@@ -51,5 +54,15 @@ public class TriangularGridDataSource<R: TriangularRegionDataSource<C, V>,
         guard region.isEmpty else { return }
         
         region.removeFromParent()
+    }
+    
+    internal func slice(for sieve: Triangle.Sieve) -> TriangularGridDataSourceSlice<V> {
+        
+        let tiles = sieve.tiles.reduce(into: [Triangle.Vertex : V]()) { result, tile in
+            
+            result[tile.vertex] = value(for: tile)
+        }
+        
+        return .init(tiles: tiles)
     }
 }

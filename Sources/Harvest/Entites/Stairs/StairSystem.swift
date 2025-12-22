@@ -26,15 +26,15 @@ internal struct StairSystem: System {
         guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        stairs.clean { dataSource, chunk in
+        stairs.clean { slice, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
             guard !terrainSlice.isEmpty else { return false }
             
-            return update(chunk: chunk,
-                          dataSource: dataSource,
+            return update(grid: stairs,
+                          chunk: chunk,
+                          slice: slice,
                           terrainSlice: terrainSlice)
         }
     }
@@ -42,17 +42,18 @@ internal struct StairSystem: System {
 
 extension StairSystem {
     
-    private func update(chunk: StairChunk,
-                        dataSource: TriangularChunkDataSource<StairFootprint>,
+    private func update(grid: Stairs,
+                        chunk: StairChunk,
+                        slice: TriangularGridDataSourceSlice<StairFootprint>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let unique = Set(dataSource.data.values)
+        let unique = Set(slice.tiles)
         
         let mesh = unique.reduce(into: Mesh.empty) { result, stairTile in
             
-            guard let terrainTile = terrainSlice.tiles[stairTile.origin] else {
+            guard let terrainTile = terrainSlice.tile(for: stairTile.origin) else {
                 
                 invalidTiles.append(stairTile.origin)
                 
@@ -72,12 +73,12 @@ extension StairSystem {
             result = result.merge(stairs.rotated(by: rotation).translated(by: stairTile.origin.position(.tile) + apexElevation))
         }
         
-        dataSource.remove(values: invalidTiles)
+        grid.remove(values: invalidTiles)
         
         guard !mesh.polygons.isEmpty else { return false }
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         
-        return !dataSource.isEmpty
+        return true
     }
 }

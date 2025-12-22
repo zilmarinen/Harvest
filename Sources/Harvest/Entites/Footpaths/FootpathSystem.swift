@@ -23,8 +23,7 @@ internal struct FootpathSystem: System {
         
         footpaths.clean { slice, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
             guard !terrainSlice.isEmpty else { return false }
             
@@ -43,9 +42,9 @@ extension FootpathSystem {
         
         var mesh = Mesh.empty
         
-        for (_, tile) in slice.tiles {
+        for tile in slice.tiles {
             
-            guard let terrainTile = terrainSlice.tiles[tile.triangle] else { continue }
+            guard let terrainTile = terrainSlice.tile(for: tile.tile) else { continue }
             
             //
             guard let vertex = tile.vertices.first else { continue }
@@ -55,10 +54,10 @@ extension FootpathSystem {
             
             let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.apex) + 0.0001, 0.0)
             
-            let wedge = Wedge(tile.triangle,
+            let wedge = Wedge(tile.tile,
                               vertices)
             
-            let part = Mesh.footpath(tile.triangle,
+            let part = Mesh.footpath(tile.tile,
                                      wedge,
                                      vertex.value.colorPalette)
             

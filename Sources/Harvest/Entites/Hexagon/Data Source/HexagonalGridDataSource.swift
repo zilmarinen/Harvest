@@ -7,19 +7,18 @@
 import Deltille
 import RealityKit
 
-internal class HexagonalGridDataSource<V: Codable>: HexagonalGrid<HexagonalRegionDataSource<HexagonalChunkDataSource<V>, V>,
-                                                                  HexagonalChunkDataSource<V>> {
-    
-    internal typealias C = HexagonalChunkDataSource<V>
-    internal typealias R = HexagonalRegionDataSource<C, V>
+internal class HexagonalGridDataSource<R: HexagonalRegionDataSource<C, V>,
+                                       C: HexagonalChunkDataSource<V>,
+                                       V: Codable>: HexagonalGrid<R, C>,
+                                                    GridDataSource {
     
     internal func merge(_ chunks: [C]) {
         
         chunks.forEach {
             
-            let parent = $0.hexagon.parent()
+            let match = $0.hexagon.parent()
             
-            let region = region(for: parent) ?? R(parent)
+            let region = region(for: match) ?? R(match)
             
             if region.parent == nil {
                 
@@ -62,14 +61,8 @@ internal class HexagonalGridDataSource<V: Codable>: HexagonalGrid<HexagonalRegio
         
         region.removeFromParent()
     }
-}
-
-extension HexagonalGridDataSource {
     
-    internal func slice(for triangle: Triangle,
-                        _ scale: Triangle.Scale = .region) -> HexagonalGridDataSourceSlice<V> {
-        
-        let sieve = triangle.sieve(for: scale)
+    internal func slice(for sieve: Triangle.Sieve) -> HexagonalGridDataSourceSlice<V> {
         
         let vertices = sieve.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
             
@@ -77,17 +70,6 @@ extension HexagonalGridDataSource {
         }
         
         return .init(sieve: sieve,
-                     vertices: vertices)
-    }
-    
-    internal func tile(for triangle: Triangle) -> HexagonalGridDataSourceTile<V> {
-        
-        let vertices = triangle.vertices.reduce(into: [Triangle.Vertex : V]()) { result, vertex in
-            
-            result[vertex] = value(for: vertex)
-        }
-        
-        return .init(triangle: triangle,
                      vertices: vertices)
     }
 }

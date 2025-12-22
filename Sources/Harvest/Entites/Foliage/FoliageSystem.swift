@@ -20,15 +20,15 @@ internal struct FoliageSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let foliage = context.scene.find(entity: .foliage) as? Foliage else { return }
         
-        foliage.clean { dataSource, chunk in
+        foliage.clean { slice, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle,
-                                             .chunk)
+            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
             guard !terrainSlice.isEmpty else { return false }
             
-            return update(chunk: chunk,
-                          dataSource: dataSource,
+            return update(grid: foliage,
+                          chunk: chunk,
+                          slice: slice,
                           terrainSlice: terrainSlice)
         }
     }
@@ -36,17 +36,16 @@ internal struct FoliageSystem: System {
 
 extension FoliageSystem {
     
-    private func update(chunk: FoliageChunk,
-                        dataSource: TriangularChunkDataSource<Triangle>,
+    private func update(grid: Foliage,
+                        chunk: FoliageChunk,
+                        slice: TriangularGridDataSourceSlice<Triangle>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
-        let polygons = dataSource.data.reduce(into: [Euclid.Polygon]()) { result, item in
+        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
             
-            let (triangle, _) = item
-            
-            guard let terrainTile = terrainSlice.tiles[triangle],
+            guard let terrainTile = terrainSlice.tile(for: triangle),
                   let elevation = terrainTile.uniformElevation else {
                 
                 invalidTiles.append(triangle)
@@ -58,7 +57,7 @@ extension FoliageSystem {
                                              elevation: elevation))
         }
         
-        dataSource.remove(values: invalidTiles)
+        grid.remove(values: invalidTiles)
         
         guard !polygons.isEmpty else { return false }
         
@@ -66,7 +65,7 @@ extension FoliageSystem {
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         
-        return !dataSource.isEmpty
+        return true
     }
     
     private func render(terrainTile: HexagonalGridDataSourceTile<TerrainVertex>,
@@ -75,8 +74,8 @@ extension FoliageSystem {
         guard let uniform = terrainTile.vertices.first?.value.biome else { return [] }
         
         let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
-        let origin = terrainTile.triangle.position(.tile)
-        let angle = Angle(radians: terrainTile.triangle.rotation)
+        let origin = terrainTile.tile.position(.tile)
+        let angle = Angle(radians: terrainTile.tile.rotation)
         let rotation = Rotation.yaw(angle)
         
         let mesh = Mesh.foliage(.antlia,

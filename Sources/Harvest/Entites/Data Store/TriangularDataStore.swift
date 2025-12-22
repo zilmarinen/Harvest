@@ -8,7 +8,8 @@ import Deltille
 import RealityKit
 
 internal class TriangularDataStore<C: TriangularChunk,
-                                   V: Codable>: Entity {
+                                   V: Codable>: Entity,
+                                                GridDataStore {
     
     typealias R = TriangularRegionDataSource<TriangularChunkDataSource<V>, V>
     
@@ -37,52 +38,15 @@ internal class TriangularDataStore<C: TriangularChunk,
         
         dataSource.value(for: key)
     }
-}
-
-extension TriangularDataStore {
     
-    internal typealias Cleaner = ((_ dataSource: TriangularChunkDataSource<V>, _ chunk: C) -> Bool)
+    internal func remove(values keys: [Triangle]) {
+     
+        dataSource.remove(values: keys)
+    }
     
-    internal func clean(_ cleaner: Cleaner) {
-        
-        var emptyRegions: [TriangularRegion<C>] = []
-        
-        for region in grid.dirtyRegions {
-            
-            var emptyChunks: [C] = []
-            
-            for chunk in region.dirtyChunks {
-                
-                guard let data = dataSource.chunk(for: chunk.triangle,
-                                                  .chunk),
-                      !data.isEmpty,
-                      cleaner(data,
-                              chunk) else {
-                    
-                    emptyChunks.append(chunk)
-                    
-                    continue
-                }
-                
-                chunk.isDirty = false
-            }
-            
-            emptyChunks.forEach {
-                
-                $0.removeFromParent()
-            }
-            
-            region.isDirty = false
-            
-            guard region.isEmpty else { continue }
-            
-            emptyRegions.append(region)
-        }
-        
-        emptyRegions.forEach {
-            
-            $0.removeFromParent()
-        }
+    internal func slice(for sieve: Triangle.Sieve) -> TriangularGridDataSourceSlice<V> {
+    
+        dataSource.slice(for: sieve)
     }
 }
 
@@ -97,35 +61,10 @@ extension TriangularDataStore {
         grid.merge(region)
     }
     
-    internal func slice(region triangle: Triangle) -> TriangularDataSourceSlice<C, V>? {
+    internal func slice(region: Triangle) -> TriangularDataSourceSlice<C, V>? {
         
-        .init(dataSource: dataSource.chunks(intersecting: triangle),
-              grid: grid.region(for: triangle,
-                                .region))
-    }
-}
-
-extension TriangularDataStore {
-    
-    internal func chunks(intersecting triangle: Triangle,
-                         _ scale: Triangle.Scale = .region) -> [TriangularChunkDataSource<V>] {
-        
-        dataSource.chunks(intersecting: triangle,
-                          scale)
-    }
-}
-
-extension TriangularDataStore {
-    
-    internal func propagate(triangle: Triangle,
-                            _ scale: Triangle.Scale = .tile) {
-        
-        grid.propagate(triangle: triangle,
-                       scale)
-    }
-    
-    internal func propagate(vertex: Triangle.Vertex) {
-        
-        grid.propagate(vertex: vertex)
+        .init(dataSource: dataSource.chunks(intersecting: region),
+              grid: grid.region(for: region.transpose(.region,
+                                                      .tile)))
     }
 }

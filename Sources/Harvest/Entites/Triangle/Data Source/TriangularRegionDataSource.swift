@@ -8,11 +8,15 @@ import Deltille
 import RealityKit
 
 public class TriangularRegionDataSource<C: TriangularChunkDataSource<V>,
-                                        V: Codable>: TriangularRegion<C> {
+                                        V: Codable>: TriangularRegion<C>,
+                                                     GridRegionDataSource {
     
     internal func merge(_ chunk: C) {
         
-        guard let existing = self.chunk(for: chunk.triangle) else {
+        let match = chunk.triangle.transpose(.chunk,
+                                             .tile)
+        
+        guard let existing = self.chunk(for: match) else {
             
             return addChild(chunk)
         }
