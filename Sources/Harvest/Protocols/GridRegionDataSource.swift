@@ -9,8 +9,8 @@ import RealityKit
 internal protocol GridRegionDataSource: Entity {
     
     associatedtype C
-    associatedtype K
-    associatedtype V
+    associatedtype K: Codable & Hashable
+    associatedtype V: Codable
     
     func merge(_ chunk: C)
     

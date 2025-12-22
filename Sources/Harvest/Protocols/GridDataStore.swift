@@ -10,23 +10,28 @@ import RealityKit
 internal protocol GridDataStore: Entity {
     
     associatedtype C: TriangularChunk
-    associatedtype K
+    associatedtype G: TriangularGrid<TriangularRegion<C>, C>
+    associatedtype K: Codable & Hashable
     associatedtype S: GridDataSourceSlice
     associatedtype V: Codable
     
-    var grid: TriangularGrid<TriangularRegion<C>, C> { get }
+    typealias Cleaner = ((_ slice: S, _ chunk: C) -> Bool)
+    
+    var grid: G { get }
     
     func value(for key: K) -> V?
     
     func set(_ value: V?,
              for key: K)
     
+    func remove(values keys: [K])
+    
     func slice(for sieve: Triangle.Sieve) -> S
+    
+    func clean(_ cleaner: Cleaner)
 }
 
 extension GridDataStore {
-    
-    internal typealias Cleaner = ((_ slice: S, _ chunk: C) -> Bool)
     
     internal func clean(_ cleaner: Cleaner) {
         

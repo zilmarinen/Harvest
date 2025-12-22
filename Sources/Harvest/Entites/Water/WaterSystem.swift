@@ -23,7 +23,8 @@ internal struct WaterSystem: System {
             
             let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
-            return update(chunk: chunk,
+            return update(grid: water,
+                          chunk: chunk,
                           slice: slice,
                           terrainSlice: terrainSlice)
         }
@@ -32,7 +33,8 @@ internal struct WaterSystem: System {
 
 extension WaterSystem {
     
-    private func update(chunk: WaterChunk,
+    private func update(grid: Water,
+                        chunk: WaterChunk,
                         slice: TriangularGridDataSourceSlice<WaterTile>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>?) -> Bool {
         
@@ -51,7 +53,7 @@ extension WaterSystem {
                                              slice: slice))
         }
         
-        //dataSource.remove(values: invalidTiles)
+        grid.remove(values: invalidTiles)
         
         guard !polygons.isEmpty else { return false }
         

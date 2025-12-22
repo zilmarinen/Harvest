@@ -32,7 +32,8 @@ internal struct StairSystem: System {
             
             guard !terrainSlice.isEmpty else { return false }
             
-            return update(chunk: chunk,
+            return update(grid: stairs,
+                          chunk: chunk,
                           slice: slice,
                           terrainSlice: terrainSlice)
         }
@@ -41,7 +42,8 @@ internal struct StairSystem: System {
 
 extension StairSystem {
     
-    private func update(chunk: StairChunk,
+    private func update(grid: Stairs,
+                        chunk: StairChunk,
                         slice: TriangularGridDataSourceSlice<StairFootprint>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
@@ -71,7 +73,7 @@ extension StairSystem {
             result = result.merge(stairs.rotated(by: rotation).translated(by: stairTile.origin.position(.tile) + apexElevation))
         }
         
-        //dataSource.remove(values: invalidTiles)
+        grid.remove(values: invalidTiles)
         
         guard !mesh.polygons.isEmpty else { return false }
         

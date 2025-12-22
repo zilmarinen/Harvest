@@ -10,9 +10,9 @@ import RealityKit
 internal protocol GridDataSource: Entity {
     
     associatedtype C
-    associatedtype K
-    associatedtype S
-    associatedtype V
+    associatedtype K: Codable & Hashable
+    associatedtype S: GridDataSourceSlice
+    associatedtype V: Codable
     
     func merge(_ chunks: [C])
     
@@ -21,5 +21,19 @@ internal protocol GridDataSource: Entity {
     func set(_ value: V?,
              for key: K)
     
+    func remove(values keys: [K])
+    
     func slice(for sieve: Triangle.Sieve) -> S
+}
+
+extension GridDataSource {
+    
+    internal func remove(values keys: [K]) {
+     
+        keys.forEach {
+            
+            set(nil,
+                for: $0)
+        }
+    }
 }

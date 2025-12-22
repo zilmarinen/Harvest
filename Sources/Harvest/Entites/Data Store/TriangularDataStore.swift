@@ -39,6 +39,11 @@ internal class TriangularDataStore<C: TriangularChunk,
         dataSource.value(for: key)
     }
     
+    internal func remove(values keys: [Triangle]) {
+     
+        dataSource.remove(values: keys)
+    }
+    
     internal func slice(for sieve: Triangle.Sieve) -> TriangularGridDataSourceSlice<V> {
     
         dataSource.slice(for: sieve)

@@ -26,7 +26,8 @@ internal struct FoliageSystem: System {
             
             guard !terrainSlice.isEmpty else { return false }
             
-            return update(chunk: chunk,
+            return update(grid: foliage,
+                          chunk: chunk,
                           slice: slice,
                           terrainSlice: terrainSlice)
         }
@@ -35,7 +36,8 @@ internal struct FoliageSystem: System {
 
 extension FoliageSystem {
     
-    private func update(chunk: FoliageChunk,
+    private func update(grid: Foliage,
+                        chunk: FoliageChunk,
                         slice: TriangularGridDataSourceSlice<Triangle>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
@@ -55,7 +57,7 @@ extension FoliageSystem {
                                              elevation: elevation))
         }
         
-        //dataSource.remove(values: invalidTiles)
+        grid.remove(values: invalidTiles)
         
         guard !polygons.isEmpty else { return false }
         

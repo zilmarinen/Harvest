@@ -39,6 +39,11 @@ internal class HexagonalDataStore<C: TriangularChunk,
         dataSource.value(for: key)
     }
     
+    internal func remove(values keys: [Triangle.Vertex]) {
+        
+        dataSource.remove(values: keys)
+    }
+    
     internal func slice(for sieve: Triangle.Sieve) -> HexagonalGridDataSourceSlice<V> {
     
         dataSource.slice(for: sieve)
