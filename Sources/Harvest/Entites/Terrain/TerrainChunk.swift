@@ -25,7 +25,7 @@ internal class TerrainChunk: TriangularChunk,
         }
     }
     
-    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
+    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .sobel) }
     
     required internal init(_ triangle: Triangle) {
         

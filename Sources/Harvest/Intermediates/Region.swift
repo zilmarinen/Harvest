@@ -43,6 +43,14 @@ extension Region {
 
 extension Region {
     
+    public func remove(tiles region: Triangle) {
+        
+        //TODO: Remove tiles from adjacent regions
+    }
+}
+
+extension Region {
+    
     public init(empty triangle: Triangle) {
         
         self.init(triangle: triangle,
