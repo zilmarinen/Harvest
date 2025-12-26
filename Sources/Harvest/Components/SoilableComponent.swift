@@ -8,8 +8,7 @@ import RealityKit
 
 internal struct SoilableComponent: Component {
     
-    //TODO: Set this to false
-    internal var isDirty: Bool = true
+    internal var isDirty: Bool = false
 }
 
 internal protocol HasSoilableComponent: Entity {

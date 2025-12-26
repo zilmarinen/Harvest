@@ -41,3 +41,21 @@ extension TriangularDataSourceSlice {
         dataSource.isEmpty || grid == nil
     }
 }
+
+extension TriangularDataSourceSlice {
+ 
+    internal func remove(values keys: [TriangularChunkDataSource<V>.K]) {
+        
+        dataSource.forEach {
+            
+            $0.remove(values: keys)
+        }
+        
+        grid?.chunks.forEach {
+            
+            $0.becomeDirty()
+        }
+        
+        grid?.becomeDirty()
+    }
+}

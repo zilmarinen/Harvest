@@ -45,7 +45,14 @@ extension Region {
     
     public func remove(tiles region: Triangle) {
         
-        //TODO: Remove tiles from adjacent regions
+        let sieve = region.sieve(for: .region)
+        
+        edifices?.remove(values: sieve.tiles)
+        foliage?.remove(values: sieve.tiles)
+        footpaths?.remove(values: sieve.vertices)
+        stairs?.remove(values: sieve.tiles)
+        terrain?.remove(values: sieve.vertices)
+        water?.remove(values: sieve.tiles)
     }
 }
 

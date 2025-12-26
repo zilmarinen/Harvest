@@ -42,6 +42,24 @@ extension HexagonalDataSourceSlice {
     }
 }
 
+extension HexagonalDataSourceSlice {
+ 
+    internal func remove(values keys: [HexagonalChunkDataSource<V>.K]) {
+        
+        dataSource.forEach {
+            
+            $0.remove(values: keys)
+        }
+        
+        grid?.chunks.forEach {
+            
+            $0.becomeDirty()
+        }
+        
+        grid?.becomeDirty()
+    }
+}
+
 // MARK: Terrain
 
 extension HexagonalDataSourceSlice where C == TerrainChunk,
