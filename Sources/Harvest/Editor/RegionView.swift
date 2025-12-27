@@ -35,17 +35,15 @@ public class RegionView: EditorView {
         
         super.registerComponents()
         
-        DataSource<Triangle, Stoop>.registerComponent()
-        DataSource<Triangle, Triangle.Septomino>.registerComponent()
         DataSource<Triangle, WaterTile>.registerComponent()
         DataSource<Triangle.Vertex, TerrainVertex>.registerComponent()
-        DataSource<Triangle.Vertex, FootpathType>.registerComponent()
     }
     
     public override func registerSystems() {
         
         super.registerSystems()
         
+        EdificeSystem.registerSystem()
         FoliageSystem.registerSystem()
         FootpathSystem.registerSystem()
         StairSystem.registerSystem()
@@ -109,6 +107,39 @@ extension RegionView {
                      stairs: stairs.slice(region: triangle),
                      terrain: terrain,
                      water: water.slice(region: triangle))
+    }
+}
+
+// MARK: Edifices
+
+extension RegionView {
+    
+    public func set(_ septomino: Triangle.Septomino,
+                    for triangle: Triangle) {
+        
+        let value = EdificeFootprint(origin: triangle,
+                                     septomino: septomino)
+        
+        edifices.set(value,
+                     for: triangle)
+        
+        for tile in value.footprint.tiles {
+         
+            terrain.propagate(triangle: tile)
+        }
+    }
+    
+    public func remove(edifice triangle: Triangle) {
+        
+        guard let existing = edifices.value(for: triangle) else { return }
+        
+        edifices.set(nil,
+                     for: triangle)
+        
+        for tile in existing.footprint.tiles {
+            
+            terrain.propagate(triangle: tile)
+        }
     }
 }
 

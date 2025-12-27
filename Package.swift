@@ -17,6 +17,7 @@ let package = Package(
         .package(path: "../Cobble"),
         .package(path: "../Deltille"),
         .package(path: "../Lattice"),
+        .package(path: "../Lintel"),
         .package(path: "../Newel"),
         .package(path: "../Regolith"),
         .package(path: "../Verdure")
@@ -28,6 +29,7 @@ let package = Package(
                                "Deltille",
                                "Euclid",
                                "Lattice",
+                               "Lintel",
                                "Newel",
                                "Regolith",
                                "Verdure"],

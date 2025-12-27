@@ -28,13 +28,15 @@ internal struct TerrainSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
+        guard let edifices = context.scene.find(entity: .edifices) as? Edifices,
+              let stairs = context.scene.find(entity: .stairs) as? Stairs,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
         terrain.clean { slice, chunk in
             
             return update(chunk: chunk,
                           slice: slice,
+                          edifices: edifices,
                           stairs: stairs)
         }
     }
@@ -44,11 +46,13 @@ extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
                         slice: HexagonalGridDataSourceSlice<TerrainVertex>,
+                        edifices: Edifices,
                         stairs: Stairs) -> Bool {
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard stairs.value(for: tile.tile) == nil else { return }
+            guard edifices.value(for: tile.tile) == nil,
+                  stairs.value(for: tile.tile) == nil else { return }
             
             let stencil = tile.tile.stencil(.tile)
             
