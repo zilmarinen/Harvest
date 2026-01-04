@@ -11,6 +11,8 @@ import RealityKit
 public class Cursor: Entity,
                      HasCursorComponent {
     
+    internal let vertex = Mesh.cursor(.conway)
+    
     public required init() {
         
         super.init()

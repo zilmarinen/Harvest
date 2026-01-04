@@ -18,94 +18,80 @@ internal struct CursorSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
+        guard let cursor = context.scene.find(entity: .cursor) as? Cursor,
+              let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        for entity in context.entities(matching: Self.query,
-                                       updatingSystemWhen: .rendering) {
+        guard let component = cursor.components[CursorComponent.self] else { return }
+        
+        let hitTest = cursor.hitTest(scale: .tile)
+        
+        guard component.cursorStyle != .vertex else {
             
-            guard let cursor = entity as? Cursor,
-                  let component = cursor.components[CursorComponent.self] else { return }
-            
-            let triangle = Triangle(component.focus,
-                                    .tile)
-            
-            let vertex = triangle.closest(component.focus,
-                                      .tile)
-            
-            switch component.cursorStyle {
-                
-            case .hexagonal: layout(cursors: cursor.children,
-                                    terrain: terrain,
-                                    hexagonal: vertex)
-                
-            case .triangle: update(cursors: cursor.children,
-                                   terrain: terrain,
-                                   triangle: triangle)
-                
-            case .vertex: update(cursors: cursor.children,
-                                 terrain: terrain,
-                                 vertex: vertex)
-            }
+            return layout(vertex: cursor.children,
+                          terrain: terrain,
+                          water: water,
+                          hitTest: hitTest)
         }
+        
+        let footprint = footprint(for: component.cursorStyle,
+                                  hitTest: hitTest)
+        
+        guard let rotation = component.rotation else {
+          
+            return layout(footprint: footprint,
+                          terrain: terrain,
+                          water: water)
+        }
+        
+        layout(footprint: footprint.rotate(rotation),
+               terrain: terrain,
+               water: water)
     }
 }
 
 extension CursorSystem {
     
-    private func layout(cursors: Entity.ChildCollection,
-                        terrain: Terrain,
-                        hexagonal vertex: Triangle.Vertex) {
-        
-        for i in vertex.vertices.indices {
-            
-            let child = cursors[i + 1]
-            
-            let vertex = vertex.vertices[i]
-            
-            let biome = terrain.value(for: vertex)
-            
-            let elevation = Double(biome?.elevation ?? 0)
-            
-            let offset = Vector(0.0,
-                                (TerrainSystem.Constant.baseHeight * elevation) +
-                                (elevation > 0 ? TerrainSystem.Constant.apexHeight : 0.0),
-                                0.0);
-            
-            child.position = .init(vertex.position(.tile) + offset)
-        }
-        
-        cursors.first?.position = .init(vertex.position(.tile))
-    }
+    // MARK: Footprint
     
-    private func update(cursors: Entity.ChildCollection,
-                        terrain: Terrain,
-                        triangle: Triangle) {
+    private func footprint(for style: CursorStyle,
+                           hitTest: HitTest) -> Triangle.Footprint {
         
-        for i in cursors.indices {
+        switch style {
             
-            let child = cursors[i]
+        case .footprint(let template):
             
-            let vertex = triangle.vertices[i % triangle.vertices.count]
+            return .init(hitTest.triangle,
+                         template.tiles)
             
-            let biome = terrain.value(for: vertex)
+        case .hexagonal:
             
-            let elevation = Double(biome?.elevation ?? 0)
+            return .init(hitTest.triangle,
+                         hitTest.vertex.tiles)
             
-            let offset = Vector(0.0,
-                                (TerrainSystem.Constant.baseHeight * elevation) +
-                                (elevation > 0 ? TerrainSystem.Constant.apexHeight : 0.0),
-                                0.0);
+        case .triangle:
             
-            child.position = .init(vertex.position(.tile) + offset)
+            return .init(hitTest.triangle,
+                         [Coordinate.zero])
+            
+        default: fatalError("Invalid cursor style for footprint")
         }
     }
     
-    private func update(cursors: Entity.ChildCollection,
+    private func layout(footprint: Triangle.Footprint,
                         terrain: Terrain,
-                        vertex: Triangle.Vertex) {
+                        water: Water) {
         
-        let biome = terrain.value(for: vertex)
+    }
+    
+    // MARK: Vertex
+    
+    private func layout(vertex cursors: Entity.ChildCollection,
+                        terrain: Terrain,
+                        water: Water,
+                        hitTest: HitTest) {
+        
+        let biome = terrain.value(for: hitTest.vertex)
         
         let elevation = Double(biome?.elevation ?? 0)
         
@@ -116,7 +102,7 @@ extension CursorSystem {
         
         cursors.forEach {
 
-            $0.position = .init(vertex.position(.tile) + offset)
+            $0.position = .init(hitTest.vertex.position(.tile) + offset)
         }
     }
 }

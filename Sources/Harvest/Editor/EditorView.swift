@@ -110,8 +110,8 @@ extension EditorView {
         cursor.set(focus: focus)
     }
     
-    public func set(cursor cursorStyle: CursorStyle) {
+    public func set(cursor style: CursorStyle) {
         
-        cursor.set(cursorStyle: cursorStyle)
+        cursor.set(style: style)
     }
 }

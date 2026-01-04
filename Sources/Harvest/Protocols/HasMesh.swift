@@ -31,7 +31,7 @@ extension HasMesh {
         Task {
             
             let shape = try await ShapeResource.generateStaticMesh(from: resource)
-            
+            print("Setting collision shape resource for \(self.name)")
             self.collision = .init(shapes: [shape],
                                    isStatic: true)
         }
