@@ -26,7 +26,7 @@ internal final class ShaderProgram {
         internal var id: String { rawValue }
     }
     
-    static let shared = ShaderProgram()
+    internal static let shared = ShaderProgram()
     
     private let device: MTLDevice
     private let library: MTLLibrary

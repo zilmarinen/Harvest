@@ -1,5 +1,5 @@
 {
-  "originHash" : "fbdb0a94539bd742e65b0021e62b13113bc049cbf80cfc82b5b67624fd1dd70d",
+  "originHash" : "ca1a44862450ca57754a4b69d685d3b1315cfb2d6d4c3dc78570b92d135823d5",
   "pins" : [
     {
       "identity" : "euclid",
@@ -7,7 +7,7 @@
       "location" : "git@github.com:nicklockwood/Euclid.git",
       "state" : {
         "branch" : "main",
-        "revision" : "83149e5b0be16bd44906a284787902c9392701e7"
+        "revision" : "0409eab36ce4e726e5c66f8885500fb97b030994"
       }
     }
   ],

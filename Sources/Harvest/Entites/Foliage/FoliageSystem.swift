@@ -9,6 +9,7 @@ import Deltille
 import Euclid
 import RealityKit
 import Verdure
+import Yield
 
 @MainActor
 internal struct FoliageSystem: System {
@@ -71,18 +72,20 @@ extension FoliageSystem {
     private func render(terrainTile: HexagonalGridDataSourceTile<TerrainVertex>,
                         elevation: Int) -> [Euclid.Polygon] {
         
-        guard let uniform = terrainTile.vertices.first?.value.biome else { return [] }
-        
-        let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
-        let origin = terrainTile.tile.position(.tile)
-        let angle = Angle(radians: terrainTile.tile.rotation)
-        let rotation = Rotation.yaw(angle)
-        
-        let mesh = Mesh.foliage(.antlia,
-                                .columnar,
-                                uniform.foliage,
-                                uniform.foliage).rotated(by: rotation).translated(by: origin + apexElevation)
-        
-        return mesh.polygons
+        do {
+            
+            let mesh = try AssetCache.shared.load(mesh: .foliage(.antlia))
+            
+            let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
+            let origin = terrainTile.tile.position(.tile)
+            let angle = Angle(radians: terrainTile.tile.rotation)
+            let rotation = Rotation.yaw(angle)
+            
+            return mesh.polygons.rotated(by: rotation).translated(by: origin + apexElevation)
+        }
+        catch {
+            
+            fatalError("Error loading asset: \(error.localizedDescription)")
+        }
     }
 }

@@ -20,7 +20,8 @@ let package = Package(
         .package(path: "../Lintel"),
         .package(path: "../Newel"),
         .package(path: "../Regolith"),
-        .package(path: "../Verdure")
+        .package(path: "../Verdure"),
+        .package(path: "../Yield")
     ],
     targets: [
         .target(name: "Harvest",
@@ -32,7 +33,8 @@ let package = Package(
                                "Lintel",
                                "Newel",
                                "Regolith",
-                               "Verdure"],
+                               "Verdure",
+                               "Yield"],
                 resources: [.process("Shaders")])
     ]
 )
