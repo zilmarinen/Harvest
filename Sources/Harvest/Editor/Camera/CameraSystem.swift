@@ -4,30 +4,33 @@
 //  Created by Zack Brown on 16/08/2025.
 //
 
+import Euclid
 import RealityKit
 
 @MainActor
 internal struct CameraSystem: System {
     
-    private static let query = EntityQuery(where: .has(CameraFocusComponent.self))
-    
     init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
         
-        for entity in context.entities(matching: Self.query,
-                                       updatingSystemWhen: .rendering) {
-            
-            guard let camera = entity as? Camera,
-                  let focus = camera.components[CameraFocusComponent.self],
-                  let ortho = camera.pov.components[OrthographicCameraComponent.self] else { return }
-            
-            camera.position = .init(focus.focus)
-            camera.pov.position = -CameraFocusComponent.forward * ortho.scale * 2.0
+        guard let camera = context.scene.find(entity: .camera) as? Camera else { return }
+        
+        let elevation = .pi / 4.0
+        
+        let horizontal = camera.radius * cos(elevation)
+        let vertical = camera.radius * sin(elevation)
+        
+        let x = cos(camera.rotation) * horizontal
+        let z = sin(camera.rotation) * horizontal
+        
+        camera.position = .init(camera.focus)
+        camera.pov.position = .init(Float(x),
+                                    Float(vertical),
+                                    Float(z))
 
-            camera.pov.look(at: .zero,
-                            from: camera.pov.position,
-                            relativeTo: camera)
-        }
+        camera.pov.look(at: .zero,
+                        from: camera.pov.position,
+                        relativeTo: camera)
     }
 }

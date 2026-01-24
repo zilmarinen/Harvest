@@ -40,7 +40,7 @@ open class EditorView: ARView {
  
     open func registerComponents() {
         
-        CameraFocusComponent.registerComponent()
+        CameraComponent.registerComponent()
         CursorComponent.registerComponent()
     }
     
@@ -82,22 +82,24 @@ extension EditorView {
 
 extension EditorView {
     
-    public func translate(x: Double,
-                          z: Double) {
+    public func camera(focus value: Vector) {
         
-        camera.translate(by: .init(x, 0.0, z))
+        camera.focus(on: value)
     }
     
-    public func set(camera focus: Vector) {
+    public func camera(translate value: Vector) {
         
-        // TODO: add has camera component protocol
-        camera.focus(on: focus)
+        camera.translate(by: value.normalized())
     }
     
-    public func set(zoom value: Float) {
+    public func camera(zoom value: Double) {
         
-        // TODO: add has camera component protocol
         camera.zoom(delta: value)
+    }
+    
+    public func camera(rotate value: Triangle.Rotation) {
+        
+        camera.rotate(direction: value)
     }
 }
 
@@ -105,13 +107,13 @@ extension EditorView {
 
 extension EditorView {
     
-    public func set(cursor focus: Vector) {
+    public func cursor(focus value: Vector) {
         
-        cursor.set(focus: focus)
+        cursor.set(focus: value)
     }
     
-    public func set(cursor style: CursorStyle) {
+    public func cursor(style value: CursorStyle) {
         
-        cursor.set(style: style)
+        cursor.set(style: value)
     }
 }
