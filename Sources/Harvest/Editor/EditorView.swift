@@ -87,6 +87,11 @@ extension EditorView {
         camera.focus(on: value)
     }
     
+    public func camera(rotate value: Triangle.Rotation) {
+        
+        camera.rotate(direction: value)
+    }
+    
     public func camera(translate value: Vector) {
         
         camera.translate(by: value.normalized())
@@ -96,11 +101,6 @@ extension EditorView {
         
         camera.zoom(delta: value)
     }
-    
-    public func camera(rotate value: Triangle.Rotation) {
-        
-        camera.rotate(direction: value)
-    }
 }
 
 // MARK: Cursor
@@ -109,11 +109,16 @@ extension EditorView {
     
     public func cursor(focus value: Vector) {
         
-        cursor.set(focus: value)
+        cursor.focus(on: value)
     }
     
-    public func cursor(style value: CursorStyle) {
+    public func cursor(rotate value: Triangle.Rotation) {
         
-        cursor.set(style: value)
+        cursor.rotate(direction: value)
+    }
+    
+    public func cursor(toggle style: CursorStyle) {
+        
+        cursor.toggle(style: style)
     }
 }

@@ -16,7 +16,7 @@ internal struct CameraSystem: System {
         
         guard let camera = context.scene.find(entity: .camera) as? Camera else { return }
         
-        let elevation = .pi / 4.0
+        let elevation = Angle(degrees: 35.264)
         
         let horizontal = camera.radius * cos(elevation)
         let vertical = camera.radius * sin(elevation)

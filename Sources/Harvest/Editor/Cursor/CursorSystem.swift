@@ -22,11 +22,9 @@ internal struct CursorSystem: System {
               let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        guard let component = cursor.components[CursorComponent.self] else { return }
-        
         let hitTest = cursor.hitTest(scale: .tile)
         
-        guard component.cursorStyle != .vertex else {
+        guard cursor.cursorStyle != .vertex else {
             
             return layout(vertex: cursor.children,
                           terrain: terrain,
@@ -34,19 +32,19 @@ internal struct CursorSystem: System {
                           hitTest: hitTest)
         }
         
-        let footprint = footprint(for: component.cursorStyle,
-                                  hitTest: hitTest)
-        
-        guard let rotation = component.rotation else {
-          
-            return layout(footprint: footprint,
-                          terrain: terrain,
-                          water: water)
-        }
-        
-        layout(footprint: footprint.rotate(rotation),
-               terrain: terrain,
-               water: water)
+//        let footprint = footprint(for: cursor.cursorStyle,
+//                                  hitTest: hitTest)
+//        
+//        guard let rotation = cursor.rotation else {
+//          
+//            return layout(footprint: footprint,
+//                          terrain: terrain,
+//                          water: water)
+//        }
+//        
+//        layout(footprint: footprint.rotate(rotation),
+//               terrain: terrain,
+//               water: water)
     }
 }
 

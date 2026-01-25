@@ -30,9 +30,9 @@ internal protocol HasCameraComponent: Entity {
     var rotation: Double { get }
     
     func focus(on location: Vector)
+    func rotate(direction: Triangle.Rotation)
     func translate(by delta: Vector)
     func zoom(delta: Double)
-    func rotate(direction: Triangle.Rotation)
 }
 
 extension HasCameraComponent {
@@ -87,24 +87,6 @@ extension HasCameraComponent {
         cameraComponent.focus = location
     }
     
-    internal func translate(by delta: Vector) {
-        
-        let forward = Vector(pov.forward.x,
-                             0.0,
-                             pov.forward.z).normalized()
-        
-        let scalar = (1.0 / (CameraComponent.maximumRadius - CameraComponent.minimumRadius)) * cameraComponent.radius
-        
-        cameraComponent.focus += (forward * (-delta.z * scalar)) + (pov.right * (-delta.x * scalar))
-    }
-    
-    internal func zoom(delta: Double) {
-        
-        cameraComponent.radius = max(CameraComponent.minimumRadius,
-                                     min(CameraComponent.maximumRadius,
-                                         cameraComponent.radius + delta))
-    }
-    
     internal func rotate(direction: Triangle.Rotation) {
         
         switch cameraComponent.rotation {
@@ -119,7 +101,27 @@ extension HasCameraComponent {
             
         default:
             
-            cameraComponent.rotation = direction == .clockwise ? .clockwise : .counterClockwise
+            cameraComponent.rotation = direction
         }
+    }
+    
+    internal func translate(by delta: Vector) {
+        
+        //zero out y component to translate along xz plane
+        let forward = Vector(pov.forward.x,
+                             0.0,
+                             pov.forward.z).normalized()
+        
+        //scale translation based on zoom level
+        let scalar = (1.0 / (CameraComponent.maximumRadius - CameraComponent.minimumRadius)) * cameraComponent.radius
+        
+        cameraComponent.focus += (forward * (-delta.z * scalar)) + (pov.right * (-delta.x * scalar))
+    }
+    
+    internal func zoom(delta: Double) {
+        
+        cameraComponent.radius = max(CameraComponent.minimumRadius,
+                                     min(CameraComponent.maximumRadius,
+                                         cameraComponent.radius + delta))
     }
 }

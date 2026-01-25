@@ -19,11 +19,14 @@ internal protocol HasCursorComponent: Entity {
     
     var cursorComponent: CursorComponent { get }
     
-    func set(style value: CursorStyle)
-    func set(focus value: Vector)
-    func set(rotation value: Triangle.Rotation?)
+    var cursorStyle: CursorStyle { get }
+    var focus: Vector { get }
+    var rotation: Double { get }
     
+    func focus(on location: Vector)
     func hitTest(scale: Triangle.Scale) -> HitTest
+    func rotate(direction: Triangle.Rotation)
+    func toggle(style value: CursorStyle)
 }
 
 extension HasCursorComponent {
@@ -48,19 +51,34 @@ extension HasCursorComponent {
         }
     }
     
-    internal func set(style value: CursorStyle) {
+    internal var cursorStyle: CursorStyle {
         
-        cursorComponent.cursorStyle = value
+        cursorComponent.cursorStyle
     }
     
-    internal func set(focus value: Vector) {
+    internal var focus: Vector {
         
-        cursorComponent.focus = value
+        cursorComponent.focus
     }
     
-    internal func set(rotation value: Triangle.Rotation?) {
+    internal var rotation: Double {
         
-        cursorComponent.rotation = value
+        switch cursorComponent.rotation {
+        
+        case .clockwise: Triangle.Rotation.step
+            
+        case .counterClockwise: -Triangle.Rotation.step
+        
+        default: 0.0
+        }
+    }
+}
+
+extension HasCursorComponent {
+    
+    internal func focus(on location: Vector) {
+        
+        cursorComponent.focus = location
     }
     
     internal func hitTest(scale: Triangle.Scale) -> HitTest {
@@ -74,5 +92,28 @@ extension HasCursorComponent {
         return .init(pointInWorld: cursorComponent.focus,
                      triangle: triangle,
                      vertex: vertex)
+    }
+    
+    internal func rotate(direction: Triangle.Rotation) {
+        
+        switch cursorComponent.rotation {
+            
+        case .clockwise:
+            
+            cursorComponent.rotation = direction == .clockwise ? .counterClockwise : nil
+            
+        case .counterClockwise:
+            
+            cursorComponent.rotation = direction == .clockwise ? nil : .clockwise
+            
+        default:
+            
+            cursorComponent.rotation = direction
+        }
+    }
+    
+    internal func toggle(style value: CursorStyle) {
+        
+        cursorComponent.cursorStyle = value
     }
 }
