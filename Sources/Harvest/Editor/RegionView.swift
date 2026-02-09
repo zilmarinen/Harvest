@@ -12,10 +12,10 @@ import RealityKit
 
 public class RegionView: EditorView {
     
-    internal let edifices = Edifices()
+    internal let buildings = Buildings()
     internal let foliage = Foliage()
     internal let footpaths = Footpaths()
-    internal let stairs = Stairs()
+    internal let staircases = Staircases()
     internal let terrain = Terrain()
     internal let water = Water()
         
@@ -23,10 +23,10 @@ public class RegionView: EditorView {
         
         super.init(frame: frame)
         
-        world.addChild(edifices)
+        world.addChild(buildings)
         world.addChild(foliage)
         world.addChild(footpaths)
-        world.addChild(stairs)
+        world.addChild(staircases)
         world.addChild(terrain)
         world.addChild(water)
     }
@@ -43,10 +43,10 @@ public class RegionView: EditorView {
         
         super.registerSystems()
         
-        EdificeSystem.registerSystem()
+        BuildingSystem.registerSystem()
         FoliageSystem.registerSystem()
         FootpathSystem.registerSystem()
-        StairSystem.registerSystem()
+        StaircaseSystem.registerSystem()
         TerrainSystem.registerSystem()
         WaterSystem.registerSystem()
     }
@@ -73,10 +73,10 @@ extension RegionView {
             terrain.merge(slice)
         }
         
-        if let slice = region.edifices { edifices.merge(slice) }
+        if let slice = region.buildings { buildings.merge(slice) }
         if let slice = region.foliage { foliage.merge(slice) }
         if let slice = region.footpaths { footpaths.merge(slice) }
-        if let slice = region.stairs { stairs.merge(slice) }
+        if let slice = region.staircases { staircases.merge(slice) }
         if let slice = region.water { water.merge(slice) }
     }
 }
@@ -101,27 +101,27 @@ extension RegionView {
         
         return .init(triangle: triangle,
                      identifier: terrain?.grid?.name ?? triangle.id,
-                     edifices: edifices.slice(region: triangle),
+                     buildings: buildings.slice(region: triangle),
                      foliage: foliage.slice(region: triangle),
                      footpaths: footpaths.slice(region: triangle),
-                     stairs: stairs.slice(region: triangle),
+                     staircases: staircases.slice(region: triangle),
                      terrain: terrain,
                      water: water.slice(region: triangle))
     }
 }
 
-// MARK: Edifices
+// MARK: Buildings
 
 extension RegionView {
     
     public func set(_ septomino: Triangle.Septomino,
                     for triangle: Triangle) {
         
-        let value = EdificeFootprint(origin: triangle,
-                                     septomino: septomino)
+        let value = BuildingFootprint(origin: triangle,
+                                      septomino: septomino)
         
-        edifices.set(value,
-                     for: triangle)
+        buildings.set(value,
+                      for: triangle)
         
         for tile in value.footprint.tiles {
          
@@ -129,12 +129,12 @@ extension RegionView {
         }
     }
     
-    public func remove(edifice triangle: Triangle) {
+    public func remove(building triangle: Triangle) {
         
-        guard let existing = edifices.value(for: triangle) else { return }
+        guard let existing = buildings.value(for: triangle) else { return }
         
-        edifices.set(nil,
-                     for: triangle)
+        buildings.set(nil,
+                      for: triangle)
         
         for tile in existing.footprint.tiles {
             
@@ -178,18 +178,18 @@ extension RegionView {
     }
 }
 
-// MARK: Stairs
+// MARK: Staircases
 
 extension RegionView {
     
-    public func set(_ stoop: Stoop,
+    public func set(_ staircaseType: StaircaseType,
                     for triangle: Triangle) {
         
-        let value = StairFootprint(origin: triangle,
-                                   stoop: stoop)
+        let value = StaircaseFootprint(origin: triangle,
+                                       staircaseType: staircaseType)
         
-        stairs.set(value,
-                   for: triangle)
+        staircases.set(value,
+                       for: triangle)
         
         for tile in value.footprint.tiles {
          
@@ -199,10 +199,10 @@ extension RegionView {
     
     public func remove(staircase triangle: Triangle) {
         
-        guard let existing = stairs.value(for: triangle) else { return }
+        guard let existing = staircases.value(for: triangle) else { return }
         
-        stairs.set(nil,
-                   for: triangle)
+        staircases.set(nil,
+                       for: triangle)
         
         for tile in existing.footprint.tiles {
             
@@ -259,7 +259,7 @@ extension RegionView {
         
         foliage.propagate(vertex: vertex)
         footpaths.propagate(vertex: vertex)
-        stairs.propagate(vertex: vertex)
+        staircases.propagate(vertex: vertex)
         water.propagate(vertex: vertex)
     }
 }

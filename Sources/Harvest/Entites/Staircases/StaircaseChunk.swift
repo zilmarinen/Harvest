@@ -1,5 +1,5 @@
 //
-//  StairChunk.swift
+//  StaircaseChunk.swift
 //
 //  Created by Zack Brown on 12/11/2025.
 //
@@ -9,8 +9,8 @@ import Euclid
 import Newel
 import RealityKit
 
-internal class StairChunk: TriangularChunk,
-                           HasMesh {
+internal class StaircaseChunk: TriangularChunk,
+                               HasMesh {
     
     internal var mesh: Mesh? {
         

@@ -28,16 +28,16 @@ internal struct TerrainSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let edifices = context.scene.find(entity: .edifices) as? Edifices,
-              let stairs = context.scene.find(entity: .stairs) as? Stairs,
+        guard let buildings = context.scene.find(entity: .buildings) as? Buildings,
+              let staircases = context.scene.find(entity: .staircases) as? Staircases,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
         terrain.clean { slice, chunk in
             
             return update(chunk: chunk,
                           slice: slice,
-                          edifices: edifices,
-                          stairs: stairs)
+                          buildings: buildings,
+                          staircases: staircases)
         }
     }
 }
@@ -46,13 +46,13 @@ extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
                         slice: HexagonalGridDataSourceSlice<TerrainVertex>,
-                        edifices: Edifices,
-                        stairs: Stairs) -> Bool {
+                        buildings: Buildings,
+                        staircases: Staircases) -> Bool {
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard edifices.value(for: tile.tile) == nil,
-                  stairs.value(for: tile.tile) == nil else { return }
+            guard buildings.value(for: tile.tile) == nil,
+                  staircases.value(for: tile.tile) == nil else { return }
             
             let stencil = tile.tile.stencil(.tile)
             
@@ -80,7 +80,7 @@ extension TerrainSystem {
             
             let kite = tile.tile.kite(index: corner.rawValue)
             
-            let angle = Angle(radians: Triangle.Rotation.step * Double(-corner.rawValue))
+            let angle = Angle(radians: Triangle.Rotation.turn * Double(-corner.rawValue))
             let rotation = Rotation.yaw(angle)
             
             let polygons = render(tile: tile,

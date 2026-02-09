@@ -71,9 +71,9 @@ extension HasCameraComponent {
         
         switch cameraComponent.rotation {
         
-        case .clockwise: Triangle.Rotation.step
+        case .clockwise: Triangle.Rotation.turn
             
-        case .counterClockwise: -Triangle.Rotation.step
+        case .counterClockwise: -Triangle.Rotation.turn
         
         default: 0.0
         }

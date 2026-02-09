@@ -1,5 +1,5 @@
 //
-//  StairSystem.swift
+//  StaircaseSystem.swift
 //
 //  Created by Zack Brown on 16/11/2025.
 //
@@ -11,7 +11,7 @@ import Newel
 import RealityKit
 
 @MainActor
-internal struct StairSystem: System {
+internal struct StaircaseSystem: System {
     
     internal enum Constant {
         
@@ -23,16 +23,16 @@ internal struct StairSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let stairs = context.scene.find(entity: .stairs) as? Stairs,
+        guard let staircases = context.scene.find(entity: .staircases) as? Staircases,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        stairs.clean { slice, chunk in
+        staircases.clean { slice, chunk in
             
             let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
             
             guard !terrainSlice.isEmpty else { return false }
             
-            return update(grid: stairs,
+            return update(grid: staircases,
                           chunk: chunk,
                           slice: slice,
                           terrainSlice: terrainSlice)
@@ -40,37 +40,37 @@ internal struct StairSystem: System {
     }
 }
 
-extension StairSystem {
+extension StaircaseSystem {
     
-    private func update(grid: Stairs,
-                        chunk: StairChunk,
-                        slice: TriangularGridDataSourceSlice<StairFootprint>,
+    private func update(grid: Staircases,
+                        chunk: StaircaseChunk,
+                        slice: TriangularGridDataSourceSlice<StaircaseFootprint>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []
         
         let unique = Set(slice.tiles)
         
-        let mesh = unique.reduce(into: Mesh.empty) { result, stairTile in
+        let mesh = unique.reduce(into: Mesh.empty) { result, staircaseTile in
             
-            guard let terrainTile = terrainSlice.tile(for: stairTile.origin) else {
+            guard let terrainTile = terrainSlice.tile(for: staircaseTile.origin) else {
                 
-                invalidTiles.append(stairTile.origin)
+                invalidTiles.append(staircaseTile.origin)
                 
                 return
             }
             
             let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
             
-            let angle = Angle(radians: stairTile.origin.rotation)
+            let angle = Angle(radians: staircaseTile.origin.rotation)
             let rotation = Rotation.yaw(angle)
             
-            let stairs = Mesh.staircase(stairTile.stoop,
-                                        7,
-                                        TerrainSystem.Constant.baseHeight,
-                                        .ascending)
+            let staircase = Mesh.staircase(staircaseTile.staircaseType,
+                                           7,
+                                           TerrainSystem.Constant.baseHeight,
+                                           .ascending)
 
-            result = result.merge(stairs.rotated(by: rotation).translated(by: stairTile.origin.position(.tile) + apexElevation))
+            result = result.merge(staircase.rotated(by: rotation).translated(by: staircaseTile.origin.position(.tile) + apexElevation))
         }
         
         grid.remove(values: invalidTiles)

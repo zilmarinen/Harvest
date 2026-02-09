@@ -14,10 +14,10 @@ public struct Region: Codable,
     public let triangle: Triangle
     public var identifier: String = ""
     
-    internal let edifices: TriangularDataSourceSlice<EdificeChunk, EdificeFootprint>?
+    internal let buildings: TriangularDataSourceSlice<BuildingChunk, BuildingFootprint>?
     internal let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
     internal let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
-    internal let stairs: TriangularDataSourceSlice<StairChunk, StairFootprint>?
+    internal let staircases: TriangularDataSourceSlice<StaircaseChunk, StaircaseFootprint>?
     internal let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
     internal let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
     
@@ -47,10 +47,10 @@ extension Region {
         
         let sieve = region.sieve(for: .region)
         
-        edifices?.remove(values: sieve.tiles)
+        buildings?.remove(values: sieve.tiles)
         foliage?.remove(values: sieve.tiles)
         footpaths?.remove(values: sieve.vertices)
-        stairs?.remove(values: sieve.tiles)
+        staircases?.remove(values: sieve.tiles)
         terrain?.remove(values: sieve.vertices)
         water?.remove(values: sieve.tiles)
     }
@@ -61,10 +61,10 @@ extension Region {
     public init(empty triangle: Triangle) {
         
         self.init(triangle: triangle,
-                  edifices: nil,
+                  buildings: nil,
                   foliage: nil,
                   footpaths: nil,
-                  stairs: nil,
+                  staircases: nil,
                   terrain: .init(empty: triangle),
                   water: nil)
         

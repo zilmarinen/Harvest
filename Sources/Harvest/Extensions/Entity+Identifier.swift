@@ -12,12 +12,12 @@ extension Entity {
                               Identifiable,
                               Sendable {
         
+        case buildings
         case camera
         case cursor
-        case edifices
         case foliage
         case footpaths
-        case stairs
+        case staircases
         case terrain
         case water
         

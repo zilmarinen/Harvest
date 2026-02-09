@@ -1,5 +1,5 @@
 //
-//  Stairs.swift
+//  Staircases.swift
 //
 //  Created by Zack Brown on 12/11/2025.
 //
@@ -8,12 +8,12 @@ import Deltille
 import Newel
 import RealityKit
 
-internal class Stairs: TriangularFootprintDataStore<StairChunk, StairFootprint> {
+internal class Staircases: TriangularFootprintDataStore<StaircaseChunk, StaircaseFootprint> {
     
     required internal init() {
         
         super.init()
         
-        name = Entity.Identifier.stairs.id
+        name = Entity.Identifier.staircases.id
     }
 }

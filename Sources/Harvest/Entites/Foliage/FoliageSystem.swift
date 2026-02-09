@@ -74,6 +74,8 @@ extension FoliageSystem {
         
         do {
             
+            let septomino = self.septomino(for: terrainTile.tile)
+            
             let mesh = try AssetCache.shared.load(mesh: .foliage(.antlia))
             
             let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
@@ -87,5 +89,12 @@ extension FoliageSystem {
             
             fatalError("Error loading asset: \(error.localizedDescription)")
         }
+    }
+    
+    private func septomino(for triangle: Triangle) -> Triangle.Septomino {
+        
+        let septominos = Triangle.Septomino.allCases
+        
+        return septominos[abs(triangle.vertex.position.identifier) % septominos.count]
     }
 }
