@@ -38,8 +38,10 @@ internal class WaterChunk: TriangularChunk,
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        self.mesh = try container.decode(Mesh.self,
-                                         forKey: .mesh)
+        let objString = try container.decode(String.self,
+                                                     forKey: .mesh)
+                
+        self.mesh = Mesh(objString: objString)
         
         updateModel()
     }
@@ -50,7 +52,7 @@ internal class WaterChunk: TriangularChunk,
     
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(mesh,
+        try container.encode(mesh?.objString(),
                              forKey: .mesh)
     }
 }
