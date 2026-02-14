@@ -15,6 +15,7 @@ public class RegionView: EditorView {
     internal let buildings = Buildings()
     internal let foliage = Foliage()
     internal let footpaths = Footpaths()
+    internal let portals = Portals()
     internal let staircases = Staircases()
     internal let terrain = Terrain()
     internal let water = Water()
@@ -26,6 +27,7 @@ public class RegionView: EditorView {
         world.addChild(buildings)
         world.addChild(foliage)
         world.addChild(footpaths)
+        world.addChild(portals)
         world.addChild(staircases)
         world.addChild(terrain)
         world.addChild(water)
@@ -46,6 +48,7 @@ public class RegionView: EditorView {
         BuildingSystem.registerSystem()
         FoliageSystem.registerSystem()
         FootpathSystem.registerSystem()
+        PortalSystem.registerSystem()
         StaircaseSystem.registerSystem()
         TerrainSystem.registerSystem()
         WaterSystem.registerSystem()
@@ -76,6 +79,7 @@ extension RegionView {
         if let slice = region.buildings { buildings.merge(slice) }
         if let slice = region.foliage { foliage.merge(slice) }
         if let slice = region.footpaths { footpaths.merge(slice) }
+        if let slice = region.portals { portals.merge(slice) }
         if let slice = region.staircases { staircases.merge(slice) }
         if let slice = region.water { water.merge(slice) }
     }
@@ -104,6 +108,7 @@ extension RegionView {
                      buildings: buildings.slice(region: triangle),
                      foliage: foliage.slice(region: triangle),
                      footpaths: footpaths.slice(region: triangle),
+                     portals: portals.slice(region: triangle),
                      staircases: staircases.slice(region: triangle),
                      terrain: terrain,
                      water: water.slice(region: triangle))
@@ -175,6 +180,23 @@ extension RegionView {
         
         footpaths.set(nil,
                       for: vertex)
+    }
+}
+
+// MARK: Portals
+
+extension RegionView {
+    
+    public func add(portal triangle: Triangle) {
+        
+        portals.set(.init(triangle: triangle),
+                    for: triangle)
+    }
+    
+    public func remove(portal triangle: Triangle) {
+        
+        portals.set(nil,
+                    for: triangle)
     }
 }
 

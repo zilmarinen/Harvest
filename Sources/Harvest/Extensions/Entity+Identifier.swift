@@ -17,6 +17,7 @@ extension Entity {
         case cursor
         case foliage
         case footpaths
+        case portals
         case staircases
         case terrain
         case water

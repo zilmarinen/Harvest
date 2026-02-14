@@ -17,6 +17,7 @@ public struct Region: Codable,
     internal let buildings: TriangularDataSourceSlice<BuildingChunk, BuildingFootprint>?
     internal let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
     internal let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
+    internal let portals: TriangularDataSourceSlice<PortalChunk, PortalTile>?
     internal let staircases: TriangularDataSourceSlice<StaircaseChunk, StaircaseFootprint>?
     internal let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
     internal let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
@@ -50,6 +51,7 @@ extension Region {
         buildings?.remove(values: sieve.tiles)
         foliage?.remove(values: sieve.tiles)
         footpaths?.remove(values: sieve.vertices)
+        portals?.remove(values: sieve.tiles)
         staircases?.remove(values: sieve.tiles)
         terrain?.remove(values: sieve.vertices)
         water?.remove(values: sieve.tiles)
@@ -64,6 +66,7 @@ extension Region {
                   buildings: nil,
                   foliage: nil,
                   footpaths: nil,
+                  portals: nil,
                   staircases: nil,
                   terrain: .init(empty: triangle),
                   water: nil)
