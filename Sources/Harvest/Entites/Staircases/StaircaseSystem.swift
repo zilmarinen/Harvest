@@ -44,7 +44,7 @@ extension StaircaseSystem {
     
     private func update(grid: Staircases,
                         chunk: StaircaseChunk,
-                        slice: TriangularGridDataSourceSlice<StaircaseFootprint>,
+                        slice: TriangularGridDataSourceSlice<StaircaseTile>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []

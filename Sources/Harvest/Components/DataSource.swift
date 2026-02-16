@@ -37,9 +37,9 @@ internal protocol HasDataSource: Entity {
 
 extension HasDataSource {
     
-    internal var data: [K : V] { dataSource.data }
-    
     internal var isEmpty: Bool { dataSource.isEmpty }
+    
+    internal var data: [K : V] { dataSource.data }
 }
 
 extension HasDataSource {

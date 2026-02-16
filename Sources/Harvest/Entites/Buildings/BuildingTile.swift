@@ -1,12 +1,12 @@
 //
-//  BuildingFootprint.swift
+//  BuildingTile.swift
 //
 //  Created by Zack Brown on 14/12/2025.
 //
 
 import Deltille
 
-internal struct BuildingFootprint: HasTriangleFootprint {
+public struct BuildingTile: HasTriangleFootprint {
     
     internal var origin: Triangle
     

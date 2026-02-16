@@ -49,12 +49,12 @@ public class TriangularRegion<C: TriangularChunk>: TriangularEntity,
 
 extension TriangularRegion {
     
-    internal var isEmpty: Bool {
+    public var isEmpty: Bool {
         
         chunks.isEmpty
     }
     
-    internal var chunks: [C] {
+    public var chunks: [C] {
         
         children.compactMap {
             

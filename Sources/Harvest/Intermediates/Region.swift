@@ -14,13 +14,13 @@ public struct Region: Codable,
     public let triangle: Triangle
     public var identifier: String = ""
     
-    internal let buildings: TriangularDataSourceSlice<BuildingChunk, BuildingFootprint>?
-    internal let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
-    internal let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
-    internal let portals: TriangularDataSourceSlice<PortalChunk, PortalTile>?
-    internal let staircases: TriangularDataSourceSlice<StaircaseChunk, StaircaseFootprint>?
-    internal let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
-    internal let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
+    public let buildings: TriangularDataSourceSlice<BuildingChunk, BuildingTile>?
+    public let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
+    public let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
+    public let portals: TriangularDataSourceSlice<PortalChunk, PortalTile>?
+    public let staircases: TriangularDataSourceSlice<StaircaseChunk, StaircaseTile>?
+    public let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
+    public let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
     
     public func hash(into hasher: inout Hasher) {
         
@@ -38,7 +38,8 @@ extension Region {
     
     public var isEmpty: Bool {
         
-        terrain?.isEmpty ?? true
+        (terrain?.isEmpty ?? true) &&
+        (water?.isEmpty ?? true)
     }
 }
 

@@ -122,8 +122,8 @@ extension RegionView {
     public func set(_ septomino: Triangle.Septomino,
                     for triangle: Triangle) {
         
-        let value = BuildingFootprint(origin: triangle,
-                                      septomino: septomino)
+        let value = BuildingTile(origin: triangle,
+                                 septomino: septomino)
         
         buildings.set(value,
                       for: triangle)
@@ -207,8 +207,8 @@ extension RegionView {
     public func set(_ staircaseType: StaircaseType,
                     for triangle: Triangle) {
         
-        let value = StaircaseFootprint(origin: triangle,
-                                       staircaseType: staircaseType)
+        let value = StaircaseTile(origin: triangle,
+                                  staircaseType: staircaseType)
         
         staircases.set(value,
                        for: triangle)

@@ -8,8 +8,8 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class BuildingChunk: TriangularChunk,
-                              HasMesh {
+public class BuildingChunk: TriangularChunk,
+                            HasMesh {
       
       internal var mesh: Mesh? {
           

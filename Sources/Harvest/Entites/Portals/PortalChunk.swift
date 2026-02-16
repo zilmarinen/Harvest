@@ -9,9 +9,8 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class PortalChunk: TriangularChunk,
-                            HasCollision,
-                            HasMesh {
+public class PortalChunk: TriangularChunk,
+                          HasMesh {
     
     internal enum CodingKeys: CodingKey {
         
@@ -47,7 +46,7 @@ internal class PortalChunk: TriangularChunk,
         updateModel()
     }
     
-    internal override func encode(to encoder: any Encoder) throws {
+    public override func encode(to encoder: any Encoder) throws {
         
         try super.encode(to: encoder)
     

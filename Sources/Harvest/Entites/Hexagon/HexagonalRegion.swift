@@ -48,12 +48,12 @@ public class HexagonalRegion<C: HexagonalEntity>: HexagonalEntity {
 
 extension HexagonalRegion {
     
-    internal var isEmpty: Bool {
+    public var isEmpty: Bool {
         
         chunks.isEmpty
     }
     
-    internal var chunks: [C] {
+    public var chunks: [C] {
         
         children.compactMap {
             

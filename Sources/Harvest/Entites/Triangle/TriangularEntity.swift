@@ -18,8 +18,8 @@ public class TriangularEntity: Entity,
         case triangle
     }
     
-    internal let triangle: Triangle
-    internal let scale: Triangle.Scale
+    public let triangle: Triangle
+    public let scale: Triangle.Scale
     
     internal init(_ triangle: Triangle,
                   _ scale: Triangle.Scale) {

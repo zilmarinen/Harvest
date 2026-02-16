@@ -7,7 +7,7 @@
 import Deltille
 import RealityKit
 
-internal class Buildings: TriangularFootprintDataStore<BuildingChunk, BuildingFootprint> {
+internal class Buildings: TriangularFootprintDataStore<BuildingChunk, BuildingTile> {
     
     required internal init() {
         

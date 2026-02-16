@@ -38,7 +38,7 @@ extension BuildingSystem {
     
     private func update(grid: Buildings,
                         chunk: BuildingChunk,
-                        slice: TriangularGridDataSourceSlice<BuildingFootprint>,
+                        slice: TriangularGridDataSourceSlice<BuildingTile>,
                         terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
         
         var invalidTiles: [Triangle] = []

@@ -7,13 +7,13 @@
 import Deltille
 
 @MainActor
-internal class TriangularDataSourceSlice<C: TriangularChunk,
-                                         V: Codable>: Codable,
-                                                      @preconcurrency Equatable,
-                                                      @preconcurrency Hashable {
+public class TriangularDataSourceSlice<C: TriangularChunk,
+                                       V: Codable>: Codable,
+                                                    @preconcurrency Equatable,
+                                                    @preconcurrency Hashable {
     
-    internal let dataSource: [TriangularChunkDataSource<V>]
-    internal let grid: TriangularRegion<C>?
+    public let dataSource: [TriangularChunkDataSource<V>]
+    public let grid: TriangularRegion<C>?
     
     internal init(dataSource: [TriangularChunkDataSource<V>],
                   grid: TriangularRegion<C>?) {

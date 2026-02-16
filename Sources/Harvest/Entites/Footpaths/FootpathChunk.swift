@@ -8,8 +8,8 @@ import Deltille
 import Euclid
 import RealityKit
 
-internal class FootpathChunk: TriangularChunk,
-                              HasMesh {
+public class FootpathChunk: TriangularChunk,
+                            HasMesh {
     
     internal enum CodingKeys: CodingKey {
         
@@ -45,7 +45,7 @@ internal class FootpathChunk: TriangularChunk,
         updateModel()
     }
     
-    internal override func encode(to encoder: any Encoder) throws {
+    public override func encode(to encoder: any Encoder) throws {
         
         try super.encode(to: encoder)
     

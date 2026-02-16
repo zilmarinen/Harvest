@@ -16,8 +16,8 @@ public class HexagonalEntity: Entity,
        case scale
    }
     
-    internal let hexagon: Hexagon
-    internal let scale: Hexagon.Scale
+    public let hexagon: Hexagon
+    public let scale: Hexagon.Scale
     
     internal init(_ hexagon: Hexagon,
                   _ scale: Hexagon.Scale) {

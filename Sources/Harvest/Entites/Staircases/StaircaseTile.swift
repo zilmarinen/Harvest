@@ -1,5 +1,5 @@
 //
-//  StaircaseFootprint.swift
+//  StaircaseTile.swift
 //
 //  Created by Zack Brown on 05/12/2025.
 //
@@ -7,7 +7,7 @@
 import Deltille
 import Newel
 
-internal struct StaircaseFootprint: HasTriangleFootprint {
+public struct StaircaseTile: HasTriangleFootprint {
     
     internal var origin: Triangle
     
