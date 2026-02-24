@@ -20,6 +20,7 @@ internal final class ShaderProgram {
                            Identifiable {
         
         case customMaterial
+        case grid
         case sobel
         case water
         

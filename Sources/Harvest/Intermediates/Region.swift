@@ -61,7 +61,8 @@ extension Region {
 
 extension Region {
     
-    public init(empty triangle: Triangle) {
+    public init(empty triangle: Triangle,
+                identifier: String? = nil) {
         
         self.init(triangle: triangle,
                   buildings: nil,
@@ -72,6 +73,6 @@ extension Region {
                   terrain: .init(empty: triangle),
                   water: nil)
         
-        self.identifier = triangle.id
+        self.identifier = identifier ?? triangle.id
     }
 }
