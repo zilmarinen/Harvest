@@ -73,7 +73,7 @@ extension ShaderProgram {
         
         let material = try? CustomMaterial(surfaceShader: surfaceShader(for: program),
                                            geometryModifier: geometryModifier(for: program),
-                                           lightingModel: .lit)
+                                           lightingModel: .unlit)
         
         guard let material else { return nil }
         
