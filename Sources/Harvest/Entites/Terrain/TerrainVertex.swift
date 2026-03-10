@@ -5,6 +5,7 @@
 //
 
 import Deltille
+import Lattice
 
 public struct TerrainVertex: Codable,
                              Hashable {
@@ -15,7 +16,12 @@ public struct TerrainVertex: Codable,
     public let elevation: Int
 }
 
-extension HexagonalGridDataSourceTile where V == TerrainVertex {
+extension HexagonalDataStoreTile where V == TerrainVertex {
+    
+    internal var hasThreeVertices: Bool {
+        
+        vertices.count == 3
+    }
     
     internal var isUniform: Bool {
         
@@ -72,7 +78,7 @@ extension HexagonalGridDataSourceTile where V == TerrainVertex {
     }
 }
 
-extension HexagonalGridDataSourceTile where V == TerrainVertex {
+extension HexagonalDataStoreTile where V == TerrainVertex {
     
     internal func biome(for vertex: Triangle.Vertex) -> V? {
         

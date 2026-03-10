@@ -6,6 +6,7 @@
 
 import Deltille
 import Euclid
+import Lattice
 import Newel
 import RealityKit
 

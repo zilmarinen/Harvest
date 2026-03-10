@@ -5,10 +5,11 @@
 //
 
 import Deltille
+import Lattice
 import Newel
 import RealityKit
 
-internal class Staircases: TriangularFootprintDataStore<StaircaseChunk, StaircaseTile> {
+internal class Staircases: TriangularLattice<StaircaseChunk, StaircaseTile> {
     
     required internal init() {
         

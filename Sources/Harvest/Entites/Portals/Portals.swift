@@ -6,9 +6,10 @@
 //
 
 import Deltille
+import Lattice
 import RealityKit
 
-internal class Portals: TriangularDataStore<PortalChunk, PortalTile> {
+internal class Portals: TriangularLattice<PortalChunk, PortalTile> {
     
     required internal init() {
         

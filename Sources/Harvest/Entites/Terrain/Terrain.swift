@@ -5,9 +5,10 @@
 //
 
 import Deltille
+import Lattice
 import RealityKit
 
-internal class Terrain: HexagonalDataStore<TerrainChunk, TerrainVertex> {
+internal class Terrain: HexagonalLattice<TerrainChunk, TerrainVertex> {
     
     required internal init() {
         

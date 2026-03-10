@@ -5,32 +5,34 @@
 //
 
 import Deltille
+import Lattice
 
 @MainActor
+//TODO: Rename to RegionSlice?
 public struct Region: Codable,
                       @preconcurrency Equatable,
                       @preconcurrency Hashable {
 
-    public let triangle: Triangle
+    public let origin: Triangle.Vertex
     public var identifier: String = ""
     
-    public let buildings: TriangularDataSourceSlice<BuildingChunk, BuildingTile>?
-    public let foliage: TriangularDataSourceSlice<FoliageChunk, Triangle>?
-    public let footpaths: HexagonalDataSourceSlice<FootpathChunk, FootpathType>?
-    public let portals: TriangularDataSourceSlice<PortalChunk, PortalTile>?
-    public let staircases: TriangularDataSourceSlice<StaircaseChunk, StaircaseTile>?
-    public let terrain: HexagonalDataSourceSlice<TerrainChunk, TerrainVertex>?
-    public let water: TriangularDataSourceSlice<WaterChunk, WaterTile>?
+    public let buildings: TriangularLatticeSlice<BuildingChunk, BuildingTile>?
+    public let foliage: TriangularLatticeSlice<FoliageChunk, FoliageTile>?
+    public let footpaths: HexagonalLatticeSlice<FootpathChunk, FootpathType>?
+    public let portals: TriangularLatticeSlice<PortalChunk, PortalTile>?
+    public let staircases: TriangularLatticeSlice<StaircaseChunk, StaircaseTile>?
+    public let terrain: HexagonalLatticeSlice<TerrainChunk, TerrainVertex>?
+    public let water: TriangularLatticeSlice<WaterChunk, WaterTile>?
     
     public func hash(into hasher: inout Hasher) {
         
-        hasher.combine(triangle)
+        hasher.combine(origin)
     }
     
     public static func == (lhs: Region,
                            rhs: Region) -> Bool {
         
-        lhs.triangle == rhs.triangle
+        lhs.origin == rhs.origin
     }
 }
 
@@ -49,13 +51,16 @@ extension Region {
         
         let sieve = region.sieve(for: .region)
         
-        buildings?.remove(values: sieve.tiles)
-        foliage?.remove(values: sieve.tiles)
-        footpaths?.remove(values: sieve.vertices)
-        portals?.remove(values: sieve.tiles)
-        staircases?.remove(values: sieve.tiles)
-        terrain?.remove(values: sieve.vertices)
-        water?.remove(values: sieve.tiles)
+        let tiles = sieve.tiles.map { $0.vertex }
+        let vertices = sieve.vertices
+        
+        buildings?.remove(values: tiles)
+        foliage?.remove(values: tiles)
+        footpaths?.remove(values: vertices)
+        portals?.remove(values: tiles)
+        staircases?.remove(values: tiles)
+        terrain?.remove(values: vertices)
+        water?.remove(values: tiles)
     }
 }
 
@@ -64,7 +69,7 @@ extension Region {
     public init(empty triangle: Triangle,
                 identifier: String? = nil) {
         
-        self.init(triangle: triangle,
+        self.init(origin: triangle.vertex,
                   buildings: nil,
                   foliage: nil,
                   footpaths: nil,

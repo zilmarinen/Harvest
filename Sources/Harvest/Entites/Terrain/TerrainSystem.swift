@@ -7,6 +7,7 @@
 import AppKit
 import Deltille
 import Euclid
+import Lattice
 import RealityKit
 import Regolith
 
@@ -45,14 +46,14 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: HexagonalGridDataSourceSlice<TerrainVertex>,
+                        slice: HexagonalDataStoreSlice<TerrainVertex>,
                         buildings: Buildings,
                         staircases: Staircases) -> Bool {
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard buildings.value(for: tile.tile) == nil,
-                  staircases.value(for: tile.tile) == nil else { return }
+            guard buildings.value(for: tile.tile.vertex) == nil,
+                  staircases.value(for: tile.tile.vertex) == nil else { return }
             
             let stencil = tile.tile.stencil(.tile)
             
@@ -69,7 +70,7 @@ extension TerrainSystem {
         return true
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
+    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
                         stencil: Triangle.Stencil) -> [Euclid.Polygon] {
         
         let origin = tile.tile.position(.tile)
@@ -94,7 +95,7 @@ extension TerrainSystem {
         }
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
+    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
                         vertex: Triangle.Vertex,
                         stencil: Triangle.Stencil,
                         kite: Triangle.Kite,

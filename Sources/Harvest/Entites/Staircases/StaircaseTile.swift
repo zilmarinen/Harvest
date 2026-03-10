@@ -5,19 +5,23 @@
 //
 
 import Deltille
+import Lattice
 import Newel
 
-public struct StaircaseTile: HasTriangleFootprint {
+public struct StaircaseTile: HasFootprint {
     
-    internal var origin: Triangle
+    public let origin: Triangle
     
-    internal var footprint: Triangle.Footprint {
+    public var rotation: Triangle.Rotation?
+    
+    public let staircaseType: StaircaseType
+}
+
+extension StaircaseTile {
+    
+    public var footprint: Triangle.Footprint {
         
         .init(origin,
-              staircaseType.footprint.tiles.map { $0.vertex.position })
+              [Triangle.zero])
     }
-    
-    internal var rotation: Triangle.Rotation?
-    
-    internal let staircaseType: StaircaseType
 }

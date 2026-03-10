@@ -7,6 +7,7 @@
 import AppKit
 import Deltille
 import Euclid
+import Lattice
 import RealityKit
 import Verdure
 import Yield
@@ -39,17 +40,17 @@ extension FoliageSystem {
     
     private func update(grid: Foliage,
                         chunk: FoliageChunk,
-                        slice: TriangularGridDataSourceSlice<Triangle>,
-                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: TriangularDataStoreSlice<FoliageTile>,
+                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
         
-        var invalidTiles: [Triangle] = []
+        var invalid: [Triangle.Vertex] = []
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
             
-            guard let terrainTile = terrainSlice.tile(for: triangle),
+            guard let terrainTile = terrainSlice.tile(for: triangle.origin.vertex),
                   let elevation = terrainTile.uniformElevation else {
                 
-                invalidTiles.append(triangle)
+                invalid.append(triangle.origin.vertex)
                 
                 return
             }
@@ -58,7 +59,7 @@ extension FoliageSystem {
                                              elevation: elevation))
         }
         
-        grid.remove(values: invalidTiles)
+        grid.remove(values: invalid)
         
         guard !polygons.isEmpty else { return false }
         
@@ -69,7 +70,7 @@ extension FoliageSystem {
         return true
     }
     
-    private func render(terrainTile: HexagonalGridDataSourceTile<TerrainVertex>,
+    private func render(terrainTile: HexagonalDataStoreTile<TerrainVertex>,
                         elevation: Int) -> [Euclid.Polygon] {
         
         do {

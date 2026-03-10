@@ -39,7 +39,7 @@ extension HasCursorComponent {
             
             if components[CursorComponent.self] == nil {
                 
-                components[CursorComponent.self] = component
+                components.set(component)
             }
             
             return component
@@ -47,7 +47,7 @@ extension HasCursorComponent {
         
         set  {
             
-            components[CursorComponent.self] = newValue
+            components.set(newValue)
         }
     }
     

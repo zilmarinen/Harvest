@@ -6,9 +6,20 @@
 //
 
 import Deltille
+import Lattice
 
-public struct PortalTile: Codable,
-                          Hashable {
+public struct PortalTile: HasFootprint {
     
-    public let triangle: Triangle
+    public let origin: Triangle
+}
+
+extension PortalTile {
+    
+    public var footprint: Triangle.Footprint {
+        
+        .init(origin,
+              [Triangle.zero])
+    }
+    
+    public var rotation: Triangle.Rotation? { nil }
 }

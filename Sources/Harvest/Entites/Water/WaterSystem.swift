@@ -7,6 +7,7 @@
 import AppKit
 import Deltille
 import Euclid
+import Lattice
 import RealityKit
 
 @MainActor
@@ -35,16 +36,16 @@ extension WaterSystem {
     
     private func update(grid: Water,
                         chunk: WaterChunk,
-                        slice: TriangularGridDataSourceSlice<WaterTile>,
-                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>?) -> Bool {
+                        slice: TriangularDataStoreSlice<WaterTile>,
+                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>?) -> Bool {
         
-        var invalidTiles: [Triangle] = []
+        var invalid: [Triangle.Vertex] = []
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard terrainSlice?.tile(for: tile.triangle)?.base ?? 0 < tile.elevation else {
+            guard terrainSlice?.tile(for: tile.origin.vertex)?.base ?? 0 < tile.elevation else {
                 
-                invalidTiles.append(tile.triangle)
+                invalid.append(tile.origin.vertex)
                 
                 return
             }
@@ -53,7 +54,7 @@ extension WaterSystem {
                                              slice: slice))
         }
         
-        grid.remove(values: invalidTiles)
+        grid.remove(values: invalid)
         
         guard !polygons.isEmpty else { return false }
         
@@ -65,26 +66,26 @@ extension WaterSystem {
     }
     
     private func render(tile: WaterTile,
-                        slice: TriangularGridDataSourceSlice<WaterTile>) -> [Euclid.Polygon] {
+                        slice: TriangularDataStoreSlice<WaterTile>) -> [Euclid.Polygon] {
         
-        let identifier = tile.triangle.vertex.position.identifier
+        let identifier = tile.origin.vertex.position.identifier
         let apexColor = tile.waterType.colorPalette.color(for: identifier,
                                                           [.primary,
                                                            .secondary,
                                                            .tertiary])
         
         let apexElevation = Vector(0.0, (Double(tile.elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
-        let vertices = tile.triangle.vertices.map { $0.position(.tile) + apexElevation }
+        let vertices = tile.origin.vertices.map { $0.position(.tile) + apexElevation }
         let apexPath = vertices.path(apexColor)
         
         guard let apex = Polygon(shape: apexPath) else { return [] }
         
         var polygons = [apex]
         
-        for edge in tile.triangle.edges {
+        for edge in tile.origin.edges {
          
-            let adjacent = tile.triangle.neighbour(edge)
-            let elevation = slice.tile(for: adjacent)?.elevation ?? 0
+            let adjacent = tile.origin.neighbour(edge)
+            let elevation = slice.tile(for: adjacent.vertex)?.elevation ?? 0
             
             guard tile.elevation > elevation else { continue }
             
@@ -92,7 +93,7 @@ extension WaterSystem {
             
             let corners = edge.corners.map {
 
-                tile.triangle.vertex($0).position(.tile)
+                tile.origin.vertex($0).position(.tile)
             }
             
             let face =  corners.reversed().map { $0 + mantleElevation } +

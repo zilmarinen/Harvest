@@ -5,6 +5,7 @@
 //
 
 import AppKit
+import Bivouac
 import Cobble
 import Deltille
 import Euclid
@@ -37,14 +38,14 @@ internal struct FootpathSystem: System {
 extension FootpathSystem {
     
     private func update(chunk: FootpathChunk,
-                        slice: HexagonalGridDataSourceSlice<FootpathType>,
-                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: HexagonalDataStoreSlice<FootpathType>,
+                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
         
         var mesh = Mesh.empty
         
         for tile in slice.tiles {
             
-            guard let terrainTile = terrainSlice.tile(for: tile.tile) else { continue }
+            guard let terrainTile = terrainSlice.tile(for: tile.tile.vertex) else { continue }
             
             //
             guard let vertex = tile.vertices.first else { continue }

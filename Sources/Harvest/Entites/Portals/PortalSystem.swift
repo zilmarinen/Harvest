@@ -37,17 +37,17 @@ extension PortalSystem {
     
     private func update(grid: Portals,
                         chunk: PortalChunk,
-                        slice: TriangularGridDataSourceSlice<PortalTile>,
-                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: TriangularDataStoreSlice<PortalTile>,
+                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
         
-        var invalidTiles: [Triangle] = []
+        var invalid: [Triangle.Vertex] = []
         
         let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard let terrainTile = terrainSlice.tile(for: tile.triangle),
+            guard let terrainTile = terrainSlice.tile(for: tile.origin.vertex),
                   let elevation = terrainTile.uniformElevation else {
                 
-                invalidTiles.append(tile.triangle)
+                invalid.append(tile.origin.vertex)
                 
                 return
             }
@@ -56,7 +56,7 @@ extension PortalSystem {
                                              elevation: elevation))
         }
         
-        grid.remove(values: invalidTiles)
+        grid.remove(values: invalid)
         
         guard !polygons.isEmpty else { return false }
         
@@ -67,18 +67,18 @@ extension PortalSystem {
         return true
     }
     
-    private func render(tile: HexagonalGridDataSourceTile<TerrainVertex>,
+    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
                         elevation: Int) -> [Euclid.Polygon] {
-        
-        let apex = Vector(0.0,
-                          TerrainSystem.unitHeight(for: elevation) + 0.01,
-                          0.0)
-        
-        let vertices = tile.vertices.map { $0.key.position(.tile) + apex }
-        
-        let volume = Volume(vertices: vertices,
-                            displacement: Triangle.Scale.tile.edgeLength / 2.0)
-        
-        return volume.mesh(.red).polygons
+        Mesh.cube(size: .one).polygons
+//        let apex = Vector(0.0,
+//                          TerrainSystem.unitHeight(for: elevation) + 0.01,
+//                          0.0)
+//        
+//        let vertices = tile.vertices.map { $0.key.position(.tile) + apex }
+//        
+//        let volume = Volume(vertices: vertices,
+//                            displacement: Triangle.Scale.tile.edgeLength / 2.0)
+//        
+//        return volume.mesh(.red).polygons
     }
 }

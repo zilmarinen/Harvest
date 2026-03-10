@@ -5,9 +5,10 @@
 //
 
 import Deltille
+import Lattice
 import RealityKit
 
-internal class Buildings: TriangularFootprintDataStore<BuildingChunk, BuildingTile> {
+internal class Buildings: TriangularLattice<BuildingChunk, BuildingTile> {
     
     required internal init() {
         

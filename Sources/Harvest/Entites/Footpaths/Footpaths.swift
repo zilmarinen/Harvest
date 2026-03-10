@@ -5,16 +5,15 @@
 //
 
 import Deltille
+import Lattice
 import RealityKit
 
-internal class Footpaths: HexagonalDataStore<FootpathChunk, FootpathType> {
+internal class Footpaths: HexagonalLattice<FootpathChunk, FootpathType> {
     
     required internal init() {
         
         super.init()
         
         name = Entity.Identifier.footpaths.id
-        
-        addChild(dataSource)
     }
 }

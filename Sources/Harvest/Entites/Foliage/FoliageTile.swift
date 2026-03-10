@@ -1,21 +1,23 @@
 //
-//  WaterTile.swift
+//  FoliageTile.swift
+//  Harvest
 //
-//  Created by Zack Brown on 26/10/2025.
+//  Created by Zack Brown on 10/03/2026.
 //
 
+import Bivouac
 import Deltille
 import Lattice
+import Verdure
 
-public struct WaterTile: HasFootprint {
+public struct FoliageTile: HasFootprint {
     
     public let origin: Triangle
     
-    public let waterType: WaterType
-    public let elevation: Int
+    public let foliageType: Triangle.Septomino
 }
 
-extension WaterTile {
+extension FoliageTile {
     
     public var footprint: Triangle.Footprint {
         

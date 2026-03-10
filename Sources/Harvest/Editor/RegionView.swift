@@ -5,6 +5,7 @@
 //
 
 import AppKit
+import Bivouac
 import Deltille
 import Lattice
 import Newel
@@ -31,14 +32,16 @@ public class RegionView: EditorView {
         world.addChild(staircases)
         world.addChild(terrain)
         world.addChild(water)
+        
+        world.addChild(WorldFloorPlane())
     }
     
     public override func registerComponents() {
         
         super.registerComponents()
         
-        DataSource<Triangle, WaterTile>.registerComponent()
-        DataSource<Triangle.Vertex, TerrainVertex>.registerComponent()
+        DataStoreComponent<Triangle.Vertex, WaterTile>.registerComponent()
+        DataStoreComponent<Triangle.Vertex, TerrainVertex>.registerComponent()
     }
     
     public override func registerSystems() {
@@ -71,7 +74,7 @@ extension RegionView {
         
         if let slice = region.terrain {
             
-            slice.grid?.name = region.identifier
+            slice.region.name = region.identifier
             
             terrain.merge(slice)
         }
@@ -103,8 +106,8 @@ extension RegionView {
         
         let terrain = terrain.slice(region: triangle)
         
-        return .init(triangle: triangle,
-                     identifier: terrain?.grid?.name ?? triangle.id,
+        return .init(origin: triangle.vertex,
+                     identifier: terrain?.region.name ?? triangle.id,
                      buildings: buildings.slice(region: triangle),
                      foliage: foliage.slice(region: triangle),
                      footpaths: footpaths.slice(region: triangle),
@@ -126,7 +129,7 @@ extension RegionView {
                                  septomino: septomino)
         
         buildings.set(value,
-                      for: triangle)
+                      for: triangle.vertex)
         
         for tile in value.footprint.tiles {
          
@@ -136,10 +139,10 @@ extension RegionView {
     
     public func remove(building triangle: Triangle) {
         
-        guard let existing = buildings.value(for: triangle) else { return }
+        guard let existing = buildings.value(for: triangle.vertex) else { return }
         
         buildings.set(nil,
-                      for: triangle)
+                      for: triangle.vertex)
         
         for tile in existing.footprint.tiles {
             
@@ -154,14 +157,15 @@ extension RegionView {
     
     public func set(foliage triangle: Triangle) {
         
-        foliage.set(triangle,
-                    for: triangle)
+        foliage.set(.init(origin: triangle,
+                          foliageType: .fornax),
+                    for: triangle.vertex)
     }
     
     public func remove(foliage triangle: Triangle) {
         
         foliage.set(nil,
-                    for: triangle)
+                    for: triangle.vertex)
     }
 }
 
@@ -189,14 +193,14 @@ extension RegionView {
     
     public func add(portal triangle: Triangle) {
         
-        portals.set(.init(triangle: triangle),
-                    for: triangle)
+        portals.set(.init(origin: triangle),
+                    for: triangle.vertex)
     }
     
     public func remove(portal triangle: Triangle) {
         
         portals.set(nil,
-                    for: triangle)
+                    for: triangle.vertex)
     }
 }
 
@@ -211,7 +215,7 @@ extension RegionView {
                                   staircaseType: staircaseType)
         
         staircases.set(value,
-                       for: triangle)
+                       for: triangle.vertex)
         
         for tile in value.footprint.tiles {
          
@@ -221,10 +225,10 @@ extension RegionView {
     
     public func remove(staircase triangle: Triangle) {
         
-        guard let existing = staircases.value(for: triangle) else { return }
+        guard let existing = staircases.value(for: triangle.vertex) else { return }
         
         staircases.set(nil,
-                       for: triangle)
+                       for: triangle.vertex)
         
         for tile in existing.footprint.tiles {
             
@@ -292,7 +296,7 @@ extension RegionView {
     
     public func get(water triangle: Triangle) -> WaterTile? {
         
-        water.value(for: triangle)
+        water.value(for: triangle.vertex)
     }
     
     public func set(_ waterType: WaterType,
@@ -302,12 +306,12 @@ extension RegionView {
         guard elevation > 0 else {
             
             return water.set(nil,
-                             for: triangle)
+                             for: triangle.vertex)
         }
         
-        water.set(.init(triangle: triangle,
+        water.set(.init(origin: triangle,
                         waterType: waterType,
                         elevation: elevation),
-                  for: triangle)
+                  for: triangle.vertex)
     }
 }

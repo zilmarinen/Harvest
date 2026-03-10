@@ -5,9 +5,10 @@
 //
 
 import Deltille
+import Lattice
 import RealityKit
 
-internal class Water: TriangularDataStore<WaterChunk, WaterTile> {
+internal class Water: TriangularLattice<WaterChunk, WaterTile> {
     
     required internal init() {
         

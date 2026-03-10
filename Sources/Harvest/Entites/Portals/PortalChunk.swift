@@ -7,6 +7,7 @@
 
 import Deltille
 import Euclid
+import Lattice
 import RealityKit
 
 public class PortalChunk: TriangularChunk,

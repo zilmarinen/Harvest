@@ -7,6 +7,7 @@
 import AppKit
 import Deltille
 import Euclid
+import Lattice
 import Lintel
 import RealityKit
 
@@ -38,18 +39,18 @@ extension BuildingSystem {
     
     private func update(grid: Buildings,
                         chunk: BuildingChunk,
-                        slice: TriangularGridDataSourceSlice<BuildingTile>,
-                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: TriangularDataStoreSlice<BuildingTile>,
+                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
         
-        var invalidTiles: [Triangle] = []
+        var invalid: [Triangle.Vertex] = []
         
         let unique = Set(slice.tiles)
         
         let mesh = unique.reduce(into: Mesh.empty) { result, buildingTile in
             
-            guard let terrainTile = terrainSlice.tile(for: buildingTile.origin) else {
+            guard let terrainTile = terrainSlice.tile(for: buildingTile.origin.vertex) else {
                 
-                invalidTiles.append(buildingTile.origin)
+                invalid.append(buildingTile.origin.vertex)
                 
                 return
             }
@@ -64,7 +65,7 @@ extension BuildingSystem {
             result = result.merge(building.rotated(by: rotation).translated(by: buildingTile.origin.position(.tile) + apexElevation))
         }
         
-        grid.remove(values: invalidTiles)
+        grid.remove(values: invalid)
         
         guard !mesh.polygons.isEmpty else { return false }
         

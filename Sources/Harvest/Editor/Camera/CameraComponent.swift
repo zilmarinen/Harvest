@@ -16,7 +16,7 @@ internal struct CameraComponent: Component {
     
     internal var focus: Vector = .zero
     internal var radius: Double = Self.maximumRadius
-    internal var rotation: Triangle.Rotation? = nil
+    internal var rotation: Hexagon.Rotation = .turns(0)
 }
 
 internal protocol HasCameraComponent: Entity {
@@ -30,7 +30,7 @@ internal protocol HasCameraComponent: Entity {
     var rotation: Double { get }
     
     func focus(on location: Vector)
-    func rotate(direction: Triangle.Rotation)
+    func rotate(direction: Hexagon.Rotation)
     func translate(by delta: Vector)
     func zoom(delta: Double)
 }
@@ -45,7 +45,7 @@ extension HasCameraComponent {
             
             if components[CameraComponent.self] == nil {
                 
-                components[CameraComponent.self] = component
+                components.set(component)
             }
             
             return component
@@ -53,7 +53,7 @@ extension HasCameraComponent {
         
         set  {
             
-            components[CameraComponent.self] = newValue
+            components.set(newValue)
         }
     }
     
@@ -69,14 +69,9 @@ extension HasCameraComponent {
     
     internal var rotation: Double {
         
-        switch cameraComponent.rotation {
+        guard case .turns(let turns) = cameraComponent.rotation else { return 0.0 }
         
-        case .clockwise: Triangle.Rotation.turn
-            
-        case .counterClockwise: -Triangle.Rotation.turn
-        
-        default: 0.0
-        }
+        return Double(turns) * Hexagon.Rotation.turn
     }
 }
 
@@ -87,22 +82,11 @@ extension HasCameraComponent {
         cameraComponent.focus = location
     }
     
-    internal func rotate(direction: Triangle.Rotation) {
+    internal func rotate(direction: Hexagon.Rotation) {
         
-        switch cameraComponent.rotation {
-            
-        case .clockwise:
-            
-            cameraComponent.rotation = direction == .clockwise ? .counterClockwise : nil
-            
-        case .counterClockwise:
-            
-            cameraComponent.rotation = direction == .clockwise ? nil : .clockwise
-            
-        default:
-            
-            cameraComponent.rotation = direction
-        }
+        guard case .turns(let turns) = cameraComponent.rotation else { return }
+        
+        cameraComponent.rotation = .turns(turns + (direction == .clockwise ? 1 : -1))
     }
     
     internal func translate(by delta: Vector) {

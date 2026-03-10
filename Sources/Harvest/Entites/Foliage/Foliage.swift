@@ -5,9 +5,10 @@
 //
 
 import Deltille
+import Lattice
 import RealityKit
 
-internal class Foliage: TriangularDataStore<FoliageChunk, Triangle> {
+internal class Foliage: TriangularLattice<FoliageChunk, FoliageTile> {
     
     required internal init() {
         

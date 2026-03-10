@@ -7,6 +7,7 @@
 import AppKit
 import Deltille
 import Euclid
+import Lattice
 import Newel
 import RealityKit
 
@@ -44,18 +45,18 @@ extension StaircaseSystem {
     
     private func update(grid: Staircases,
                         chunk: StaircaseChunk,
-                        slice: TriangularGridDataSourceSlice<StaircaseTile>,
-                        terrainSlice: HexagonalGridDataSourceSlice<TerrainVertex>) -> Bool {
+                        slice: TriangularDataStoreSlice<StaircaseTile>,
+                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
         
-        var invalidTiles: [Triangle] = []
+        var invalid: [Triangle.Vertex] = []
         
         let unique = Set(slice.tiles)
         
         let mesh = unique.reduce(into: Mesh.empty) { result, staircaseTile in
             
-            guard let terrainTile = terrainSlice.tile(for: staircaseTile.origin) else {
+            guard let terrainTile = terrainSlice.tile(for: staircaseTile.origin.vertex) else {
                 
-                invalidTiles.append(staircaseTile.origin)
+                invalid.append(staircaseTile.origin.vertex)
                 
                 return
             }
@@ -73,7 +74,7 @@ extension StaircaseSystem {
             result = result.merge(staircase.rotated(by: rotation).translated(by: staircaseTile.origin.position(.tile) + apexElevation))
         }
         
-        grid.remove(values: invalidTiles)
+        grid.remove(values: invalid)
         
         guard !mesh.polygons.isEmpty else { return false }
         

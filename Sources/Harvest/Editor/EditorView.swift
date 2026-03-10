@@ -87,7 +87,7 @@ extension EditorView {
         camera.focus(on: value)
     }
     
-    public func camera(rotate value: Triangle.Rotation) {
+    public func camera(rotate value: Hexagon.Rotation) {
         
         camera.rotate(direction: value)
     }

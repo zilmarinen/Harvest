@@ -4,19 +4,24 @@
 //  Created by Zack Brown on 14/12/2025.
 //
 
+import Bivouac
 import Deltille
+import Lattice
 
-public struct BuildingTile: HasTriangleFootprint {
+public struct BuildingTile: HasFootprint {
     
-    internal var origin: Triangle
+    public let origin: Triangle
     
-    internal var footprint: Triangle.Footprint {
+    public var rotation: Triangle.Rotation?
+    
+    public let septomino: Triangle.Septomino
+}
+
+extension BuildingTile {
+    
+    public var footprint: Triangle.Footprint {
         
         .init(origin,
               septomino.coordinates)
     }
-    
-    internal var rotation: Triangle.Rotation?
-    
-    internal let septomino: Triangle.Septomino
 }
