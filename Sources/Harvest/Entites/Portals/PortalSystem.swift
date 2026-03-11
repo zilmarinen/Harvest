@@ -21,14 +21,14 @@ internal struct PortalSystem: System {
         guard let portals = context.scene.find(entity: .portals) as? Portals,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        portals.clean { slice, chunk in
+        portals.clean { wedge, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
+            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
             return update(grid: portals,
                           chunk: chunk,
-                          slice: slice,
-                          terrainSlice: terrainSlice)
+                          wedge: wedge,
+                          terrainWedge: terrainWedge)
         }
     }
 }
@@ -37,14 +37,14 @@ extension PortalSystem {
     
     private func update(grid: Portals,
                         chunk: PortalChunk,
-                        slice: TriangularDataStoreSlice<PortalTile>,
-                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
+                        wedge: TriangularDataStoreWedge<PortalTile>,
+                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
         var invalid: [Triangle.Vertex] = []
         
-        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard let terrainTile = terrainSlice.tile(for: tile.origin.vertex),
+            guard let terrainTile = terrainWedge.tile(for: tile.origin.vertex),
                   let elevation = terrainTile.uniformElevation else {
                 
                 invalid.append(tile.origin.vertex)

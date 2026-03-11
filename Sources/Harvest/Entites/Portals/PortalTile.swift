@@ -8,7 +8,7 @@
 import Deltille
 import Lattice
 
-public struct PortalTile: HasFootprint {
+public struct PortalTile: TriangularDataStoreTile {
     
     public let origin: Triangle
 }
@@ -18,7 +18,7 @@ extension PortalTile {
     public var footprint: Triangle.Footprint {
         
         .init(origin,
-              [Triangle.zero])
+              [Coordinate.zero])
     }
     
     public var rotation: Triangle.Rotation? { nil }

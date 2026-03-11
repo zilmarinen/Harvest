@@ -92,9 +92,7 @@ extension RegionView {
 
 extension RegionView {
     
-    public func save(regions triangle: Triangle) -> [Region] {
-        
-        let regions = [triangle] + triangle.perimeter
+    public func save(regions: [Triangle]) -> [Region] {
         
         return regions.map {
             

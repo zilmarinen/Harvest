@@ -20,7 +20,12 @@ extension HexagonalLatticeSlice where C == TerrainChunk,
         let tile = triangle.transpose(.region,
                                       .tile)
         
-        for vertex in tile.vertices {
+        let vertices = Set(tile.perimeter.flatMap {
+            
+            $0.vertices
+        })
+        
+        for vertex in vertices {
             
             let value = TerrainVertex(vertex: vertex,
                                       biome: .rainforest,
@@ -32,7 +37,7 @@ extension HexagonalLatticeSlice where C == TerrainChunk,
         
         guard let slice = lattice.slice(region: triangle) else { return nil }
         
-        self.init(dataSource: slice.dataSource,
+        self.init(dataStore: slice.dataStore,
                   region: slice.region)
     }
 }

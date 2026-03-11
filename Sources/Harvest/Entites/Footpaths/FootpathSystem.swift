@@ -22,15 +22,15 @@ internal struct FootpathSystem: System {
         guard let footpaths = context.scene.find(entity: .footpaths) as? Footpaths,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        footpaths.clean { slice, chunk in
+        footpaths.clean { wedge, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
+            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
-            guard !terrainSlice.isEmpty else { return false }
+            guard !terrainWedge.isEmpty else { return false }
             
             return update(chunk: chunk,
-                          slice: slice,
-                          terrainSlice: terrainSlice)
+                          wedge: wedge,
+                          terrainWedge: terrainWedge)
         }
     }
 }
@@ -38,14 +38,14 @@ internal struct FootpathSystem: System {
 extension FootpathSystem {
     
     private func update(chunk: FootpathChunk,
-                        slice: HexagonalDataStoreSlice<FootpathType>,
-                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
+                        wedge: HexagonalDataStoreWedge<FootpathType>,
+                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
         var mesh = Mesh.empty
         
-        for tile in slice.tiles {
+        for tile in wedge.tiles {
             
-            guard let terrainTile = terrainSlice.tile(for: tile.tile.vertex) else { continue }
+            guard let terrainTile = terrainWedge.tile(for: tile.tile.vertex) else { continue }
             
             //
             guard let vertex = tile.vertices.first else { continue }

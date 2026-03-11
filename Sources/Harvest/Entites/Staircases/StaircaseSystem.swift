@@ -27,16 +27,16 @@ internal struct StaircaseSystem: System {
         guard let staircases = context.scene.find(entity: .staircases) as? Staircases,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        staircases.clean { slice, chunk in
+        staircases.clean { wedge, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
+            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
-            guard !terrainSlice.isEmpty else { return false }
+            guard !terrainWedge.isEmpty else { return false }
             
             return update(grid: staircases,
                           chunk: chunk,
-                          slice: slice,
-                          terrainSlice: terrainSlice)
+                          wedge: wedge,
+                          terrainWedge: terrainWedge)
         }
     }
 }
@@ -45,16 +45,16 @@ extension StaircaseSystem {
     
     private func update(grid: Staircases,
                         chunk: StaircaseChunk,
-                        slice: TriangularDataStoreSlice<StaircaseTile>,
-                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
+                        wedge: TriangularDataStoreWedge<StaircaseTile>,
+                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
         var invalid: [Triangle.Vertex] = []
         
-        let unique = Set(slice.tiles)
+        let unique = Set(wedge.tiles)
         
         let mesh = unique.reduce(into: Mesh.empty) { result, staircaseTile in
             
-            guard let terrainTile = terrainSlice.tile(for: staircaseTile.origin.vertex) else {
+            guard let terrainTile = terrainWedge.tile(for: staircaseTile.origin.vertex) else {
                 
                 invalid.append(staircaseTile.origin.vertex)
                 

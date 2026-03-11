@@ -33,10 +33,10 @@ internal struct TerrainSystem: System {
               let staircases = context.scene.find(entity: .staircases) as? Staircases,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        terrain.clean { slice, chunk in
+        terrain.clean { wedge, chunk in
             
             return update(chunk: chunk,
-                          slice: slice,
+                          wedge: wedge,
                           buildings: buildings,
                           staircases: staircases)
         }
@@ -46,11 +46,11 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        slice: HexagonalDataStoreSlice<TerrainVertex>,
+                        wedge: HexagonalDataStoreWedge<TerrainVertex>,
                         buildings: Buildings,
                         staircases: Staircases) -> Bool {
         
-        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
             guard buildings.value(for: tile.tile.vertex) == nil,
                   staircases.value(for: tile.tile.vertex) == nil else { return }

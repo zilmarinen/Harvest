@@ -8,7 +8,7 @@ import Deltille
 import Lattice
 import Newel
 
-public struct StaircaseTile: HasFootprint {
+public struct StaircaseTile: TriangularDataStoreTile {
     
     public let origin: Triangle
     
@@ -22,6 +22,6 @@ extension StaircaseTile {
     public var footprint: Triangle.Footprint {
         
         .init(origin,
-              [Triangle.zero])
+              [Coordinate.zero])
     }
 }

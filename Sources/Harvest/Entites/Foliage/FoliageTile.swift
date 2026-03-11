@@ -10,7 +10,7 @@ import Deltille
 import Lattice
 import Verdure
 
-public struct FoliageTile: HasFootprint {
+public struct FoliageTile: TriangularDataStoreTile {
     
     public let origin: Triangle
     
@@ -22,7 +22,7 @@ extension FoliageTile {
     public var footprint: Triangle.Footprint {
         
         .init(origin,
-              [Triangle.zero])
+              [Coordinate.zero])
     }
     
     public var rotation: Triangle.Rotation? { nil }

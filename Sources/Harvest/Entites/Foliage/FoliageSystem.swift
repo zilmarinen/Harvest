@@ -22,16 +22,16 @@ internal struct FoliageSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let foliage = context.scene.find(entity: .foliage) as? Foliage else { return }
         
-        foliage.clean { slice, chunk in
+        foliage.clean { wedge, chunk in
             
-            let terrainSlice = terrain.slice(for: chunk.triangle.sieve(for: .chunk))
+            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
-            guard !terrainSlice.isEmpty else { return false }
+            guard !terrainWedge.isEmpty else { return false }
             
             return update(grid: foliage,
                           chunk: chunk,
-                          slice: slice,
-                          terrainSlice: terrainSlice)
+                          wedge: wedge,
+                          terrainWedge: terrainWedge)
         }
     }
 }
@@ -40,14 +40,14 @@ extension FoliageSystem {
     
     private func update(grid: Foliage,
                         chunk: FoliageChunk,
-                        slice: TriangularDataStoreSlice<FoliageTile>,
-                        terrainSlice: HexagonalDataStoreSlice<TerrainVertex>) -> Bool {
+                        wedge: TriangularDataStoreWedge<FoliageTile>,
+                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
         var invalid: [Triangle.Vertex] = []
         
-        let polygons = slice.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
             
-            guard let terrainTile = terrainSlice.tile(for: triangle.origin.vertex),
+            guard let terrainTile = terrainWedge.tile(for: triangle.origin.vertex),
                   let elevation = terrainTile.uniformElevation else {
                 
                 invalid.append(triangle.origin.vertex)

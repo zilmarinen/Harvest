@@ -7,7 +7,7 @@
 import Deltille
 import Lattice
 
-public struct WaterTile: HasFootprint {
+public struct WaterTile: TriangularDataStoreTile {
     
     public let origin: Triangle
     
@@ -20,7 +20,7 @@ extension WaterTile {
     public var footprint: Triangle.Footprint {
         
         .init(origin,
-              [Triangle.zero])
+              [Coordinate.zero])
     }
     
     public var rotation: Triangle.Rotation? { nil }

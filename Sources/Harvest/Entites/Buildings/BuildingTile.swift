@@ -8,7 +8,7 @@ import Bivouac
 import Deltille
 import Lattice
 
-public struct BuildingTile: HasFootprint {
+public struct BuildingTile: TriangularDataStoreTile {
     
     public let origin: Triangle
     
