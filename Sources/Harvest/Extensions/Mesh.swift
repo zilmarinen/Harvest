@@ -49,8 +49,8 @@ extension Mesh {
             let upperPath = Path(upperPoints)
             let lowerPath = Path(lowerPoints)
             
-            guard let upperPolygon = Polygon(shape: upperPath),
-                  let lowerPolygon = Polygon(shape: lowerPath) else { continue }
+            guard let upperPolygon = Polygon(upperPath),
+                  let lowerPolygon = Polygon(lowerPath) else { continue }
             
             polygons.append(contentsOf: [upperPolygon,
                                          lowerPolygon])

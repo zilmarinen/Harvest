@@ -51,16 +51,16 @@ extension Region {
         
         let sieve = region.sieve(for: .region)
         
-        let tiles = sieve.tiles.map { $0.vertex }
+        let triangles = sieve.triangles.map { $0.vertex }
         let vertices = sieve.vertices
         
-        buildings?.remove(values: tiles)
-        foliage?.remove(values: tiles)
+        buildings?.remove(values: triangles)
+        foliage?.remove(values: triangles)
         footpaths?.remove(values: vertices)
-        portals?.remove(values: tiles)
-        staircases?.remove(values: tiles)
+        portals?.remove(values: triangles)
+        staircases?.remove(values: triangles)
         terrain?.remove(values: vertices)
-        water?.remove(values: tiles)
+        water?.remove(values: triangles)
     }
 }
 

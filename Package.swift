@@ -20,7 +20,6 @@ let package = Package(
         .package(path: "../Lattice"),
         .package(path: "../Lintel"),
         .package(path: "../Newel"),
-        .package(path: "../Regolith"),
         .package(path: "../Verdure"),
         .package(path: "../Yield")
     ],
@@ -34,7 +33,6 @@ let package = Package(
                                "Lattice",
                                "Lintel",
                                "Newel",
-                               "Regolith",
                                "Verdure",
                                "Yield"],
                 resources: [.process("Shaders")])

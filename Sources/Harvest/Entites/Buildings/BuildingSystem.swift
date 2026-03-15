@@ -21,7 +21,7 @@ internal struct BuildingSystem: System {
         guard let buildings = context.scene.find(entity: .buildings) as? Buildings,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        buildings.clean { wedge, chunk in
+        buildings.clean { chunk, wedge in
             
             let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
@@ -41,36 +41,37 @@ extension BuildingSystem {
                         chunk: BuildingChunk,
                         wedge: TriangularDataStoreWedge<BuildingTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
-        
-        var invalid: [Triangle.Vertex] = []
-        
-        let unique = Set(wedge.tiles)
-        
-        let mesh = unique.reduce(into: Mesh.empty) { result, buildingTile in
-            
-            guard let terrainTile = terrainWedge.tile(for: buildingTile.origin.vertex) else {
-                
-                invalid.append(buildingTile.origin.vertex)
-                
-                return
-            }
-            
-            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
-            
-            let angle = Angle(radians: buildingTile.origin.rotation)
-            let rotation = Rotation.yaw(angle)
-            
-            let building = Mesh.building(buildingTile.septomino)
-
-            result = result.merge(building.rotated(by: rotation).translated(by: buildingTile.origin.position(.tile) + apexElevation))
-        }
-        
-        grid.remove(values: invalid)
-        
-        guard !mesh.polygons.isEmpty else { return false }
-        
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        
-        return true
+        false
+//        var invalid: [Triangle.Vertex] = []
+//        
+//        let unique = Set(wedge.tiles)
+//        
+//        let mesh = unique.reduce(into: Mesh.empty) { result, buildingTile in
+//            
+//            guard let terrainTile = terrainWedge.tile(for: buildingTile.origin) else {
+//                
+//                invalid.append(buildingTile.origin)
+//                
+//                return
+//            }
+//            
+//            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
+//            
+//            let tile = Triangle(buildingTile.origin)
+//            let angle = Angle(radians: tile.rotation)
+//            let rotation = Rotation.yaw(angle)
+//            
+//            let building = Mesh.building(buildingTile.septomino)
+//
+//            result = result.merge(building.rotated(by: rotation).translated(by: buildingTile.origin.position(.tile) + apexElevation))
+//        }
+//        
+//        grid.remove(values: invalid)
+//        
+//        guard !mesh.polygons.isEmpty else { return false }
+//        
+//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+//        
+//        return true
     }
 }

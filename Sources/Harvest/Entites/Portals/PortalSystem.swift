@@ -21,7 +21,7 @@ internal struct PortalSystem: System {
         guard let portals = context.scene.find(entity: .portals) as? Portals,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        portals.clean { wedge, chunk in
+        portals.clean { chunk, wedge in
             
             let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
@@ -39,32 +39,32 @@ extension PortalSystem {
                         chunk: PortalChunk,
                         wedge: TriangularDataStoreWedge<PortalTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
-        
-        var invalid: [Triangle.Vertex] = []
-        
-        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
-            
-            guard let terrainTile = terrainWedge.tile(for: tile.origin.vertex),
-                  let elevation = terrainTile.uniformElevation else {
-                
-                invalid.append(tile.origin.vertex)
-                
-                return
-            }
-            
-            result.append(contentsOf: render(tile: terrainTile,
-                                             elevation: elevation))
-        }
-        
-        grid.remove(values: invalid)
-        
-        guard !polygons.isEmpty else { return false }
-        
-        let mesh = Mesh(polygons)
-        
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        
-        return true
+        false
+//        var invalid: [Triangle.Vertex] = []
+//        
+//        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+//            
+//            guard let terrainTile = terrainWedge.tile(for: tile.origin),
+//                  let elevation = terrainTile.uniformElevation else {
+//                
+//                invalid.append(tile.origin)
+//                
+//                return
+//            }
+//            
+//            result.append(contentsOf: render(tile: terrainTile,
+//                                             elevation: elevation))
+//        }
+//        
+//        grid.remove(values: invalid)
+//        
+//        guard !polygons.isEmpty else { return false }
+//        
+//        let mesh = Mesh(polygons)
+//        
+//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+//        
+//        return true
     }
     
     private func render(tile: HexagonalDataStoreTile<TerrainVertex>,

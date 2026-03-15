@@ -4,26 +4,15 @@
 //  Created by Zack Brown on 27/08/2025.
 //
 
+import Alluvium
 import AppKit
 import Deltille
 import Euclid
 import Lattice
 import RealityKit
-import Regolith
 
 @MainActor
 internal struct TerrainSystem: System {
-    
-    internal enum Constant {
-        
-        static let apexHeight = 0.1
-        static let baseHeight = 0.5
-    }
-    
-    internal static func unitHeight(for elevation: Int) -> Double {
-        
-        (Constant.baseHeight * Double(elevation)) + Constant.apexHeight
-    }
     
     internal init(scene: Scene) {}
     
@@ -33,7 +22,7 @@ internal struct TerrainSystem: System {
               let staircases = context.scene.find(entity: .staircases) as? Staircases,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        terrain.clean { wedge, chunk in
+        terrain.clean { chunk, wedge in
             
             return update(chunk: chunk,
                           wedge: wedge,
@@ -44,7 +33,7 @@ internal struct TerrainSystem: System {
 }
 
 extension TerrainSystem {
-    
+
     private func update(chunk: TerrainChunk,
                         wedge: HexagonalDataStoreWedge<TerrainVertex>,
                         buildings: Buildings,
@@ -52,13 +41,10 @@ extension TerrainSystem {
         
         let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard buildings.value(for: tile.tile.vertex) == nil,
-                  staircases.value(for: tile.tile.vertex) == nil else { return }
+            guard buildings.value(for: tile.triangle.vertex) == nil,
+                  staircases.value(for: tile.triangle.vertex) == nil else { return }
             
-            let stencil = tile.tile.stencil(.tile)
-            
-            result.append(contentsOf: render(tile: tile,
-                                             stencil: stencil))
+            result.append(contentsOf: render(tile: tile))
         }
         
         guard !polygons.isEmpty else { return false }
@@ -70,31 +56,72 @@ extension TerrainSystem {
         return true
     }
     
-    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
-                        stencil: Triangle.Stencil) -> [Euclid.Polygon] {
+    private func render(tile: HexagonalDataStoreTile<TerrainVertex>) -> [Euclid.Polygon] {
         
-        let origin = tile.tile.position(.tile)
+        let triangle = tile.triangle
+        let origin = triangle.position(.tile)
+        let stencil = triangle.stencil(.tile)
         
         return tile.vertices.reduce(into: [Euclid.Polygon]()) { result, vertex in
             
-            guard let corner = tile.tile.corner(vertex.value.vertex) else { return }
+            guard let corner = triangle.corner(vertex.value.vertex) else { return }
             
-            let kite = tile.tile.kite(index: corner.rawValue)
+            let kite = triangle.kite(index: corner.rawValue)
+            let identifier = triangle.vertex.position.identifier % vertex.key.position.identifier
+            let biome = vertex.value.biome
             
-            let angle = Angle(radians: Triangle.Rotation.turn * Double(-corner.rawValue))
-            let rotation = Rotation.yaw(angle)
+            let surfaceColor = biome.terrain.color(for: identifier,
+                                                   [.primary,
+                                                    .secondary,
+                                                    .tertiary])
+            let baseColor = biome.terrain.color(for: .quaternary)
+            let colorPalette = ColorPalette(surfaceColor,
+                                            baseColor)
             
-            let polygons = render(tile: tile,
-                                  vertex: vertex.value.vertex,
-                                  stencil: stencil,
+            let polygons = render(vertex: vertex.value,
                                   kite: kite,
-                                  biome: vertex.value.biome,
-                                  elevation: vertex.value.elevation)
+                                  stencil: stencil,
+                                  colorPalette: colorPalette)
             
-            result.append(contentsOf: polygons.translated(by: -origin).rotated(by: rotation).translated(by: origin))
+//            let polygons = Harvest.render(tile: tile,
+//                                          vertex: vertex.value.vertex,
+//                                          stencil: stencil,
+//                                          kite: kite,
+//                                          biome: vertex.value.biome,
+//                                          elevation: vertex.value.elevation)
+            
+            let rotation = Rotation.yaw(.turns(-corner.rawValue))
+            
+            let rotated = polygons.translated(by: -origin)
+                                  //.rotated(by: rotation)
+                                  .translated(by: origin)
+            
+            result.append(contentsOf: rotated)
         }
     }
     
+    private func render(vertex: TerrainVertex,
+                        kite: Triangle.Kite,
+                        stencil: Triangle.Stencil,
+                        colorPalette: ColorPalette) -> [Euclid.Polygon] {
+        
+        let apexElevation = Vector(0.0, Terrain.unitHeight(for: vertex.elevation), 0.0)
+        
+        let vertices = kite.vertices.map {
+            
+            stencil.vertex($0) + apexElevation
+        }
+        
+        let apexPath = vertices.path(colorPalette.primary)
+        
+        guard let apex = Polygon(apexPath) else { return [] }
+        
+        var polygons = [apex]
+        
+        return polygons
+    }
+}
+
     private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
                         vertex: Triangle.Vertex,
                         stencil: Triangle.Stencil,
@@ -102,26 +129,26 @@ extension TerrainSystem {
                         biome: Biome,
                         elevation: Int) -> [Euclid.Polygon] {
         
-        let identifier = tile.tile.vertex.position.identifier % vertex.position.identifier
+        let identifier = tile.triangle.vertex.position.identifier % vertex.position.identifier
         let apexColor = biome.terrain.color(for: identifier,
                                             [.primary,
                                              .secondary,
                                              .tertiary])
         
-        let apexElevation = Vector(0.0, Self.unitHeight(for: elevation), 0.0)
+        let apexElevation = Vector(0.0, Terrain.unitHeight(for: elevation), 0.0)
         let vertices = kite.vertices.map { stencil.vertex($0) + apexElevation }
         let apexPath = vertices.path(apexColor)
-        let tileBase = tile.base
+        let tileBase = 0;//tile.base
         
-        guard let apex = Polygon(shape: apexPath) else { return [] }
+        guard let apex = Polygon(apexPath) else { return [] }
         
         var polygons = [apex]
         
         guard kite != .uniform,
               elevation > tileBase else { return polygons }
         
-        let crownElevation = Vector(0.0, Double(elevation) * Constant.baseHeight, 0.0)
-        let mantleElevation = Vector(0.0, Double(tileBase) * Constant.baseHeight, 0.0)
+        let crownElevation = Vector(0.0, Double(elevation) * Terrain.Constant.baseHeight, 0.0)
+        let mantleElevation = Vector(0.0, Double(tileBase) * Terrain.Constant.baseHeight, 0.0)
         
         let edgePath = kite.vertices.suffix(kite.vertices.count - 1).map { stencil.vertex($0) }
         
@@ -138,12 +165,12 @@ extension TerrainSystem {
             let crownPath = [v5, v4, v2, v3].path(apexColor)
             let mantlePath = [v3, v2, v0 + mantleElevation, v1 + mantleElevation].path(biome.terrain.color(for: .quaternary))
             
-            guard let crown = Polygon(shape: crownPath),
-                  let mantle = Polygon(shape: mantlePath) else { continue }
+            guard let crown = Polygon(crownPath),
+                  let mantle = Polygon(mantlePath) else { continue }
             
             polygons.append(contentsOf: [crown, mantle])
         }
         
         return polygons
     }
-}
+//}

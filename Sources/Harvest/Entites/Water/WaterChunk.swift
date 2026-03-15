@@ -26,7 +26,10 @@ public class WaterChunk: TriangularChunk,
         }
     }
     
-    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .water) }
+    internal var material: CustomMaterial? {
+        
+        ShaderProgram.shared.material(for: .water)
+    }
     
     required internal init(_ triangle: Triangle) {
         

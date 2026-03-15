@@ -26,8 +26,6 @@ public enum Biome: String,
 
 extension Biome {
     
-    var colp: ColorPalette { .init(.borealPrimary, .borealSecondary) }
-    
     public var terrain: ColorPalette {
         
         switch self {
@@ -66,22 +64,6 @@ extension Biome {
                             .tundraSecondary,
                             .tundraTertiary,
                             .tundraQuaternary)
-        }
-    }
-    
-    public var foliage: ColorPalette {
-        
-        switch self {
-            
-        case .boreal: .init("FFC4C4",
-                            "EE6983",
-                            "C4A484",
-                            "B87C4C")
-            
-        default: .init("91C4C3",
-                       "B4DEBD",
-                       "D9CFC7",
-                       "C9B59C")
         }
     }
 }

@@ -94,8 +94,8 @@ extension CursorSystem {
         let elevation = Double(biome?.elevation ?? 0)
         
         let offset = Vector(0.0,
-                            (TerrainSystem.Constant.baseHeight * elevation) +
-                            (elevation > 0 ? TerrainSystem.Constant.apexHeight : 0.0),
+                            (Terrain.Constant.baseHeight * elevation) +
+                            (elevation > 0 ? Terrain.Constant.apexHeight : 0.0),
                             0.0);
         
         cursors.forEach {

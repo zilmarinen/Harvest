@@ -16,20 +16,4 @@ public enum FootpathType: String,
     case stone
     
     public var id: String { rawValue.capitalized }
-    
-    public var colorPalette: ColorPalette {
-        
-        switch self {
-            
-        case .dirt: .init(.dirtPrimary,
-                          .dirtSecondary,
-                          .dirtTertiary,
-                          .dirtQuaternary)
-
-        case .stone: .init(.stonePrimary,
-                           .stoneSecondary,
-                           .stoneTertiary,
-                           .stoneQuaternary)
-        }
-    }
 }

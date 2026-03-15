@@ -10,7 +10,7 @@ import Newel
 
 public struct StaircaseTile: TriangularDataStoreTile {
     
-    public let origin: Triangle
+    public let origin: Triangle.Vertex
     
     public var rotation: Triangle.Rotation?
     
@@ -21,7 +21,7 @@ extension StaircaseTile {
     
     public var footprint: Triangle.Footprint {
         
-        .init(origin,
+        .init(.init(origin),
               [Coordinate.zero])
     }
 }

@@ -12,7 +12,7 @@ import Verdure
 
 public struct FoliageTile: TriangularDataStoreTile {
     
-    public let origin: Triangle
+    public let origin: Triangle.Vertex
     
     public let foliageType: Triangle.Septomino
 }
@@ -21,7 +21,7 @@ extension FoliageTile {
     
     public var footprint: Triangle.Footprint {
         
-        .init(origin,
+        .init(.init(origin),
               [Coordinate.zero])
     }
     

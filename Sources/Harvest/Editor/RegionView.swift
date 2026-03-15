@@ -123,7 +123,7 @@ extension RegionView {
     public func set(_ septomino: Triangle.Septomino,
                     for triangle: Triangle) {
         
-        let value = BuildingTile(origin: triangle,
+        let value = BuildingTile(origin: triangle.vertex,
                                  septomino: septomino)
         
         buildings.set(value,
@@ -155,7 +155,7 @@ extension RegionView {
     
     public func set(foliage triangle: Triangle) {
         
-        foliage.set(.init(origin: triangle,
+        foliage.set(.init(origin: triangle.vertex,
                           foliageType: .fornax),
                     for: triangle.vertex)
     }
@@ -191,7 +191,7 @@ extension RegionView {
     
     public func add(portal triangle: Triangle) {
         
-        portals.set(.init(origin: triangle),
+        portals.set(.init(origin: triangle.vertex),
                     for: triangle.vertex)
     }
     
@@ -209,7 +209,7 @@ extension RegionView {
     public func set(_ staircaseType: StaircaseType,
                     for triangle: Triangle) {
         
-        let value = StaircaseTile(origin: triangle,
+        let value = StaircaseTile(origin: triangle.vertex,
                                   staircaseType: staircaseType)
         
         staircases.set(value,
@@ -307,7 +307,7 @@ extension RegionView {
                              for: triangle.vertex)
         }
         
-        water.set(.init(origin: triangle,
+        water.set(.init(origin: triangle.vertex,
                         waterType: waterType,
                         elevation: elevation),
                   for: triangle.vertex)

@@ -20,7 +20,7 @@ internal struct WaterSystem: System {
         guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        water.clean { wedge, chunk in
+        water.clean { chunk, wedge in
             
             let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
@@ -38,74 +38,76 @@ extension WaterSystem {
                         chunk: WaterChunk,
                         wedge: TriangularDataStoreWedge<WaterTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>?) -> Bool {
-        print("Cleaning chunk: \(chunk.triangle.id)")
-        var invalid: [Triangle.Vertex] = []
-        
-        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
-            
-            guard terrainWedge?.tile(for: tile.origin.vertex)?.base ?? 0 < tile.elevation else {
-                
-                invalid.append(tile.origin.vertex)
-                
-                return
-            }
-            
-            result.append(contentsOf: render(tile: tile,
-                                             wedge: wedge))
-        }
-        
-        grid.remove(values: invalid)
-        
-        guard !polygons.isEmpty else { return false }
-        
-        let mesh = Mesh(polygons)
-        
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        
-        return true
-    }
-    
-    private func render(tile: WaterTile,
-                        wedge: TriangularDataStoreWedge<WaterTile>) -> [Euclid.Polygon] {
-        
-        let identifier = tile.origin.vertex.position.identifier
-        let apexColor = tile.waterType.colorPalette.color(for: identifier,
-                                                          [.primary,
-                                                           .secondary,
-                                                           .tertiary])
-        
-        let apexElevation = Vector(0.0, (Double(tile.elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
-        let vertices = tile.origin.vertices.map { $0.position(.tile) + apexElevation }
-        let apexPath = vertices.path(apexColor)
-        
-        guard let apex = Polygon(shape: apexPath) else { return [] }
-        
-        var polygons = [apex]
-        
-        for edge in tile.origin.edges {
-         
-            let adjacent = tile.origin.neighbour(edge)
-            let elevation = wedge.tile(for: adjacent.vertex)?.elevation ?? 0
-            
-            guard tile.elevation > elevation else { continue }
-            
-            let mantleElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
-            
-            let corners = edge.corners.map {
-
-                tile.origin.vertex($0).position(.tile)
-            }
-            
-            let face =  corners.reversed().map { $0 + mantleElevation } +
-                        corners.map { $0 + apexElevation }
-
-            let path = face.path(tile.waterType.colorPalette.quaternary)
-
-            guard let polygon = Polygon(shape: path) else { continue }
-
-            polygons.append(polygon)
-        }
-        
-        return polygons
+        false
+//        var invalid: [Triangle.Vertex] = []
+//        
+//        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+//            
+//            guard terrainWedge?.tile(for: tile.origin)?.base ?? 0 < tile.elevation else {
+//                
+//                invalid.append(tile.origin)
+//                
+//                return
+//            }
+//            
+//            result.append(contentsOf: render(tile: tile,
+//                                             wedge: wedge))
+//        }
+//        
+//        grid.remove(values: invalid)
+//        
+//        guard !polygons.isEmpty else { return false }
+//        
+//        let mesh = Mesh(polygons)
+//        
+//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+//        
+//        return true
+//    }
+//    
+//    private func render(tile: WaterTile,
+//                        wedge: TriangularDataStoreWedge<WaterTile>) -> [Euclid.Polygon] {
+//        
+//        let identifier = tile.origin.position.identifier
+//        let apexColor = tile.waterType.colorPalette.color(for: identifier,
+//                                                          [.primary,
+//                                                           .secondary,
+//                                                           .tertiary])
+//        
+//        let apexElevation = Vector(0.0, (Double(tile.elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
+//        let vertices = tile.origin.vertices.map { $0.position(.tile) + apexElevation }
+//        let apexPath = vertices.path(apexColor)
+//        
+//        guard let apex = Polygon(apexPath) else { return [] }
+//        
+//        var polygons = [apex]
+//        
+//        let triangle = Triangle(tile.origin)
+//        
+//        for edge in triangle.edges {
+//         
+//            let adjacent = triangle.neighbour(edge)
+//            let elevation = wedge.tile(for: adjacent.vertex)?.elevation ?? 0
+//            
+//            guard tile.elevation > elevation else { continue }
+//            
+//            let mantleElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) - TerrainSystem.Constant.apexHeight, 0.0)
+//            
+//            let corners = edge.corners.map {
+//
+//                triangle.vertex($0).position(.tile)
+//            }
+//            
+//            let face =  corners.reversed().map { $0 + mantleElevation } +
+//                        corners.map { $0 + apexElevation }
+//
+//            let path = face.path(tile.waterType.colorPalette.quaternary)
+//
+//            guard let polygon = Polygon(path) else { continue }
+//
+//            polygons.append(polygon)
+//        }
+//        
+//        return polygons
     }
 }

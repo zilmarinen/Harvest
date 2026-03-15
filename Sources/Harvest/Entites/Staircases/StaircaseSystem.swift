@@ -27,7 +27,7 @@ internal struct StaircaseSystem: System {
         guard let staircases = context.scene.find(entity: .staircases) as? Staircases,
               let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
         
-        staircases.clean { wedge, chunk in
+        staircases.clean { chunk, wedge in
             
             let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
@@ -47,39 +47,40 @@ extension StaircaseSystem {
                         chunk: StaircaseChunk,
                         wedge: TriangularDataStoreWedge<StaircaseTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
-        
-        var invalid: [Triangle.Vertex] = []
-        
-        let unique = Set(wedge.tiles)
-        
-        let mesh = unique.reduce(into: Mesh.empty) { result, staircaseTile in
-            
-            guard let terrainTile = terrainWedge.tile(for: staircaseTile.origin.vertex) else {
-                
-                invalid.append(staircaseTile.origin.vertex)
-                
-                return
-            }
-            
-            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
-            
-            let angle = Angle(radians: staircaseTile.origin.rotation)
-            let rotation = Rotation.yaw(angle)
-            
-            let staircase = Mesh.staircase(staircaseTile.staircaseType,
-                                           7,
-                                           TerrainSystem.Constant.baseHeight,
-                                           .ascending)
-
-            result = result.merge(staircase.rotated(by: rotation).translated(by: staircaseTile.origin.position(.tile) + apexElevation))
-        }
-        
-        grid.remove(values: invalid)
-        
-        guard !mesh.polygons.isEmpty else { return false }
-        
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-        
-        return true
+        false
+//        var invalid: [Triangle.Vertex] = []
+//        
+//        let unique = Set(wedge.tiles)
+//        
+//        let mesh = unique.reduce(into: Mesh.empty) { result, staircaseTile in
+//            
+//            guard let terrainTile = terrainWedge.tile(for: staircaseTile.origin) else {
+//                
+//                invalid.append(staircaseTile.origin)
+//                
+//                return
+//            }
+//            
+//            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.base), 0.0)
+//            
+//            let tile = Triangle(staircaseTile.origin)
+//            let angle = Angle(radians: tile.rotation)
+//            let rotation = Rotation.yaw(angle)
+//            
+//            let staircase = Mesh.staircase(staircaseTile.staircaseType,
+//                                           7,
+//                                           TerrainSystem.Constant.baseHeight,
+//                                           .ascending)
+//
+//            result = result.merge(staircase.rotated(by: rotation).translated(by: staircaseTile.origin.position(.tile) + apexElevation))
+//        }
+//        
+//        grid.remove(values: invalid)
+//        
+//        guard !mesh.polygons.isEmpty else { return false }
+//        
+//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+//        
+//        return true
     }
 }

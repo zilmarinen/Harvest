@@ -10,14 +10,14 @@ import Lattice
 
 public struct PortalTile: TriangularDataStoreTile {
     
-    public let origin: Triangle
+    public let origin: Triangle.Vertex
 }
 
 extension PortalTile {
     
     public var footprint: Triangle.Footprint {
         
-        .init(origin,
+        .init(.init(origin),
               [Coordinate.zero])
     }
     
