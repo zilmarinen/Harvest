@@ -10,16 +10,9 @@ import Euclid
 
 extension Euclid.Rotation {
     
-    static func yaw(_ rotation: Triangle.Rotation) -> Self {
+    static func yaw(_ rotation: Deltille.Rotation) -> Self {
         
-        let radians = switch rotation {
-            
-        case .clockwise: Triangle.Rotation.turn
-        case .counterClockwise: -Triangle.Rotation.turn
-        case .turns(let turns): Triangle.Rotation.turn * Double(Triangle.Rotation.wrap(turns))
-        }
-        
-        let angle = Angle(radians: radians)
+        let angle = Angle(radians: rotation.radians)
         
         return Self.yaw(angle)
     }

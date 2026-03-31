@@ -21,8 +21,8 @@ internal struct CameraSystem: System {
         let horizontal = camera.radius * cos(elevation)
         let vertical = camera.radius * sin(elevation)
         
-        let x = cos(camera.rotation) * horizontal
-        let z = sin(camera.rotation) * horizontal
+        let x = cos(camera.rotation.radians) * horizontal
+        let z = sin(camera.rotation.radians) * horizontal
         
         camera.position = .init(camera.focus)
         camera.pov.position = .init(Float(x),

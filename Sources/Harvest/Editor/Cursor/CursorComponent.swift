@@ -12,7 +12,7 @@ internal struct CursorComponent: Component {
     
     internal var cursorStyle: CursorStyle = .vertex
     internal var focus = Vector.zero
-    internal var rotation: Triangle.Rotation? = nil
+    internal var rotation: Deltille.Rotation = .identity
 }
 
 internal protocol HasCursorComponent: Entity {
@@ -21,11 +21,11 @@ internal protocol HasCursorComponent: Entity {
     
     var cursorStyle: CursorStyle { get }
     var focus: Vector { get }
-    var rotation: Double { get }
+    var rotation: Deltille.Rotation { get }
     
     func focus(on location: Vector)
     func hitTest(scale: Triangle.Scale) -> HitTest
-    func rotate(direction: Triangle.Rotation)
+    func rotate(_ rotation: Deltille.Rotation)
     func toggle(style value: CursorStyle)
 }
 
@@ -61,16 +61,9 @@ extension HasCursorComponent {
         cursorComponent.focus
     }
     
-    internal var rotation: Double {
+    internal var rotation: Deltille.Rotation {
         
-        switch cursorComponent.rotation {
-        
-        case .clockwise: Triangle.Rotation.turn
-            
-        case .counterClockwise: -Triangle.Rotation.turn
-        
-        default: 0.0
-        }
+        cursorComponent.rotation
     }
 }
 
@@ -94,22 +87,9 @@ extension HasCursorComponent {
                      vertex: vertex)
     }
     
-    internal func rotate(direction: Triangle.Rotation) {
+    internal func rotate(_ rotation: Deltille.Rotation) {
         
-        switch cursorComponent.rotation {
-            
-        case .clockwise:
-            
-            cursorComponent.rotation = direction == .clockwise ? .counterClockwise : nil
-            
-        case .counterClockwise:
-            
-            cursorComponent.rotation = direction == .clockwise ? nil : .clockwise
-            
-        default:
-            
-            cursorComponent.rotation = direction
-        }
+        cursorComponent.rotation = .init(turns: self.rotation.turns + rotation.turns)
     }
     
     internal func toggle(style value: CursorStyle) {

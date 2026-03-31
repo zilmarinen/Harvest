@@ -12,7 +12,7 @@ public struct StaircaseTile: TriangularDataStoreTile {
     
     public let origin: Triangle.Vertex
     
-    public var rotation: Triangle.Rotation?
+    public var rotation: Rotation?
     
     public let staircaseType: StaircaseType
 }

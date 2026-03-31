@@ -21,5 +21,5 @@ extension PortalTile {
               [Coordinate.zero])
     }
     
-    public var rotation: Triangle.Rotation? { nil }
+    public var rotation: Rotation? { nil }
 }

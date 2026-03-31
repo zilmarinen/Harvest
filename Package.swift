@@ -8,7 +8,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "Harvest",
-                 targets: ["Harvest"]),
+                 targets: ["Harvest"])
     ],
     dependencies: [
         .package(url: "git@github.com:nicklockwood/Euclid.git",

@@ -33,16 +33,24 @@ extension WorldView {
     
     public func add(region: Region) {
         
-        let scale = Triangle.Scale.region
-        
         let triangle = Triangle(region.origin)
-    
-        let color: NSColor = triangle.isPointy ? .black : .white
         
-        let material = SimpleMaterial(color: color,
+        let material = SimpleMaterial(color: triangle.isPointy ? .black : .white,
                                       isMetallic: false)
         
-        guard let entity = try? ModelEntity(triangle.mesh(scale)) else { return }
+        let vertices = triangle.vertices.map {
+            
+            Vertex($0.position(.region),
+                   .unitY,
+                   nil,
+                   triangle.isPointy ? .black : .white)
+        }
+        
+        guard let polygon = Polygon(vertices) else { return }
+        
+        let mesh = Mesh([polygon])
+        
+        guard let entity = try? ModelEntity(mesh) else { return }
         
         entity.position = .init(Vector(0.0, 0.002, 0.0))
         entity.components[ModelComponent.self]?.materials = [material]
