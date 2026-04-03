@@ -127,8 +127,8 @@ extension TerrainSystem {
                         rightElevation: Int,
                         rightOutline: [Triangle.Stencil.Vertex]) -> [Euclid.Polygon] {
         
-        let apexElevation = Vector(0.0, Terrain.apexHeight(for: vertex.elevation), 0.0)
-        let baseElevation = Vector(0.0, Terrain.baseHeight(for: vertex.elevation), 0.0)
+        let apexElevation = Vector(0.0, Terrain.apex(for: vertex.elevation), 0.0)
+        let baseElevation = Vector(0.0, Terrain.base(for: vertex.elevation), 0.0)
         let surfaceColor = vertex.biome.terrain.color(for: vertex.vertex.position.identifier,
                                                       [.primary,
                                                        .secondary,
@@ -163,7 +163,7 @@ extension TerrainSystem {
             
             guard vertex.elevation > adjacentElevation else { continue }
             
-            let intersectionElevation = Vector(0.0, Terrain.apexHeight(for: adjacentElevation), 0.0)
+            let intersectionElevation = Vector(0.0, Terrain.apex(for: adjacentElevation), 0.0)
             
             let v0 = stencil.vertex(sv0)
             let v1 = stencil.vertex(sv1)

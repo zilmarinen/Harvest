@@ -22,17 +22,121 @@ internal struct WaterSystem: System {
         
         water.clean { chunk, wedge in
             
-            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
-            
-            return update(grid: water,
-                          chunk: chunk,
-                          wedge: wedge,
-                          terrainWedge: terrainWedge)
+            update(grid: water,
+                   chunk: chunk,
+                   wedge: wedge,
+                   terrain: terrain)
         }
     }
 }
 
 extension WaterSystem {
+    
+    private func update(grid: Water,
+                        chunk: WaterChunk,
+                        wedge: TriangularDataStoreWedge<WaterTile>,
+                        terrain: Terrain) -> Bool {
+        
+        let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
+        
+        var invalid: [Triangle.Vertex] = []
+        
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+            
+            guard terrainWedge.tile(for: tile.origin)?.base ?? 0 < tile.elevation else {
+                
+                invalid.append(tile.origin)
+                
+                return
+            }
+            
+            let triangle = Triangle(tile.origin)
+            
+            let adjacent = triangle.edges.reduce(into: [Triangle.Edge : WaterTile]()) { result, edge in
+                
+                let neighbour = triangle.neighbour(edge)
+                
+                guard let value = grid.value(for: neighbour.vertex) else { return }
+                
+                result[edge] = value
+            }
+            
+            result.append(contentsOf: render(tile: tile,
+                                             adjacent: adjacent))
+        }
+        
+        grid.remove(values: invalid)
+        
+        guard !polygons.isEmpty else { return false }
+        
+        let mesh = Mesh(polygons)
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        
+        return true
+    }
+    
+    private func render(tile: WaterTile,
+                        adjacent: [Triangle.Edge : WaterTile]) -> [Euclid.Polygon] {
+        
+        let apexElevation = Vector(0.0, Water.apex(for: tile.elevation), 0.0)
+        let apexColor = tile.waterType.colorPalette.color(for: tile.origin.position.identifier,
+                                                          [.primary,
+                                                           .secondary,
+                                                           .tertiary])
+        let triangle = Triangle(tile.origin)
+        
+        let vertices = triangle.vertices.position(.tile)
+        
+        guard let surface = Polygon.surface(vertices.map { $0 + apexElevation },
+                                            apexColor) else { return [] }
+        
+        var polygons = [surface]
+        
+        for edge in triangle.edges {
+            
+            let adjacent = adjacent[edge]
+            let adjacentElevation = adjacent?.elevation ?? 0
+            
+            guard tile.elevation > adjacentElevation,
+                  let c0 = edge.corners.last,
+                  let c1 = edge.corners.first else { continue }
+            
+            let intersectionElevation = Vector(0.0, Water.apex(for: adjacentElevation), 0.0)
+            
+            let v0 = triangle.vertex(c0).position(.tile)
+            let v1 = triangle.vertex(c1).position(.tile)
+            
+            let a0 = v0 + apexElevation
+            let a1 = v1 + apexElevation
+            
+            let i0 = v0 + intersectionElevation
+            let i1 = v1 + intersectionElevation
+            
+            guard let face = Polygon.surface([i0, i1, a1, a0],
+                                             tile.waterType.colorPalette.quaternary) else { continue }
+            
+            polygons.append(face)
+        }
+        
+        return polygons
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     private func update(grid: Water,
                         chunk: WaterChunk,

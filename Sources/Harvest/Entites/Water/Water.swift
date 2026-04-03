@@ -10,6 +10,11 @@ import RealityKit
 
 internal class Water: TriangularLattice<WaterChunk, WaterTile> {
     
+    internal static func apex(for elevation: Int) -> Double {
+        
+        Terrain.base(for: elevation) - Terrain.Constant.apexHeight
+    }
+    
     required internal init() {
         
         super.init()

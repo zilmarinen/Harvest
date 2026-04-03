@@ -16,12 +16,12 @@ internal class Terrain: HexagonalLattice<TerrainChunk, TerrainVertex> {
         static let baseHeight = 0.5
     }
     
-    internal static func apexHeight(for elevation: Int) -> Double {
+    internal static func apex(for elevation: Int) -> Double {
         
-        baseHeight(for: elevation) + Constant.apexHeight
+        base(for: elevation) + Constant.apexHeight
     }
     
-    internal static func baseHeight(for elevation: Int) -> Double {
+    internal static func base(for elevation: Int) -> Double {
         
         Constant.baseHeight * Double(elevation)
     }
