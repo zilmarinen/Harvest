@@ -33,7 +33,7 @@ public class RegionView: EditorView {
         world.addChild(terrain)
         world.addChild(water)
         
-        world.addChild(WorldFloorPlane())
+        camera.addChild(WorldFloorPlane())
     }
     
     public override func registerComponents() {

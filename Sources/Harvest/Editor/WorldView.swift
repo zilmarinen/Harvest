@@ -15,7 +15,7 @@ public class WorldView: EditorView {
         
         super.init(frame: frame)
         
-        world.anchor?.addChild(WorldFloorPlane())
+        camera.addChild(WorldFloorPlane())
     }
 }
 
@@ -56,39 +56,5 @@ extension WorldView {
         entity.components[ModelComponent.self]?.materials = [material]
         
         world.addChild(entity)
-    }
-}
-
-internal class WorldFloorPlane: Entity,
-                                HasMesh {
-    
-    internal var mesh: Mesh?
-    
-    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .grid) }
-    
-    internal required init() {
-        
-        super.init()
-        
-        let size = 100.0
-        
-        let vectors = [Vector(-size, 0.0, size),
-                       Vector(size, 0.0, size),
-                       Vector(size, 0.0, -size),
-                       Vector(-size, 0.0, -size)]
-        
-        let vertices = vectors.map {
-            
-            Vertex($0,
-                   .unitY,
-                   nil,
-                   Color("F2E3B3"))
-        }
-        
-        guard let polygon = Polygon(vertices) else { return }
-        
-        self.mesh = Mesh([polygon])
-        
-        updateModel()
     }
 }
