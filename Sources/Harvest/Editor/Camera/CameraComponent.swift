@@ -16,7 +16,7 @@ internal struct CameraComponent: Component {
     
     internal var focus: Vector = .zero
     internal var radius: Double = Self.maximumRadius
-    internal var rotation: Deltille.Rotation = .identity
+    internal var rotation: Hexagon.Rotation = .identity
 }
 
 internal protocol HasCameraComponent: Entity {
@@ -27,11 +27,11 @@ internal protocol HasCameraComponent: Entity {
     
     var focus: Vector { get }
     var radius: Double { get }
-    var rotation: Deltille.Rotation { get }
+    var rotation: Hexagon.Rotation { get }
     
     func focus(on location: Vector)
     func translate(by delta: Vector)
-    func rotate(_ rotation: Deltille.Rotation)
+    func rotate(_ rotation: Hexagon.Rotation)
     func zoom(delta: Double)
 }
 
@@ -67,7 +67,7 @@ extension HasCameraComponent {
         cameraComponent.radius
     }
     
-    internal var rotation: Deltille.Rotation {
+    internal var rotation: Hexagon.Rotation {
         
         cameraComponent.rotation
     }
@@ -80,7 +80,7 @@ extension HasCameraComponent {
         cameraComponent.focus = location
     }
     
-    internal func rotate(_ rotation: Deltille.Rotation) {
+    internal func rotate(_ rotation: Hexagon.Rotation) {
         
         cameraComponent.rotation = .init(turns: self.rotation.turns + rotation.turns)
     }

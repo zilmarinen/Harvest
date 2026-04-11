@@ -90,8 +90,9 @@ extension CursorSystem {
                         hitTest: HitTest) {
         
         let biome = terrain.value(for: hitTest.vertex)
+        let waterTile = water.value(for: hitTest.triangle.vertex)
         
-        let elevation = Double(biome?.elevation ?? 0)
+        let elevation = Double(biome?.elevation ?? waterTile?.elevation ?? 0)
         
         let offset = Vector(0.0,
                             (Terrain.Constant.baseHeight * elevation) +

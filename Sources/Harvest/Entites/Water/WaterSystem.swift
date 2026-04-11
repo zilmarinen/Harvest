@@ -43,7 +43,7 @@ extension WaterSystem {
         
         let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard terrainWedge.tile(for: tile.origin)?.base ?? 0 < tile.elevation else {
+            guard tile.elevation > terrainWedge.tile(for: tile.origin)?.floor ?? 0 else {
                 
                 invalid.append(tile.origin)
                 
@@ -56,7 +56,7 @@ extension WaterSystem {
                 
                 let neighbour = triangle.neighbour(edge)
                 
-                guard let value = grid.value(for: neighbour.vertex) else { return }
+                guard let value = wedge.tile(for: neighbour.vertex) else { return }
                 
                 result[edge] = value
             }

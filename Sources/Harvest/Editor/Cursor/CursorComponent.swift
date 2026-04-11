@@ -12,7 +12,7 @@ internal struct CursorComponent: Component {
     
     internal var cursorStyle: CursorStyle = .vertex
     internal var focus = Vector.zero
-    internal var rotation: Deltille.Rotation = .identity
+    internal var rotation: Triangle.Rotation = .identity
 }
 
 internal protocol HasCursorComponent: Entity {
@@ -21,11 +21,11 @@ internal protocol HasCursorComponent: Entity {
     
     var cursorStyle: CursorStyle { get }
     var focus: Vector { get }
-    var rotation: Deltille.Rotation { get }
+    var rotation: Triangle.Rotation { get }
     
     func focus(on location: Vector)
     func hitTest(scale: Triangle.Scale) -> HitTest
-    func rotate(_ rotation: Deltille.Rotation)
+    func rotate(_ rotation: Triangle.Rotation)
     func toggle(style value: CursorStyle)
 }
 
@@ -61,7 +61,7 @@ extension HasCursorComponent {
         cursorComponent.focus
     }
     
-    internal var rotation: Deltille.Rotation {
+    internal var rotation: Triangle.Rotation {
         
         cursorComponent.rotation
     }
@@ -87,7 +87,7 @@ extension HasCursorComponent {
                      vertex: vertex)
     }
     
-    internal func rotate(_ rotation: Deltille.Rotation) {
+    internal func rotate(_ rotation: Triangle.Rotation) {
         
         cursorComponent.rotation = .init(turns: self.rotation.turns + rotation.turns)
     }

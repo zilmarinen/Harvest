@@ -277,8 +277,7 @@ extension RegionView {
             
         } else {
             
-            terrain.set(nil,
-                        for: vertex)
+            terrain.remove(values: [vertex])
         }
         
         foliage.propagate(vertex: vertex)
@@ -303,13 +302,17 @@ extension RegionView {
         
         guard elevation > 0 else {
             
-            return water.set(nil,
-                             for: triangle.vertex)
+            return remove(water: triangle)
         }
         
         water.set(.init(origin: triangle.vertex,
                         waterType: waterType,
                         elevation: elevation),
                   for: triangle.vertex)
+    }
+    
+    public func remove(water triangle: Triangle) {
+        
+        water.remove(values: [triangle.vertex])
     }
 }

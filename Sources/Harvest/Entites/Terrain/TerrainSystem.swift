@@ -78,9 +78,9 @@ extension TerrainSystem {
         let v1 = tile.vertices[tv1]
         let v2 = tile.vertices[tv2]
         
-        let r0 = Rotation(turns: i)
-        let r1 = Rotation(turns: j)
-        let r2 = Rotation(turns: k)
+        let r0 = Triangle.Rotation(turns: i)
+        let r1 = Triangle.Rotation(turns: j)
+        let r2 = Triangle.Rotation(turns: k)
         
         let k0 = pattern.kites[i]
         let k1 = pattern.kites[j]

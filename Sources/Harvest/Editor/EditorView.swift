@@ -87,7 +87,7 @@ extension EditorView {
         camera.focus(on: value)
     }
     
-    public func camera(rotate value: Deltille.Rotation) {
+    public func camera(rotate value: Hexagon.Rotation) {
         
         camera.rotate(value)
     }
@@ -112,7 +112,7 @@ extension EditorView {
         cursor.focus(on: value)
     }
     
-    public func cursor(rotate value: Deltille.Rotation) {
+    public func cursor(rotate value: Triangle.Rotation) {
         
         cursor.rotate(value)
     }

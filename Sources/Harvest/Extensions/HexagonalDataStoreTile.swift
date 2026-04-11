@@ -31,4 +31,11 @@ extension HexagonalDataStoreTile where V == TerrainVertex {
 
         return values.sorted(by: <).first ?? 0
     }
+    
+    internal var floor: Int {
+        
+        guard vertices.count == 3 else { return 0 }
+        
+        return base
+    }
 }

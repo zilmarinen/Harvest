@@ -12,7 +12,7 @@ public struct BuildingTile: TriangularDataStoreTile {
     
     public let origin: Triangle.Vertex
     
-    public var rotation: Rotation?
+    public var rotation: Triangle.Rotation?
     
     public let septomino: Triangle.Septomino
 }
