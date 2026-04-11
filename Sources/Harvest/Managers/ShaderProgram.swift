@@ -21,7 +21,6 @@ internal final class ShaderProgram {
         
         case customMaterial
         case grid
-        case sobel
         case water
         
         internal var id: String { rawValue }

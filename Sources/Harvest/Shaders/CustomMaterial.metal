@@ -51,13 +51,7 @@ void waterSurface(surface_parameters params) {
     
     float4 baseColor = params.geometry().color();
     
-    float2 xz = params.geometry().world_position().xz;
-    
-    float tileGrid = world_grid(xz, 1.0);
-    
-    float4 color = mix(baseColor, tileColor, tileGrid);
-    
-    params.surface().set_emissive_color(half3(color.xyz));
+    params.surface().set_emissive_color(half3(baseColor.xyz));
     params.surface().set_opacity(0.5);
 }
 
@@ -110,4 +104,17 @@ void gridSurface(surface_parameters params) {
     color = mix(color, regionColor, regionGrid);
     
     params.surface().set_emissive_color(half3(color.xyz));
+}
+
+
+//
+//  Kernal
+//
+
+[[kernel]]
+void depthKernel(uint2 gid [[thread_position_in_grid]],
+                 texture2d<half, access::sample> inColor [[texture(0)]],
+                 texture2d<float, access::sample> inDepth [[texture(1)]],
+                 texture2d<half, access::write> outColor [[texture(2)]]) {
+    
 }

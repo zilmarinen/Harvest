@@ -21,5 +21,8 @@ public class StaircaseChunk: TriangularChunk,
         }
     }
     
-    internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
+    internal var material: CustomMaterial? {
+        
+        ShaderProgram.shared.material(for: .customMaterial)
+    }
 }

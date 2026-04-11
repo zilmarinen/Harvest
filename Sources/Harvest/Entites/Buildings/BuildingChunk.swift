@@ -12,13 +12,16 @@ import RealityKit
 public class BuildingChunk: TriangularChunk,
                             HasMesh {
       
-      internal var mesh: Mesh? {
+    internal var mesh: Mesh? {
           
-          didSet {
-              
-              updateModel()
-          }
-      }
+        didSet {
+        
+            updateModel()
+        }
+    }
       
-      internal var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
-  }
+    internal var material: CustomMaterial? {
+        
+        ShaderProgram.shared.material(for: .customMaterial)
+    }
+}
