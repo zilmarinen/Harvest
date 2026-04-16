@@ -14,6 +14,8 @@ public struct FoliageTile: TriangularDataStoreTile {
     
     public let origin: Triangle.Vertex
     
+    public let rotation: Triangle.Rotation
+    
     public let foliageType: Triangle.Septomino
 }
 
@@ -24,6 +26,4 @@ extension FoliageTile {
         .init(.init(origin),
               [Coordinate.zero])
     }
-    
-    public var rotation: Triangle.Rotation? { nil }
 }

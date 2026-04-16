@@ -11,6 +11,8 @@ public struct WaterTile: TriangularDataStoreTile {
     
     public let origin: Triangle.Vertex
     
+    public let rotation: Triangle.Rotation = .identity
+    
     public let waterType: WaterType
     public let elevation: Int
 }
@@ -22,6 +24,4 @@ extension WaterTile {
         .init(.init(origin),
               [Coordinate.zero])
     }
-    
-    public var rotation: Triangle.Rotation? { nil }
 }

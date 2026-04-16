@@ -22,10 +22,14 @@ internal struct WaterSystem: System {
         
         water.clean { chunk, wedge in
             
-            update(grid: water,
-                   chunk: chunk,
-                   wedge: wedge,
-                   terrain: terrain)
+            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
+            
+            guard !terrainWedge.isEmpty else { return false }
+            
+            return update(grid: water,
+                          chunk: chunk,
+                          wedge: wedge,
+                          terrainWedge: terrainWedge)
         }
     }
 }
@@ -35,9 +39,7 @@ extension WaterSystem {
     private func update(grid: Water,
                         chunk: WaterChunk,
                         wedge: TriangularDataStoreWedge<WaterTile>,
-                        terrain: Terrain) -> Bool {
-        
-        let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
+                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
         var invalid: [Triangle.Vertex] = []
         
@@ -50,19 +52,8 @@ extension WaterSystem {
                 return
             }
             
-            let triangle = Triangle(tile.origin)
-            
-            let adjacent = triangle.edges.reduce(into: [Triangle.Edge : WaterTile]()) { result, edge in
-                
-                let neighbour = triangle.neighbour(edge)
-                
-                guard let value = wedge.tile(for: neighbour.vertex) else { return }
-                
-                result[edge] = value
-            }
-            
             result.append(contentsOf: render(tile: tile,
-                                             adjacent: adjacent))
+                                             wedge: wedge))
         }
         
         grid.remove(values: invalid)
@@ -77,7 +68,7 @@ extension WaterSystem {
     }
     
     private func render(tile: WaterTile,
-                        adjacent: [Triangle.Edge : WaterTile]) -> [Euclid.Polygon] {
+                        wedge: TriangularDataStoreWedge<WaterTile>) -> [Euclid.Polygon] {
         
         let apexElevation = Vector(0.0, Water.apex(for: tile.elevation), 0.0)
         let apexColor = tile.waterType.colorPalette.color(for: tile.origin.position.identifier,
@@ -95,7 +86,8 @@ extension WaterSystem {
         
         for edge in triangle.edges {
             
-            let adjacent = adjacent[edge]
+            let neighbour = triangle.neighbour(edge)
+            let adjacent = wedge.tile(for: neighbour.vertex)
             let adjacentElevation = adjacent?.elevation ?? 0
             
             guard tile.elevation > adjacentElevation,

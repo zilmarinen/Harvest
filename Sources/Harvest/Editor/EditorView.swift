@@ -121,4 +121,9 @@ extension EditorView {
         
         cursor.toggle(style: style)
     }
+    
+    public var cursorRotation: Triangle.Rotation {
+        
+        cursor.rotation
+    }
 }

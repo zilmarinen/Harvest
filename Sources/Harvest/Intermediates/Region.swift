@@ -20,7 +20,7 @@ public struct Region: Codable,
     public let foliage: TriangularLatticeSlice<FoliageChunk, FoliageTile>?
     public let footpaths: HexagonalLatticeSlice<FootpathChunk, FootpathType>?
     public let portals: TriangularLatticeSlice<PortalChunk, PortalTile>?
-    public let staircases: TriangularLatticeSlice<StaircaseChunk, StaircaseTile>?
+    public let slopes: TriangularLatticeSlice<SlopeChunk, SlopeTile>?
     public let terrain: HexagonalLatticeSlice<TerrainChunk, TerrainVertex>?
     public let water: TriangularLatticeSlice<WaterChunk, WaterTile>?
     
@@ -58,7 +58,7 @@ extension Region {
         foliage?.remove(values: triangles)
         footpaths?.remove(values: vertices)
         portals?.remove(values: triangles)
-        staircases?.remove(values: triangles)
+        slopes?.remove(values: triangles)
         terrain?.remove(values: vertices)
         water?.remove(values: triangles)
     }
@@ -74,7 +74,7 @@ extension Region {
                   foliage: nil,
                   footpaths: nil,
                   portals: nil,
-                  staircases: nil,
+                  slopes: nil,
                   terrain: .init(empty: triangle),
                   water: nil)
         

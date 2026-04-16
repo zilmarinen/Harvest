@@ -1,5 +1,5 @@
 //
-//  Staircases.swift
+//  Slopes.swift
 //
 //  Created by Zack Brown on 12/11/2025.
 //
@@ -9,12 +9,12 @@ import Lattice
 import Newel
 import RealityKit
 
-internal class Staircases: TriangularLattice<StaircaseChunk, StaircaseTile> {
+internal class Slopes: TriangularLattice<SlopeChunk, SlopeTile> {
     
     required internal init() {
         
         super.init()
         
-        name = Entity.Identifier.staircases.id
+        name = Entity.Identifier.slopes.id
     }
 }

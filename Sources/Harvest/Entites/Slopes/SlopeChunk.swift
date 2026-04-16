@@ -1,5 +1,5 @@
 //
-//  StaircaseChunk.swift
+//  SlopeChunk.swift
 //
 //  Created by Zack Brown on 12/11/2025.
 //
@@ -10,8 +10,8 @@ import Lattice
 import Newel
 import RealityKit
 
-public class StaircaseChunk: TriangularChunk,
-                             HasMesh {
+public class SlopeChunk: TriangularChunk,
+                         HasMesh {
     
     internal var mesh: Mesh? {
         
