@@ -77,7 +77,7 @@ extension PortalSystem {
 //        let vertices = tile.vertices.map { $0.key.position(.tile) + apex }
 //        
 //        let volume = Volume(vertices: vertices,
-//                            displacement: Triangle.Scale.tile.edgeLength / 2.0)
+//                            displacement: Triangle.Scale.tile.length / 2.0)
 //        
 //        return volume.mesh(.red).polygons
     }

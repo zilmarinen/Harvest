@@ -28,7 +28,8 @@ internal struct FootpathSystem: System {
             
             guard !terrainWedge.isEmpty else { return false }
             
-            return update(chunk: chunk,
+            return update(grid: footpaths,
+                          chunk: chunk,
                           wedge: wedge,
                           terrainWedge: terrainWedge)
         }
@@ -37,37 +38,79 @@ internal struct FootpathSystem: System {
 
 extension FootpathSystem {
     
-    private func update(chunk: FootpathChunk,
-                        wedge: HexagonalDataStoreWedge<FootpathType>,
+    private func update(grid: Footpaths,
+                        chunk: FootpathChunk,
+                        wedge: HexagonalDataStoreWedge<FootpathVertex>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
-        false
-//        var mesh = Mesh.empty
-//        
-//        for tile in wedge.tiles {
-//            
-//            guard let terrainTile = terrainWedge.tile(for: tile.tile.vertex) else { continue }
-//            
-//            //
-//            guard let vertex = tile.vertices.first else { continue }
-//            //
-//            
-//            let vertices = tile.vertices.keys.map { $0 }
-//            
-//            let apexElevation = Vector(0.0, TerrainSystem.unitHeight(for: terrainTile.apex) + 0.0001, 0.0)
-//            
-//            let wedge = Wedge(tile.tile,
-//                              vertices)
-//            
-//            let part = Mesh.footpath(tile.tile,
-//                                     wedge,
-//                                     vertex.value.colorPalette)
-//            
-//            mesh = mesh.union(part.translated(by: apexElevation))
-//        }
-//        
-//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-//        
-//        return true
+        
+        var invalid: [Triangle.Vertex] = []
+        
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+            
+            guard let terrainTile = terrainWedge.tile(for: tile.triangle.vertex) else {
+            
+                invalid.append(tile.triangle.vertex)
+                
+                return
+            }
+            
+            invalid.append(contentsOf: Set(tile.vertices.keys).subtracting(terrainTile.vertices.keys))
+            
+            result.append(contentsOf: render(tile: tile,
+                                            terrainTile: terrainTile))
+        }
+        
+        grid.remove(values: invalid)
+        
+        guard !polygons.isEmpty else { return false }
+        
+        let mesh = Mesh(polygons)
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        
+        return true
+    }
+    
+    private func render(tile: HexagonalDataStoreTile<FootpathVertex>,
+                        terrainTile: HexagonalDataStoreTile<TerrainVertex>) -> [Euclid.Polygon] {
+        
+        var polygons: [Euclid.Polygon] = []
+        
+        var visited: [Triangle.Vertex] = []
+        
+        for (_, value) in tile.vertices {
+            
+            guard !visited.contains(value.vertex),
+                  let elevation = terrainTile.vertices[value.vertex]?.elevation else { continue }
+            
+            var vertices = [value.vertex]
+            
+            for (vertex, other) in tile.vertices {
+                
+                guard vertex != value.vertex,
+                      let terrainVertex = terrainTile.vertices[vertex],
+                      value.design == other.design,
+                      elevation == terrainVertex.elevation else { continue }
+                
+                vertices.append(vertex)
+            }
+            
+            visited.append(contentsOf: vertices)
+            
+            let apexElevation = Vector(0.0, Terrain.apex(for: elevation) + 0.0001, 0.0)
+            
+            let wedge = Wedge(tile.triangle,
+                              vertices)
+            
+            let part = Mesh.footpath(tile.triangle,
+                                     wedge,
+                                     .init(NSColor.red,
+                                           NSColor.blue))
+            
+            polygons.append(contentsOf: part.polygons.translated(by: apexElevation))
+        }
+        
+        return polygons
     }
 }
 

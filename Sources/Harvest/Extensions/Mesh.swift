@@ -12,7 +12,7 @@ extension Mesh {
     internal static func cursor(_ scale: Hexagon.Scale) -> Self {
         
         let triangle = Hexagon.zero
-        let span = scale.edgeLength * 0.5
+        let span = scale.length * 0.5
         let center = triangle.position(scale)
         
         let peak = center + .init(0.0, span, 0.0)

@@ -11,6 +11,7 @@ import Newel
 import RealityKit
 
 public class SlopeChunk: TriangularChunk,
+                         HasCollision,
                          HasMesh {
     
     internal var mesh: Mesh? {

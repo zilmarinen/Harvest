@@ -18,7 +18,7 @@ public struct Region: Codable,
     
     public let buildings: TriangularLatticeSlice<BuildingChunk, BuildingTile>?
     public let foliage: TriangularLatticeSlice<FoliageChunk, FoliageTile>?
-    public let footpaths: HexagonalLatticeSlice<FootpathChunk, FootpathType>?
+    public let footpaths: HexagonalLatticeSlice<FootpathChunk, FootpathVertex>?
     public let portals: TriangularLatticeSlice<PortalChunk, PortalTile>?
     public let slopes: TriangularLatticeSlice<SlopeChunk, SlopeTile>?
     public let terrain: HexagonalLatticeSlice<TerrainChunk, TerrainVertex>?

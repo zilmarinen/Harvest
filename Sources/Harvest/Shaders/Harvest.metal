@@ -73,13 +73,13 @@ inline float triangleSDF(float2 p,
 }
 
 inline float world_grid(float2 worldXZ,
-                        float edgeLength) {
+                        float length) {
     
     float c = cos(pid4);
     float s = sin(pid4);
-    float scale = 1.0 / edgeLength;
+    float scale = 1.0 / length;
     
-    float2 offset = float2((sqrt2d3 * 2.0) * edgeLength, 0.0);
+    float2 offset = float2((sqrt2d3 * 2.0) * length, 0.0);
     
     float2x2 rotation = float2x2(c, -s, s, c);
     
@@ -98,7 +98,7 @@ inline float world_grid(float2 worldXZ,
     float2 c2 = derivative + float2(-sqrt3m3d6);
     float2 c1 = float2(1.0) + 2.0 * -sqrt3m3d6;
     
-    float sdf = triangleSDF(relative, c0, c1, c2) * edgeLength / lineWidth;
+    float sdf = triangleSDF(relative, c0, c1, c2) * length / lineWidth;
     
     float outline = abs(sdf) - 0.5;
     

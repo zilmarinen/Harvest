@@ -6,6 +6,7 @@
 
 import AppKit
 import Bivouac
+import Cobble
 import Deltille
 import Lattice
 import Newel
@@ -85,6 +86,8 @@ extension RegionView {
         if let slice = region.portals { portals.merge(slice) }
         if let slice = region.slopes { slopes.merge(slice) }
         if let slice = region.water { water.merge(slice) }
+        
+        //TODO: Reload chunks with assets
     }
 }
 
@@ -173,10 +176,11 @@ extension RegionView {
 
 extension RegionView {
     
-    public func set(_ footpathType: FootpathType,
+    public func set(_ design: Design,
                     for vertex: Triangle.Vertex) {
         
-        footpaths.set(footpathType,
+        footpaths.set(.init(vertex: vertex,
+                            design: design),
                       for: vertex)
     }
     

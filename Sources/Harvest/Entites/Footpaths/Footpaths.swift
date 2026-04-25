@@ -8,7 +8,7 @@ import Deltille
 import Lattice
 import RealityKit
 
-internal class Footpaths: HexagonalLattice<FootpathChunk, FootpathType> {
+internal class Footpaths: HexagonalLattice<FootpathChunk, FootpathVertex> {
     
     required internal init() {
         
