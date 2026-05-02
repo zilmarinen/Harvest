@@ -11,6 +11,7 @@ import Deltille
 import Euclid
 import Lattice
 import RealityKit
+import Yield
 
 @MainActor
 internal struct FootpathSystem: System {
@@ -97,21 +98,40 @@ extension FootpathSystem {
             
             visited.append(contentsOf: vertices)
             
-            let apexElevation = Vector(0.0, Terrain.apex(for: elevation) + 0.0001, 0.0)
+            let apexElevation = Vector(0.0, Terrain.apex(for: elevation), 0.0)
             
             let wedge = Wedge(tile.triangle,
                               vertices)
             
-            let part = Mesh.footpath(tile.triangle,
-                                     wedge,
-                                     .init(NSColor.red,
-                                           NSColor.blue))
+            let part = render(design: value.design,
+                              wedge: wedge)
             
-            polygons.append(contentsOf: part.polygons.translated(by: apexElevation))
+            let offset = terrainTile.triangle.position(.tile)
+            let angle = Angle(radians: wedge.orientation)
+            let rotation = Rotation.yaw(angle)
+            
+            let transformed = part.rotated(by: rotation).translated(by: offset + apexElevation)
+            
+            polygons.append(contentsOf: transformed.polygons)
         }
         
         return polygons
     }
+    
+    private func render(design: Design,
+                        wedge: Wedge) -> Mesh {
+        
+        do {
+            
+            let asset = Asset.footpath(design,
+                                       wedge)
+            
+            return try AssetCache.shared.load(mesh: asset)
+            
+        }
+        catch {
+
+            fatalError("Error loading asset: \(error.localizedDescription)")
+        }
+    }
 }
-
-
