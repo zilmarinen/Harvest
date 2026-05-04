@@ -17,6 +17,7 @@ public struct Region: Codable,
     public var identifier: String = ""
     
     public let buildings: TriangularLatticeSlice<BuildingChunk, BuildingTile>?
+    public let fences: HexagonalLatticeSlice<FenceChunk, FenceVertex>?
     public let foliage: TriangularLatticeSlice<FoliageChunk, FoliageTile>?
     public let footpaths: HexagonalLatticeSlice<FootpathChunk, FootpathVertex>?
     public let portals: TriangularLatticeSlice<PortalChunk, PortalTile>?
@@ -55,6 +56,7 @@ extension Region {
         let vertices = sieve.vertices
         
         buildings?.remove(values: triangles)
+        fences?.remove(values: vertices)
         foliage?.remove(values: triangles)
         footpaths?.remove(values: vertices)
         portals?.remove(values: triangles)
@@ -71,6 +73,7 @@ extension Region {
         
         self.init(origin: triangle.vertex,
                   buildings: nil,
+                  fences: nil,
                   foliage: nil,
                   footpaths: nil,
                   portals: nil,

@@ -25,13 +25,28 @@ void customMaterialGeometry(geometry_parameters params) {
 [[visible]]
 void customMaterialSurface(surface_parameters params) {
     
-    float4 baseColor = params.geometry().color();
+    float4 shaded = gooch(params);
+    
+    params.surface().set_emissive_color(half3(shaded.xyz));
+}
+
+[[visible]]
+void terrainGeometry(geometry_parameters params) {
+    
+    //
+}
+
+[[visible]]
+void terrainSurface(surface_parameters params) {
+    
+    float4 shaded = gooch(params);
+    //float4 baseColor = params.geometry().color();
     
     float2 xz = params.geometry().world_position().xz;
     
     float tileGrid = world_grid(xz, 1.0);
     
-    float4 color = mix(baseColor, tileColor, tileGrid);
+    float4 color = mix(shaded, tileColor, tileGrid);
     
     params.surface().set_emissive_color(half3(color.xyz));
 }

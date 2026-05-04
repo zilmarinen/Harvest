@@ -10,6 +10,7 @@ import Lattice
 import RealityKit
 
 public class BuildingChunk: TriangularChunk,
+                            HasCollision,
                             HasMesh {
       
     internal var mesh: Mesh? {

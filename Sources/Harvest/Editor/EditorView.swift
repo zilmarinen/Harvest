@@ -12,6 +12,8 @@ import RealityKit
 @MainActor
 open class EditorView: ARView {
     
+    internal var context: CIContext?
+    
     internal let floorPlane = float4x4(simd_quatf(angle: 0.0,
                                                   axis: .init(.unitY)))
     
@@ -28,6 +30,20 @@ open class EditorView: ARView {
         registerSystems()
         
         environment.background = .color(.windowBackgroundColor)
+        
+//        renderCallbacks.prepareWithDevice = { [weak self] device in
+//        
+//            guard let self else { return }
+//            
+//            self.prepare(with: device)
+//        }
+//        
+//        renderCallbacks.postProcess = { [weak self] context in
+//            
+//            guard let self else { return }
+//            
+//            self.postProcess(context)
+//        }
         
         scene.addAnchor(world)
         
@@ -49,6 +65,43 @@ open class EditorView: ARView {
         CameraSystem.registerSystem()
         CursorSystem.registerSystem()
     }
+    
+//    https://stackoverflow.com/questions/42912899/interior-like-edge-detection-using-ciimage
+//    https://stackoverflow.com/questions/79802422/realitykit-how-to-support-post-process-with-custom-camera
+//    private func prepare(with device: MTLDevice) {
+//        
+//        print("PREPARING")
+//        
+//        self.context = .init(mtlDevice: device)
+//    }
+//    
+//    private func postProcess(_ context: ARView.PostProcessContext) {
+//        
+//        print("PROCESSING")
+//        guard let sourceColor = CIImage(mtlTexture: context.sourceColorTexture) else { return }
+//        
+//        let filter = CIFilter.cannyEdgeDetector()
+//        
+//        filter.inputImage = sourceColor
+//        
+//        let destination = CIRenderDestination(mtlTexture: context.targetColorTexture,
+//                                              commandBuffer: context.commandBuffer)
+//        
+//        destination.isFlipped = false
+//        
+//        guard let cntx = self.context,
+//              let output = filter.outputImage else { return }
+//        
+//        do {
+//            
+//            _ = try cntx.startTask(toRender: output,
+//                                   to: destination)
+//        }
+//        catch {
+//            
+//            fatalError("Error post processing frame: \(error.localizedDescription)")
+//        }
+//    }
 }
 
 // MARK: Hit Test

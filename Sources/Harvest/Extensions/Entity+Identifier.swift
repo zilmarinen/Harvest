@@ -15,6 +15,7 @@ extension Entity {
         case buildings
         case camera
         case cursor
+        case fences
         case foliage
         case footpaths
         case portals

@@ -31,6 +31,11 @@ constant float sqrt3d6 = 0.2886751346;
 constant float sqrt3m1d2 = 0.36602540378;
 constant float sqrt3m3d6 = 0.211324865;
 
+constant float3 light = float3(1.0, 1.0, 1.0);
+
+constant float4 coldColor = float4(0.325, 0.796, 0.953, 1.0);
+constant float4 warmColor = float4(1.0, 0.663, 0.353, 1.0);
+
 constant float4 regionColor = float4(0.0509, 0.4509, 0.3019, 1.0);
 constant float4 chunkColor = float4(0.949, 0.7294, 0.3215, 1.0);
 constant float4 tileColor = float4(0.349, 0.145, 0.098, 1.0);
@@ -44,6 +49,12 @@ constant float lineWidth = 0.01;
 inline float dot2(float2 v) {
     
     return dot(v, v);
+}
+
+inline float dotClamped(float3 lhs,
+                        float3 rhs) {
+    
+    return max(0.0, dot(lhs, rhs));
 }
 
 inline float triangleSDF(float2 p,
@@ -71,6 +82,10 @@ inline float triangleSDF(float2 p,
     
     return -sqrt(d.x) * sign(d.y);
 }
+
+//
+//  World Grid
+//
 
 inline float world_grid(float2 worldXZ,
                         float length) {
@@ -107,4 +122,71 @@ inline float world_grid(float2 worldXZ,
                             outline);
 }
 
+//
+//  Gooch Shading
+//
+
+inline float4 gooch(surface_parameters params) {
+    
+    float3 n = normalize(params.geometry().normal());
+    float3 l = normalize(light);
+    float3 v = normalize(float3(0.0, 0.0, 1.0));
+    
+    float4 baseColor = params.geometry().color();
+    float4 cold = coldColor + 0.25 * baseColor;
+    float4 warm = warmColor + 0.25 * baseColor;
+    
+    float t = (dot(n, l) + 1.0) * 0.5;
+    float4 color = mix(cold, warm, t);
+    
+    return baseColor;
+}
+
+/*
+ 
+ void light() {
+     float gooch = (1.0f + dot(LIGHT, NORMAL)) / 2.0;
+     gooch *= ATTENUATION;
+     
+     vec3 kCold = cold.rgb + cold_strength * ALBEDO.rgb;
+     vec3 kWarm = warm.rgb + warm_strength * ALBEDO.rgb;
+     
+     vec3 gooch_diffuse = gooch * kWarm + (1.0 - gooch) * kCold;
+     vec3 reflection_dir = reflect(-LIGHT, NORMAL);
+     float specular = DotClamped(VIEW, reflection_dir);
+     specular = pow(specular, smoothness * 32.0) * 5.0;
+     
+     DIFFUSE_LIGHT += gooch_diffuse * ATTENUATION;
+     SPECULAR_LIGHT += specular * ATTENUATION * LIGHT_COLOR;
+ }
+ 
+ */
+
+/*
+ 
+ fragment float4 fragment_main(VertexOut in [[stage_in]]) {
+ 
+         float3 N = normalize(in.normalOS);
+         float3 L = normalize(float3(1.0, 1.0, 1.0));
+         float3 V = normalize(float3(0.0, 0.0, 1.0));
+         
+         float3 baseColor = float3(0.6, 0.3, 0.2);
+         float3 coolColor = float3(0.0, 0.0, 0.55) + 0.25 * baseColor;
+         float3 warmColor = float3(0.55, 0.45, 0.0) + 0.25 * baseColor;
+         
+         float t = (dot(N, L) + 1.0) * 0.5;
+         float3 color = mix(coolColor, warmColor, t);
+         
+         // Add subtle specular highlight
+         float3 R = reflect(-L, N);
+         float specular = pow(max(0.0, dot(R, V)), 24.0);
+         color += float3(1.0) * specular * 0.5;
+         
+         return float4(color, 1.0);
+     }
+ 
+ */
+
 #endif
+
+

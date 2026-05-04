@@ -10,11 +10,13 @@ import Cobble
 import Deltille
 import Lattice
 import Newel
+import Palisade
 import RealityKit
 
 public class RegionView: EditorView {
     
     internal let buildings = Buildings()
+    internal let fences = Fences()
     internal let foliage = Foliage()
     internal let footpaths = Footpaths()
     internal let portals = Portals()
@@ -27,6 +29,7 @@ public class RegionView: EditorView {
         super.init(frame: frame)
         
         world.addChild(buildings)
+        world.addChild(fences)
         world.addChild(foliage)
         world.addChild(footpaths)
         world.addChild(portals)
@@ -50,6 +53,7 @@ public class RegionView: EditorView {
         super.registerSystems()
         
         BuildingSystem.registerSystem()
+        FenceSystem.registerSystem()
         FoliageSystem.registerSystem()
         FootpathSystem.registerSystem()
         PortalSystem.registerSystem()
@@ -81,6 +85,7 @@ extension RegionView {
         }
         
         if let slice = region.buildings { buildings.merge(slice) }
+        if let slice = region.fences { fences.merge(slice) }
         if let slice = region.foliage { foliage.merge(slice) }
         if let slice = region.footpaths { footpaths.merge(slice) }
         if let slice = region.portals { portals.merge(slice) }
@@ -110,6 +115,7 @@ extension RegionView {
         return .init(origin: triangle.vertex,
                      identifier: terrain?.region.name ?? triangle.id,
                      buildings: buildings.slice(region: triangle),
+                     fences: fences.slice(region: triangle),
                      foliage: foliage.slice(region: triangle),
                      footpaths: footpaths.slice(region: triangle),
                      portals: portals.slice(region: triangle),
@@ -150,6 +156,27 @@ extension RegionView {
             
             terrain.propagate(triangle: tile)
         }
+    }
+}
+
+// MARK: Fences
+
+extension RegionView {
+    
+    public func set(_ rampart: Rampart,
+                    _ segment: FenceSegment,
+                    for vertex: Triangle.Vertex) {
+        
+        fences.set(.init(vertex: vertex,
+                         rampart: rampart,
+                         segment: segment),
+                      for: vertex)
+    }
+    
+    public func remove(fence vertex: Triangle.Vertex) {
+        
+        fences.set(nil,
+                   for: vertex)
     }
 }
 

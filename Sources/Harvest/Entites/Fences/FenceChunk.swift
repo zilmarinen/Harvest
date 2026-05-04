@@ -1,7 +1,8 @@
 //
-//  FootpathChunk.swift
+//  FenceChunk.swift
+//  Harvest
 //
-//  Created by Zack Brown on 11/11/2025.
+//  Created by Zack Brown on 03/05/2026.
 //
 
 import Deltille
@@ -9,8 +10,8 @@ import Euclid
 import Lattice
 import RealityKit
 
-public class FootpathChunk: TriangularChunk,
-                            HasMesh {
+public class FenceChunk: TriangularChunk,
+                         HasMesh {
     
     internal enum CodingKeys: CodingKey {
         

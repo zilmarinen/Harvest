@@ -21,7 +21,11 @@ extension BuildingTile {
     
     public var footprint: Triangle.Footprint {
         
-        .init(.init(origin),
-              septomino.coordinates)
+        let value = Triangle.Footprint(.init(origin),
+                                       septomino.coordinates)
+        
+        guard rotation != .identity else { return value }
+        
+        return value.rotate(rotation)
     }
 }
