@@ -5,8 +5,13 @@
 //
 
 import AppKit
+import Bivouac
+import Cobble
 import Deltille
 import Euclid
+import Lattice
+import Newel
+import Palisade
 import RealityKit
 
 @MainActor
@@ -20,35 +25,55 @@ open class EditorView: ARView {
     internal let camera = Camera()
     internal let cursor = Cursor()
     
+    internal let buildings = Buildings()
+    internal let fences = Fences()
+    internal let foliage = Foliage()
+    internal let footpaths = Footpaths()
+    internal let portals = Portals()
+    internal let slopes = Slopes()
+    internal let terrain = Terrain()
+    internal let water = Water()
+    
     internal let world = AnchorEntity(world: .zero)
     
     public required init(frame: NSRect) {
         
         super.init(frame: frame)
         
-        registerComponents()
-        registerSystems()
-        
         environment.background = .color(.windowBackgroundColor)
         
-//        renderCallbacks.prepareWithDevice = { [weak self] device in
-//        
-//            guard let self else { return }
-//            
-//            self.prepare(with: device)
-//        }
-//        
-//        renderCallbacks.postProcess = { [weak self] context in
-//            
-//            guard let self else { return }
-//            
-//            self.postProcess(context)
-//        }
+        renderCallbacks.prepareWithDevice = { [weak self] device in
+        
+            guard let self else { return }
+            
+            self.prepare(with: device)
+        }
+        
+        renderCallbacks.postProcess = { [weak self] context in
+            
+            guard let self else { return }
+            
+            self.postProcess(context)
+        }
+        
+        world.name = AnchorEntity.Identifier.world.id
         
         scene.addAnchor(world)
         
         world.addChild(camera)
         world.addChild(cursor)
+        
+        world.addChild(buildings)
+        world.addChild(fences)
+        world.addChild(foliage)
+        world.addChild(footpaths)
+        world.addChild(portals)
+        world.addChild(slopes)
+        world.addChild(terrain)
+        world.addChild(water)
+        
+        registerComponents()
+        registerSystems()
     }
     
     @available(*, unavailable)
@@ -58,50 +83,139 @@ open class EditorView: ARView {
         
         CameraComponent.registerComponent()
         CursorComponent.registerComponent()
+        
+        DataStoreComponent<Triangle.Vertex, WaterTile>.registerComponent()
+        DataStoreComponent<Triangle.Vertex, TerrainVertex>.registerComponent()
     }
     
     open func registerSystems() {
         
         CameraSystem.registerSystem()
         CursorSystem.registerSystem()
+        
+        BuildingSystem.registerSystem()
+        FenceSystem.registerSystem()
+        FoliageSystem.registerSystem()
+        FootpathSystem.registerSystem()
+        PortalSystem.registerSystem()
+        SlopeSystem.registerSystem()
+        TerrainSystem.registerSystem()
+        WaterSystem.registerSystem()
     }
     
 //    https://stackoverflow.com/questions/42912899/interior-like-edge-detection-using-ciimage
 //    https://stackoverflow.com/questions/79802422/realitykit-how-to-support-post-process-with-custom-camera
-//    private func prepare(with device: MTLDevice) {
-//        
-//        print("PREPARING")
-//        
-//        self.context = .init(mtlDevice: device)
-//    }
-//    
-//    private func postProcess(_ context: ARView.PostProcessContext) {
-//        
-//        print("PROCESSING")
-//        guard let sourceColor = CIImage(mtlTexture: context.sourceColorTexture) else { return }
-//        
-//        let filter = CIFilter.cannyEdgeDetector()
-//        
-//        filter.inputImage = sourceColor
-//        
-//        let destination = CIRenderDestination(mtlTexture: context.targetColorTexture,
-//                                              commandBuffer: context.commandBuffer)
-//        
-//        destination.isFlipped = false
-//        
-//        guard let cntx = self.context,
-//              let output = filter.outputImage else { return }
-//        
-//        do {
-//            
-//            _ = try cntx.startTask(toRender: output,
-//                                   to: destination)
-//        }
-//        catch {
-//            
-//            fatalError("Error post processing frame: \(error.localizedDescription)")
-//        }
-//    }
+    private func prepare(with device: MTLDevice) {
+        
+        print("PREPARING")
+        
+        self.context = .init(mtlDevice: device)
+    }
+    
+    private func postProcess(_ context: ARView.PostProcessContext) {
+        
+        guard let sourceColor = CIImage(mtlTexture: context.sourceColorTexture) else { return }
+        
+        let edgeFilter = CIFilter.cannyEdgeDetector()
+        
+        edgeFilter.gaussianSigma = 1.4
+        edgeFilter.perceptual = false
+        edgeFilter.thresholdLow = 0.02
+        edgeFilter.thresholdHigh = 0.05
+        edgeFilter.hysteresisPasses = 2
+        edgeFilter.inputImage = sourceColor
+        
+        let blendFilter = CIFilter.blendWithMask()
+        
+        blendFilter.backgroundImage = sourceColor
+        blendFilter.maskImage = edgeFilter.outputImage
+        blendFilter.inputImage = .black
+        
+        let destination = CIRenderDestination(mtlTexture: context.targetColorTexture,
+                                              commandBuffer: context.commandBuffer)
+        
+        destination.isFlipped = false
+        
+        guard let cntx = self.context,
+              let output = blendFilter.outputImage else { return }
+        
+        do {
+            
+            _ = try cntx.startTask(toRender: output,
+                                   to: destination)
+        }
+        catch {
+            
+            fatalError("Error post processing frame: \(error.localizedDescription)")
+        }
+    }
+    
+    deinit {
+        
+        print("DEINIT VIEW")
+    }
+}
+
+// MARK: Loading
+
+extension EditorView {
+    
+    public func load(regions: [Region]) {
+        
+        for region in regions {
+            
+            load(region: region)
+        }
+    }
+    
+    private func load(region: Region) {
+        
+        if let slice = region.terrain {
+            
+            slice.region.name = region.identifier
+            
+            terrain.merge(slice)
+        }
+        
+        if let slice = region.buildings { buildings.merge(slice) }
+        if let slice = region.fences { fences.merge(slice) }
+        if let slice = region.foliage { foliage.merge(slice) }
+        if let slice = region.footpaths { footpaths.merge(slice) }
+        if let slice = region.portals { portals.merge(slice) }
+        if let slice = region.slopes { slopes.merge(slice) }
+        if let slice = region.water { water.merge(slice) }
+        
+        //TODO: Reload chunks with assets
+    }
+}
+
+// MARK: Saving
+
+extension EditorView {
+    
+    public func save(regions: [Triangle]) -> [Region] {
+        
+        return regions.map {
+            
+            save(region: $0)
+        }
+    }
+    
+    private func save(region triangle: Triangle) -> Region {
+        
+        let terrain = terrain.slice(region: triangle)
+        
+        return .init(origin: triangle.vertex,
+                     identifier: terrain?.region.name ?? triangle.id,
+                     buildings: buildings.slice(region: triangle),
+                     fences: fences.slice(region: triangle),
+                     foliage: foliage.slice(region: triangle),
+                     footpaths: footpaths.slice(region: triangle),
+                     portals: portals.slice(region: triangle),
+                     slopes: slopes.slice(region: triangle),
+                     terrain: terrain,
+                     water: water.slice(region: triangle))
+    }
 }
 
 // MARK: Hit Test
@@ -178,5 +292,236 @@ extension EditorView {
     public var cursorRotation: Triangle.Rotation {
         
         cursor.rotation
+    }
+}
+
+// MARK: Buildings
+
+extension EditorView {
+    
+    public func set(_ septomino: Triangle.Septomino,
+                    for triangle: Triangle) {
+        
+        let value = BuildingTile(origin: triangle.vertex,
+                                 rotation: cursorRotation,
+                                 septomino: septomino)
+        
+        buildings.set(value,
+                      for: triangle.vertex)
+        
+        for tile in value.footprint.tiles {
+         
+            terrain.propagate(triangle: tile)
+        }
+    }
+    
+    public func remove(building triangle: Triangle) {
+        
+        guard let existing = buildings.value(for: triangle.vertex) else { return }
+        
+        buildings.set(nil,
+                      for: triangle.vertex)
+        
+        for tile in existing.footprint.tiles {
+            
+            terrain.propagate(triangle: tile)
+        }
+    }
+}
+
+// MARK: Fences
+
+extension EditorView {
+    
+    public func set(_ rampart: Rampart,
+                    _ segment: FenceSegment,
+                    for vertex: Triangle.Vertex) {
+        
+        fences.set(.init(vertex: vertex,
+                         rampart: rampart,
+                         segment: segment),
+                      for: vertex)
+    }
+    
+    public func remove(fence vertex: Triangle.Vertex) {
+        
+        fences.set(nil,
+                   for: vertex)
+    }
+}
+
+// MARK: Foliage
+
+extension EditorView {
+    
+    public func set(foliage triangle: Triangle) {
+        
+        foliage.set(.init(origin: triangle.vertex,
+                          rotation: cursorRotation,
+                          foliageType: .fornax),
+                    for: triangle.vertex)
+    }
+    
+    public func remove(foliage triangle: Triangle) {
+        
+        foliage.set(nil,
+                    for: triangle.vertex)
+    }
+}
+
+// MARK: Footpaths
+
+extension EditorView {
+    
+    public func set(_ design: Design,
+                    for vertex: Triangle.Vertex) {
+        
+        footpaths.set(.init(vertex: vertex,
+                            design: design),
+                      for: vertex)
+    }
+    
+    public func remove(footpath vertex: Triangle.Vertex) {
+        
+        footpaths.set(nil,
+                      for: vertex)
+    }
+}
+
+// MARK: Portals
+
+extension EditorView {
+    
+    public func add(portal triangle: Triangle) {
+        
+        portals.set(.init(origin: triangle.vertex,
+                          rotation: cursorRotation),
+                    for: triangle.vertex)
+    }
+    
+    public func remove(portal triangle: Triangle) {
+        
+        portals.set(nil,
+                    for: triangle.vertex)
+    }
+}
+
+// MARK: Slopes
+
+extension EditorView {
+    
+    public func set(_ slope: Slope,
+                    _ rise: Rise,
+                    _ cast: Cast,
+                    for triangle: Triangle) {
+        
+        let value = SlopeTile(origin: triangle.vertex,
+                              rotation: cursorRotation,
+                              slope: slope,
+                              rise: rise,
+                              cast: cast)
+        
+        slopes.set(value,
+                   for: triangle.vertex)
+        
+        for tile in value.footprint.tiles {
+         
+            terrain.propagate(triangle: tile)
+        }
+    }
+    
+    public func remove(slope triangle: Triangle) {
+        
+        guard let existing = slopes.value(for: triangle.vertex) else { return }
+        
+        slopes.set(nil,
+                   for: triangle.vertex)
+        
+        for tile in existing.footprint.tiles {
+            
+            terrain.propagate(triangle: tile)
+        }
+    }
+}
+
+// MARK: Terrain
+
+extension EditorView {
+    
+    public func get(biome vertex: Triangle.Vertex) -> TerrainVertex? {
+        
+        terrain.value(for: vertex)
+    }
+    
+    public func set(_ biome: Biome?,
+                    for vertex: Triangle.Vertex) {
+        
+        guard let existing = get(biome: vertex) else { return }
+        
+        set(biome,
+            existing.elevation,
+            for: vertex)
+    }
+    
+    public func set(_ elevation: Int,
+                    for vertex: Triangle.Vertex) {
+        
+        guard let existing = get(biome: vertex) else { return }
+        
+        set(existing.biome,
+            elevation,
+            for: vertex)
+    }
+    
+    public func set(_ biome: Biome?,
+                    _ elevation: Int,
+                    for vertex: Triangle.Vertex) {
+        
+        if let biome {
+            
+            terrain.set(.init(vertex: vertex,
+                              biome: biome,
+                              elevation: elevation),
+                        for: vertex)
+            
+        } else {
+            
+            terrain.remove(values: [vertex])
+        }
+        
+        foliage.propagate(vertex: vertex)
+        footpaths.propagate(vertex: vertex)
+        slopes.propagate(vertex: vertex)
+        water.propagate(vertex: vertex)
+    }
+}
+
+// MARK: Water
+
+extension EditorView {
+    
+    public func get(water triangle: Triangle) -> WaterTile? {
+        
+        water.value(for: triangle.vertex)
+    }
+    
+    public func set(_ waterType: WaterType,
+                    _ elevation: Int,
+                    for triangle: Triangle) {
+        
+        guard elevation > 0 else {
+            
+            return remove(water: triangle)
+        }
+        
+        water.set(.init(origin: triangle.vertex,
+                        waterType: waterType,
+                        elevation: elevation),
+                  for: triangle.vertex)
+    }
+    
+    public func remove(water triangle: Triangle) {
+        
+        water.remove(values: [triangle.vertex])
     }
 }
