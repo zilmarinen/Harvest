@@ -133,13 +133,32 @@ inline float4 gooch(surface_parameters params) {
     float3 v = normalize(float3(0.0, 0.0, 1.0));
     
     float4 baseColor = params.geometry().color();
-    float4 cold = coldColor + 0.25 * baseColor;
-    float4 warm = warmColor + 0.25 * baseColor;
+    float4 cold = coldColor + 0.75 * baseColor;
+    float4 warm = warmColor + 0.75 * baseColor;
     
     float t = (dot(n, l) + 1.0) * 0.5;
     float4 color = mix(cold, warm, t);
     
     return baseColor;
+}
+
+inline float4 ambient(surface_parameters params) {
+    
+    float3 position = normalize(params.geometry().world_position());
+    float3 normal = normalize(params.geometry().normal());
+    float3 light = normalize(float3(1.0, 1.0, 1.0));
+    
+    float3 lightDirection = normalize(light - position);
+    
+    float4 baseColor = params.geometry().color();
+    float4 lightColor = float4(1.0, 0.941, 0.745, 1.0);
+    
+    float ambientStrength = 0.1;
+    
+    float4 ambient = ambientStrength * lightColor;
+    float4 diffuse = (dotClamped(normal, lightDirection) * lightColor);
+    
+    return (ambient + diffuse) * baseColor;
 }
 
 /*
