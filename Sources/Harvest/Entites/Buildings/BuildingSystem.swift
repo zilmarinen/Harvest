@@ -18,8 +18,9 @@ internal struct BuildingSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let buildings = context.scene.find(entity: .buildings) as? Buildings,
-              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let buildings = world.find(entity: .buildings) as? Buildings,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         buildings.clean { chunk, wedge in
             
@@ -42,6 +43,8 @@ extension BuildingSystem {
                         wedge: TriangularDataStoreWedge<BuildingTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
+        print("Cleaning Building Chunk")
+        
         var invalid: [Triangle.Vertex] = []
         
         let unique = Set(wedge.tiles)
@@ -61,7 +64,7 @@ extension BuildingSystem {
             let angle = Angle(radians: buildingTile.rotation.radians + tile.orientation)
             let rotation = Rotation.yaw(angle)
             
-            let building = Mesh.building(buildingTile.septomino)
+            let building = Mesh.building(buildingTile.septomino.coordinates)
 
             result = result.merge(building.rotated(by: rotation).translated(by: buildingTile.origin.position(.tile) + apexElevation))
         }

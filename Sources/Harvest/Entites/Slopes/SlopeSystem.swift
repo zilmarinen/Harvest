@@ -15,18 +15,13 @@ import Yield
 @MainActor
 internal struct SlopeSystem: System {
     
-    internal enum Constant {
-        
-        static let apexHeight = 0.1
-        static let baseHeight = 0.5
-    }
-    
     internal init(scene: Scene) {}
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let slopes = context.scene.find(entity: .slopes) as? Slopes,
-              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let slopes = world.find(entity: .slopes) as? Slopes,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         slopes.clean { chunk, wedge in
             
@@ -48,6 +43,8 @@ extension SlopeSystem {
                         chunk: SlopeChunk,
                         wedge: TriangularDataStoreWedge<SlopeTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
+        
+        print("Cleaning Slope Chunk")
         
         var invalid: [Triangle.Vertex] = []
         

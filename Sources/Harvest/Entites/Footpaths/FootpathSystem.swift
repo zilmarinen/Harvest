@@ -20,8 +20,9 @@ internal struct FootpathSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let footpaths = context.scene.find(entity: .footpaths) as? Footpaths,
-              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let footpaths = world.find(entity: .footpaths) as? Footpaths,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         footpaths.clean { chunk, wedge in
             
@@ -43,6 +44,8 @@ extension FootpathSystem {
                         chunk: FootpathChunk,
                         wedge: HexagonalDataStoreWedge<FootpathVertex>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
+        
+        print("Cleaning Footpath Chunk")
         
         var invalid: [Triangle.Vertex] = []
         

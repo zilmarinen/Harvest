@@ -26,3 +26,21 @@ extension Entity {
         internal var id: String { rawValue.capitalized }
     }
 }
+
+extension AnchorEntity {
+    
+    internal enum Identifier: String,
+                              Hashable,
+                              Identifiable,
+                              Sendable {
+        
+        case world
+        
+        internal var id: String { rawValue.capitalized }
+    }
+    
+    internal func find(entity identifier: Entity.Identifier) -> Entity? {
+        
+        findEntity(named: identifier.id)
+    }
+}

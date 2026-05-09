@@ -21,8 +21,9 @@ internal struct FenceSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let fences = context.scene.find(entity: .fences) as? Fences,
-              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let fences = world.find(entity: .fences) as? Fences,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         fences.clean { chunk, wedge in
             
@@ -44,6 +45,8 @@ extension FenceSystem {
                         chunk: FenceChunk,
                         wedge: HexagonalDataStoreWedge<FenceVertex>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
+        
+        print("Cleaning Fence Chunk")
         
         var invalid: [Triangle.Vertex] = []
         

@@ -18,8 +18,9 @@ internal struct PortalSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let portals = context.scene.find(entity: .portals) as? Portals,
-              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let portals = world.find(entity: .portals) as? Portals,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         portals.clean { chunk, wedge in
             
@@ -39,7 +40,10 @@ extension PortalSystem {
                         chunk: PortalChunk,
                         wedge: TriangularDataStoreWedge<PortalTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
-        false
+        
+        print("Cleaning Portal Chunk")
+        
+        return false
 //        var invalid: [Triangle.Vertex] = []
 //        
 //        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in

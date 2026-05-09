@@ -18,9 +18,10 @@ internal struct TerrainSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let buildings = context.scene.find(entity: .buildings) as? Buildings,
-              let slopes = context.scene.find(entity: .slopes) as? Slopes,
-              let terrain = context.scene.find(entity: .terrain) as? Terrain else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let buildings = world.find(entity: .buildings) as? Buildings,
+              let slopes = world.find(entity: .slopes) as? Slopes,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         terrain.clean { chunk, wedge in
             
@@ -38,6 +39,8 @@ extension TerrainSystem {
                         wedge: HexagonalDataStoreWedge<TerrainVertex>,
                         buildings: Buildings,
                         slopes: Slopes) -> Bool {
+        
+        print("Cleaning Terrain Chunk")
         
         let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             

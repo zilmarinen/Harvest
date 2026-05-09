@@ -17,8 +17,9 @@ internal struct WaterSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
-              let water = context.scene.find(entity: .water) as? Water else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let terrain = world.find(entity: .terrain) as? Terrain,
+              let water = world.find(entity: .water) as? Water else { return }
         
         water.clean { chunk, wedge in
             
@@ -40,6 +41,8 @@ extension WaterSystem {
                         chunk: WaterChunk,
                         wedge: TriangularDataStoreWedge<WaterTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
+        
+        print("Cleaning Water Chunk")
         
         var invalid: [Triangle.Vertex] = []
         

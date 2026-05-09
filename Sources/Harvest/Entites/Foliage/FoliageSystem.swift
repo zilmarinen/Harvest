@@ -19,8 +19,9 @@ internal struct FoliageSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let terrain = context.scene.find(entity: .terrain) as? Terrain,
-              let foliage = context.scene.find(entity: .foliage) as? Foliage else { return }
+        guard let world = context.scene.find(anchor: .world) as? AnchorEntity,
+              let foliage = world.find(entity: .foliage) as? Foliage,
+              let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
         foliage.clean { chunk, wedge in
             
@@ -42,60 +43,56 @@ extension FoliageSystem {
                         chunk: FoliageChunk,
                         wedge: TriangularDataStoreWedge<FoliageTile>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
-        false
-//        var invalid: [Triangle.Vertex] = []
-//        
-//        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
-//            
-//            guard let terrainTile = terrainWedge.tile(for: triangle.origin),
-//                  let elevation = terrainTile.uniformElevation else {
-//                
-//                invalid.append(triangle.origin)
-//                
-//                return
-//            }
-//            
-//            result.append(contentsOf: render(terrainTile: terrainTile,
-//                                             elevation: elevation))
-//        }
-//        
-//        grid.remove(values: invalid)
-//        
-//        guard !polygons.isEmpty else { return false }
-//        
-//        let mesh = Mesh(polygons)
-//        
-//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-//        
-//        return true
-//    }
-//    
-//    private func render(terrainTile: HexagonalDataStoreTile<TerrainVertex>,
-//                        elevation: Int) -> [Euclid.Polygon] {
-//        
-//        do {
-//            
-//            let septomino = self.septomino(for: terrainTile.tile)
-//            
-//            let mesh = try AssetCache.shared.load(mesh: .foliage(.antlia))
-//            
-//            let apexElevation = Vector(0.0, (Double(elevation) * TerrainSystem.Constant.baseHeight) + TerrainSystem.Constant.apexHeight, 0.0)
-//            let origin = terrainTile.tile.position(.tile)
-//            let angle = Angle(radians: terrainTile.tile.rotation)
-//            let rotation = Rotation.yaw(angle)
-//            
-//            return mesh.polygons.rotated(by: rotation).translated(by: origin + apexElevation)
-//        }
-//        catch {
-//            
-//            fatalError("Error loading asset: \(error.localizedDescription)")
-//        }
-//    }
-//    
-//    private func septomino(for triangle: Triangle) -> Triangle.Septomino {
-//        
-//        let septominos = Triangle.Septomino.allCases
-//        
-//        return septominos[abs(triangle.vertex.position.identifier) % septominos.count]
+        
+        print("Cleaning Foliage Chunk")
+        
+        var invalid: [Triangle.Vertex] = []
+        
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
+            
+            guard let terrainTile = terrainWedge.tile(for: triangle.origin) else {
+                
+                invalid.append(triangle.origin)
+                
+                return
+            }
+            
+            result.append(contentsOf: render(terrainTile: terrainTile,
+                                             elevation: terrainTile.apex))
+        }
+        
+        grid.remove(values: invalid)
+        
+        guard !polygons.isEmpty else { return false }
+        
+        let mesh = Mesh(polygons)
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        
+        return true
+    }
+    
+    private func render(terrainTile: HexagonalDataStoreTile<TerrainVertex>,
+                        elevation: Int) -> [Euclid.Polygon] {
+        
+        do {
+            
+            let septominos = Triangle.Septomino.allCases
+            
+            let septomino = septominos[abs(terrainTile.triangle.vertex.position.identifier) % septominos.count]
+            
+            let mesh = try AssetCache.shared.load(mesh: .foliage(septomino))
+            
+            let apexElevation = Vector(0.0, Terrain.apex(for: elevation), 0.0)
+            let origin = terrainTile.triangle.position(.tile)
+            let angle = Angle(radians: terrainTile.triangle.orientation)
+            let rotation = Rotation.yaw(angle)
+            
+            return mesh.polygons.rotated(by: rotation).translated(by: origin + apexElevation)
+        }
+        catch {
+            
+            fatalError("Error loading asset: \(error.localizedDescription)")
+        }
     }
 }
