@@ -205,7 +205,7 @@ extension EditorView {
         
         let terrain = terrain.slice(region: triangle)
         
-        return .init(origin: triangle.vertex,
+        return .init(vertex: triangle.vertex,
                      identifier: terrain?.region.name ?? triangle.id,
                      buildings: buildings.slice(region: triangle),
                      fences: fences.slice(region: triangle),
@@ -228,7 +228,7 @@ extension EditorView {
                                   ontoPlane: floorPlane) else { return nil }
         
         let nearest = hitTest(point,
-                              query: .all,
+                              query: .nearest,
                               mask: .all)
         
         let pointInWorld = Vector(nearest.first?.position ?? ray)

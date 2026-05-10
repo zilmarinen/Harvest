@@ -13,7 +13,7 @@ public struct Region: Codable,
                       @preconcurrency Equatable,
                       @preconcurrency Hashable {
 
-    public let origin: Triangle.Vertex
+    public let vertex: Triangle.Vertex
     public var identifier: String = ""
     
     public let buildings: TriangularLatticeSlice<BuildingChunk, BuildingTile>?
@@ -27,13 +27,13 @@ public struct Region: Codable,
     
     public func hash(into hasher: inout Hasher) {
         
-        hasher.combine(origin)
+        hasher.combine(vertex)
     }
     
     public static func == (lhs: Region,
                            rhs: Region) -> Bool {
         
-        lhs.origin == rhs.origin
+        lhs.vertex == rhs.vertex
     }
 }
 
@@ -71,7 +71,7 @@ extension Region {
     public init(empty triangle: Triangle,
                 identifier: String? = nil) {
         
-        self.init(origin: triangle.vertex,
+        self.init(vertex: triangle.vertex,
                   buildings: nil,
                   fences: nil,
                   foliage: nil,
