@@ -14,7 +14,6 @@ public struct Region: Codable,
                       @preconcurrency Hashable {
 
     public let vertex: Triangle.Vertex
-    public var identifier: String = ""
     
     public let buildings: TriangularLatticeSlice<BuildingChunk, BuildingTile>?
     public let fences: HexagonalLatticeSlice<FenceChunk, FenceVertex>?
@@ -68,8 +67,7 @@ extension Region {
 
 extension Region {
     
-    public init(empty triangle: Triangle,
-                identifier: String? = nil) {
+    public init(empty triangle: Triangle) {
         
         self.init(vertex: triangle.vertex,
                   buildings: nil,
@@ -80,7 +78,5 @@ extension Region {
                   slopes: nil,
                   terrain: .init(empty: triangle),
                   water: nil)
-        
-        self.identifier = identifier ?? triangle.id
     }
 }

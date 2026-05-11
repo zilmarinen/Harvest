@@ -11,12 +11,12 @@ let package = Package(
                  targets: ["Harvest"])
     ],
     dependencies: [
-        .package(url: "git@github.com:nicklockwood/Euclid.git",
+        .package(url: "https://github.com/nicklockwood/Euclid.git",
                  branch: "main"),
         .package(path: "../Alluvium"),
         .package(path: "../Bivouac"),
         .package(path: "../Cobble"),
-        .package(url: "git@github.com:zilmarinen/Deltille.git",
+        .package(url: "https://github.com/zilmarinen/Deltille.git",
                  branch: "main"),
         .package(path: "../Lattice"),
         .package(path: "../Lintel"),

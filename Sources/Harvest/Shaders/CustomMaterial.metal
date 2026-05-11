@@ -25,7 +25,7 @@ void customMaterialGeometry(geometry_parameters params) {
 [[visible]]
 void customMaterialSurface(surface_parameters params) {
     
-    float4 shaded = ambient(params);
+    float4 shaded = lambert(params);
     
     params.surface().set_emissive_color(half3(shaded.xyz));
 }
@@ -39,7 +39,7 @@ void terrainGeometry(geometry_parameters params) {
 [[visible]]
 void terrainSurface(surface_parameters params) {
     
-    float4 shaded = ambient(params);
+    float4 shaded = lambert(params);
     
     params.surface().set_emissive_color(half3(shaded.xyz));
 }

@@ -31,7 +31,8 @@ constant float sqrt3d6 = 0.2886751346;
 constant float sqrt3m1d2 = 0.36602540378;
 constant float sqrt3m3d6 = 0.211324865;
 
-constant float3 light = float3(1.0, 1.0, 1.0);
+constant float3 lightPosition = float3(1.0, 1.0, 1.0);
+constant float4 lightColor = float4(0.996, 0.992, 0.874, 1.0);
 
 constant float4 coldColor = float4(0.325, 0.796, 0.953, 1.0);
 constant float4 warmColor = float4(1.0, 0.663, 0.353, 1.0);
@@ -126,39 +127,49 @@ inline float world_grid(float2 worldXZ,
 //  Gooch Shading
 //
 
-inline float4 gooch(surface_parameters params) {
-    
-    float3 n = normalize(params.geometry().normal());
-    float3 l = normalize(light);
-    float3 v = normalize(float3(0.0, 0.0, 1.0));
-    
-    float4 baseColor = params.geometry().color();
-    float4 cold = coldColor + 0.75 * baseColor;
-    float4 warm = warmColor + 0.75 * baseColor;
-    
-    float t = (dot(n, l) + 1.0) * 0.5;
-    float4 color = mix(cold, warm, t);
-    
-    return baseColor;
-}
+//inline float4 gooch(surface_parameters params) {
+//    
+//    float3 n = normalize(params.geometry().normal());
+//    float3 l = normalize(light);
+//    float3 v = normalize(float3(0.0, 0.0, 1.0));
+//    
+//    float4 baseColor = params.geometry().color();
+//    float4 cold = coldColor + 0.75 * baseColor;
+//    float4 warm = warmColor + 0.75 * baseColor;
+//    
+//    float t = (dot(n, l) + 1.0) * 0.5;
+//    float4 color = mix(cold, warm, t);
+//    
+//    return baseColor;
+//}
+//
+//inline float4 ambient(surface_parameters params) {
+//    
+//    float3 position = normalize(params.geometry().world_position());
+//    float3 normal = normalize(params.surface().normal());
+//    float3 light = normalize(float3(1.0, 1.0, 1.0));
+//    
+//    float3 lightDirection = normalize(light - position);
+//    
+//    float4 baseColor = params.geometry().color();
+//    float4 lightColor = float4(1.0, 0.941, 0.745, 1.0);
+//    
+//    float ambientStrength = 0.1;
+//    
+//    float4 ambient = ambientStrength * lightColor;
+//    float4 diffuse = (dotClamped(normal, lightDirection) * lightColor);
+//    
+//    return (ambient + diffuse) * baseColor;
+//}
 
-inline float4 ambient(surface_parameters params) {
+inline float4 lambert(surface_parameters params) {
     
-    float3 position = normalize(params.geometry().world_position());
+    float3 lightDirection = normalize(lightPosition);
     float3 normal = normalize(params.geometry().normal());
-    float3 light = normalize(float3(1.0, 1.0, 1.0));
-    
-    float3 lightDirection = normalize(light - position);
-    
     float4 baseColor = params.geometry().color();
-    float4 lightColor = float4(1.0, 0.941, 0.745, 1.0);
-    
-    float ambientStrength = 0.1;
-    
-    float4 ambient = ambientStrength * lightColor;
-    float4 diffuse = (dotClamped(normal, lightDirection) * lightColor);
-    
-    return (ambient + diffuse) * baseColor;
+
+    float ndotl = dotClamped( normal, lightDirection);
+    return baseColor * lightColor * ndotl;
 }
 
 /*

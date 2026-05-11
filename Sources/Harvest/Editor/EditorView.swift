@@ -149,11 +149,6 @@ open class EditorView: ARView {
             fatalError("Error post processing frame: \(error.localizedDescription)")
         }
     }
-    
-    deinit {
-        
-        print("DEINIT VIEW")
-    }
 }
 
 // MARK: Loading
@@ -170,19 +165,13 @@ extension EditorView {
     
     private func load(region: Region) {
         
-        if let slice = region.terrain {
-            
-            slice.region.name = region.identifier
-            
-            terrain.merge(slice)
-        }
-        
         if let slice = region.buildings { buildings.merge(slice) }
         if let slice = region.fences { fences.merge(slice) }
         if let slice = region.foliage { foliage.merge(slice) }
         if let slice = region.footpaths { footpaths.merge(slice) }
         if let slice = region.portals { portals.merge(slice) }
         if let slice = region.slopes { slopes.merge(slice) }
+        if let slice = region.terrain { terrain.merge(slice) }
         if let slice = region.water { water.merge(slice) }
         
         //TODO: Reload chunks with assets
@@ -206,7 +195,6 @@ extension EditorView {
         let terrain = terrain.slice(region: triangle)
         
         return .init(vertex: triangle.vertex,
-                     identifier: terrain?.region.name ?? triangle.id,
                      buildings: buildings.slice(region: triangle),
                      fences: fences.slice(region: triangle),
                      foliage: foliage.slice(region: triangle),
