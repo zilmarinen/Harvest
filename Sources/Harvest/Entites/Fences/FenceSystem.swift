@@ -104,7 +104,7 @@ extension FenceSystem {
                 doorway = doorway || other.segment == .doorway
             }
             
-            visited.union(vertices)
+            visited.formUnion(vertices)
             
             let apexElevation = Vector(0.0, Terrain.apex(for: elevation), 0.0)
             
@@ -118,10 +118,7 @@ extension FenceSystem {
                 case .corner(let triangle,
                              let corner):
                     
-                    guard doorway else {
-                        
-                        return .wall(wedge: wedge)
-                    }
+                    guard doorway else { return .wall(wedge: wedge) }
                     
                     return .doorwayCorner(triangle: triangle,
                                           corner: corner)
@@ -130,12 +127,10 @@ extension FenceSystem {
                            let edge):
                     
                     guard doorway,
-                          let corner = edge.corners.first else {
-                        
-                        return .wall(wedge: wedge)
-                    }
+                          let corner = edge.corners.first else { return .wall(wedge: wedge) }
                     
-                    let mirrored = triangle.vertex(corner) != value.vertex
+                    let vertex = triangle.vertex(corner)
+                    let mirrored = tile.vertices[vertex]?.segment != .doorway
                     
                     return .doorwayEdge(triangle: triangle,
                                         edge: edge,

@@ -80,7 +80,7 @@ extension FootpathSystem {
         
         var polygons: [Euclid.Polygon] = []
         
-        var visited: [Triangle.Vertex] = []
+        var visited: Set<Triangle.Vertex> = []
         
         for (_, value) in tile.vertices {
             
@@ -99,7 +99,7 @@ extension FootpathSystem {
                 vertices.append(vertex)
             }
             
-            visited.append(contentsOf: vertices)
+            visited.formUnion(vertices)
             
             let apexElevation = Vector(0.0, Terrain.apex(for: elevation), 0.0)
             
