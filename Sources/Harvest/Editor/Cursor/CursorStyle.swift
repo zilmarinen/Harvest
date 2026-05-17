@@ -5,12 +5,13 @@
 //
 
 import Deltille
+import Yield
 
 public enum CursorStyle: Equatable,
                          Identifiable,
                          Sendable {
     
-    case footprint(Triangle.Footprint)
+    case footprint(asset: Asset)
     case hexagonal
     case triangle
     case vertex

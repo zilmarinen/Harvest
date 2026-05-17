@@ -10,6 +10,7 @@ import Euclid
 import Lattice
 import Lintel
 import RealityKit
+import Yield
 
 @MainActor
 internal struct BuildingSystem: System {
@@ -49,7 +50,7 @@ extension BuildingSystem {
         
         let unique = Set(wedge.tiles)
         
-        let mesh = unique.reduce(into: Mesh.empty) { result, buildingTile in
+        let polygons = unique.reduce(into: [Euclid.Polygon]()) { result, buildingTile in
             
             guard let terrainTile = terrainWedge.tile(for: buildingTile.origin) else {
                 
@@ -58,23 +59,40 @@ extension BuildingSystem {
                 return
             }
             
-            let apexElevation = Vector(0.0, Terrain.apex(for: terrainTile.base), 0.0)
-            
-            let tile = Triangle(buildingTile.origin)
-            let angle = Angle(radians: buildingTile.rotation.radians + tile.orientation)
-            let rotation = Rotation.yaw(angle)
-            
-            let building = Mesh.building(buildingTile.septomino.coordinates)
-
-            result = result.merge(building.rotated(by: rotation).translated(by: buildingTile.origin.position(.tile) + apexElevation))
+            result.append(contentsOf: render(buildingTile: buildingTile,
+                                             terrainTile: terrainTile,
+                                             elevation: terrainTile.apex))
         }
         
         grid.remove(values: invalid)
         
-        guard !mesh.polygons.isEmpty else { return false }
+        guard !polygons.isEmpty else { return false }
+        
+        let mesh = Mesh(polygons)
         
         chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
         
         return true
+    }
+    
+    private func render(buildingTile: BuildingTile,
+                        terrainTile: HexagonalDataStoreTile<TerrainVertex>,
+                        elevation: Int) -> [Euclid.Polygon] {
+        
+        do {
+            
+            let mesh = try AssetCache.shared.load(mesh: .building(buildingTile.septomino))
+            
+            let apexElevation = Vector(0.0, Terrain.apex(for: elevation), 0.0)
+            let origin = terrainTile.triangle.position(.tile)
+            let angle = Angle(radians: terrainTile.triangle.orientation + buildingTile.rotation.radians)
+            let rotation = Rotation.yaw(angle)
+            
+            return mesh.polygons.rotated(by: rotation).translated(by: origin + apexElevation)
+        }
+        catch {
+            
+            fatalError("Error loading asset: \(error.localizedDescription)")
+        }
     }
 }

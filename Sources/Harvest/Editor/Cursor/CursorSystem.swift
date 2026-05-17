@@ -22,86 +22,145 @@ internal struct CursorSystem: System {
               let terrain = context.scene.find(entity: .terrain) as? Terrain,
               let water = context.scene.find(entity: .water) as? Water else { return }
         
-        let hitTest = cursor.hitTest(scale: .tile)
-        
-        guard cursor.cursorStyle != .vertex else {
+        switch cursor.cursorStyle {
             
-            return layout(vertex: cursor.children,
-                          terrain: terrain,
-                          water: water,
-                          hitTest: hitTest)
+        case .footprint:
+            
+            layout(footprint: cursor,
+                   terrain: terrain,
+                   water: water)
+            
+        case .triangle:
+            
+            layout(triangle: cursor,
+                   terrain: terrain,
+                   water: water)
+            
+        case .hexagonal,
+             .vertex:
+            
+            layout(hexagon: cursor,
+                   terrain: terrain,
+                   water: water,
+                   hexagonal: cursor.cursorStyle == .hexagonal)
         }
-        
-//        let footprint = footprint(for: cursor.cursorStyle,
-//                                  hitTest: hitTest)
-//        
-//        guard let rotation = cursor.rotation else {
-//          
-//            return layout(footprint: footprint,
-//                          terrain: terrain,
-//                          water: water)
-//        }
-//        
-//        layout(footprint: footprint.rotate(rotation),
-//               terrain: terrain,
-//               water: water)
     }
 }
 
 extension CursorSystem {
     
-    // MARK: Footprint
-    
-    private func footprint(for style: CursorStyle,
-                           hitTest: HitTest) -> Triangle.Footprint {
+    private func elevation(triangle: Triangle,
+                           terrain: Terrain,
+                           water: Water) -> Double {
         
-        switch style {
+        guard let value = water.value(for: triangle.vertex) else {
             
-        case .footprint(let template):
+            for vertex in triangle.vertices {
+                
+                guard let value = terrain.value(for: vertex) else { continue }
+                
+                return Terrain.apex(for: value.elevation)
+            }
             
-            return .init(hitTest.triangle,
-                         template.tiles)
-            
-        case .hexagonal:
-            
-            return .init(hitTest.triangle,
-                         hitTest.vertex.tiles)
-            
-        case .triangle:
-            
-            return .init(hitTest.triangle,
-                         [Coordinate.zero])
-            
-        default: fatalError("Invalid cursor style for footprint")
+            return 0.0
         }
+        
+        return Water.apex(for: value.elevation)
     }
     
-    private func layout(footprint: Triangle.Footprint,
+    private func elevation(vertex: Triangle.Vertex,
+                           terrain: Terrain,
+                           water: Water) -> Double {
+        
+        for triangle in vertex.tiles {
+            
+            guard let value = water.value(for: triangle.vertex) else { continue }
+            
+            return Water.apex(for: value.elevation)
+        }
+        
+        guard let value = terrain.value(for: vertex) else { return 0.0 }
+        
+        return Terrain.apex(for: value.elevation)
+    }
+    
+    private func layout(footprint cursor: Cursor,
                         terrain: Terrain,
                         water: Water) {
         
+        let triangle = cursor.triangle
+        
+        cursor.position = .init(triangle.position(.tile))
+        
+        let elevation = elevation(triangle: triangle,
+                                  terrain: terrain,
+                                  water: water)
+        
+        let rotation = simd_quatf(angle: Float(triangle.orientation - cursor.rotation.radians),
+                                  axis: .init(.unitY))
+        
+        let translation = SIMD3<Float>(0.0,
+                                       Float(elevation),
+                                       0.0)
+        
+        cursor.blueprint.transform = .init(rotation: rotation,
+                                           translation: translation)
     }
     
-    // MARK: Vertex
+    private func layout(triangle cursor: Cursor,
+                        terrain: Terrain,
+                        water: Water) {
+        
+        let triangle = cursor.triangle
+        
+        let rotation = simd_quatf(angle: Float(triangle.orientation),
+                                  axis: .init(.unitY))
+        
+        let translation = SIMD3<Float>(triangle.position(.tile))
+        
+        cursor.transform = .init(rotation: rotation,
+                                 translation: translation)
+        
+        for i in triangle.vertices.indices {
+            
+            let connected = triangle.vertices[i]
+            
+            let elevation = self.elevation(vertex: connected,
+                                           terrain: terrain,
+                                           water: water)
+            
+            cursor.triangular.set(elevation: elevation,
+                                  at: i)
+        }
+    }
     
-    private func layout(vertex cursors: Entity.ChildCollection,
+    private func layout(hexagon cursor: Cursor,
                         terrain: Terrain,
                         water: Water,
-                        hitTest: HitTest) {
+                        hexagonal: Bool) {
         
-        let biome = terrain.value(for: hitTest.vertex)
-        let waterTile = water.value(for: hitTest.triangle.vertex)
+        let vertex = cursor.vertex
         
-        let elevation = Double(biome?.elevation ?? waterTile?.elevation ?? 0)
+        cursor.position = .init(vertex.position(.tile))
         
-        let offset = Vector(0.0,
-                            (Terrain.Constant.baseHeight * elevation) +
-                            (elevation > 0 ? Terrain.Constant.apexHeight : 0.0),
-                            0.0);
+        var elevation = elevation(vertex: vertex,
+                                  terrain: terrain,
+                                  water: water)
         
-        cursors.forEach {
-
-            $0.position = .init(hitTest.vertex.position(.tile) + offset)
+        cursor.hexagonal.set(origin: elevation)
+        
+        guard hexagonal else { return }
+        
+        for i in vertex.vertices.indices {
+            
+            let connected = vertex.vertices[i]
+            
+            elevation = self.elevation(vertex: connected,
+                                       terrain: terrain,
+                                       water: water)
+            
+            cursor.hexagonal.set(elevation: elevation,
+                                 at: i)
         }
     }
 }

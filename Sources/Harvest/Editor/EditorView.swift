@@ -210,7 +210,7 @@ extension EditorView {
 
 extension EditorView {
     
-    public func hitTest(point: CGPoint) -> HitTest? {
+    public func hit(_ point: CGPoint) -> Vector? {
         
         guard let ray = unproject(point,
                                   ontoPlane: floorPlane) else { return nil }
@@ -219,17 +219,7 @@ extension EditorView {
                               query: .nearest,
                               mask: .all)
         
-        let pointInWorld = Vector(nearest.first?.position ?? ray)
-        
-        let triangle = Triangle(pointInWorld,
-                                .tile)
-        
-        let closest = triangle.closest(pointInWorld,
-                                       .tile)
-        
-        return .init(pointInWorld: pointInWorld,
-                     triangle: triangle,
-                     vertex: closest)
+        return .init(nearest.first?.position ?? ray)
     }
 }
 
@@ -477,6 +467,7 @@ extension EditorView {
             terrain.remove(values: [vertex])
         }
         
+        fences.propagate(vertex: vertex)
         foliage.propagate(vertex: vertex)
         footpaths.propagate(vertex: vertex)
         slopes.propagate(vertex: vertex)

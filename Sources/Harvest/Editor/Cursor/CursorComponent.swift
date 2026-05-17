@@ -23,8 +23,10 @@ internal protocol HasCursorComponent: Entity {
     var focus: Vector { get }
     var rotation: Triangle.Rotation { get }
     
+    var triangle: Triangle { get }
+    var vertex: Triangle.Vertex { get }
+    
     func focus(on location: Vector)
-    func hitTest(scale: Triangle.Scale) -> HitTest
     func rotate(_ rotation: Triangle.Rotation)
     func toggle(style value: CursorStyle)
 }
@@ -65,6 +67,20 @@ extension HasCursorComponent {
         
         cursorComponent.rotation
     }
+    
+    internal var triangle: Triangle {
+        
+        .init(.init(focus.x,
+                    0.0,
+                    focus.z),
+              .tile)
+    }
+    
+    internal var vertex: Triangle.Vertex {
+        
+        triangle.closest(focus,
+                         .tile)
+    }
 }
 
 extension HasCursorComponent {
@@ -74,26 +90,8 @@ extension HasCursorComponent {
         cursorComponent.focus = location
     }
     
-    internal func hitTest(scale: Triangle.Scale) -> HitTest {
-        
-        let triangle = Triangle(cursorComponent.focus,
-                                scale)
-        
-        let vertex = triangle.closest(cursorComponent.focus,
-                                      scale)
-        
-        return .init(pointInWorld: cursorComponent.focus,
-                     triangle: triangle,
-                     vertex: vertex)
-    }
-    
     internal func rotate(_ rotation: Triangle.Rotation) {
         
         cursorComponent.rotation = .init(turns: self.rotation.turns + rotation.turns)
-    }
-    
-    internal func toggle(style value: CursorStyle) {
-        
-        cursorComponent.cursorStyle = value
     }
 }
