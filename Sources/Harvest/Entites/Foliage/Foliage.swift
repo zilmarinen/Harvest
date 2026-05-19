@@ -8,7 +8,7 @@ import Deltille
 import Lattice
 import RealityKit
 
-internal class Foliage: TriangularLattice<FoliageChunk, FoliageTile> {
+internal class Foliage: HexagonalLattice<FoliageChunk, FoliageVertex> {
     
     required internal init() {
         

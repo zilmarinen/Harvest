@@ -34,7 +34,7 @@ public class FoliageChunk: TriangularChunk,
         
         super.init(triangle)
     }
-    
+    //TODO: Remove mesh encoding / decoding
     required internal init(from decoder: any Decoder) throws {
         
         try super.init(from: decoder)

@@ -41,18 +41,18 @@ extension FoliageSystem {
     
     private func update(grid: Foliage,
                         chunk: FoliageChunk,
-                        wedge: TriangularDataStoreWedge<FoliageTile>,
+                        wedge: HexagonalDataStoreWedge<FoliageVertex>,
                         terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
         
         print("Cleaning Foliage Chunk")
         
         var invalid: [Triangle.Vertex] = []
         
-        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, triangle in
+        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard let terrainTile = terrainWedge.tile(for: triangle.origin) else {
+            guard let terrainTile = terrainWedge.tile(for: tile.triangle.vertex) else {
                 
-                invalid.append(triangle.origin)
+                invalid.append(tile.triangle.vertex)
                 
                 return
             }

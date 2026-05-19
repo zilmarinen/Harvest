@@ -18,5 +18,7 @@ internal class Camera: Entity,
         name = Entity.Identifier.camera.id
         
         addChild(pov)
+        
+        pov.camera.fieldOfViewInDegrees = 70.0
     }
 }

@@ -334,8 +334,7 @@ extension EditorView {
     
     public func set(foliage triangle: Triangle) {
         
-        foliage.set(.init(origin: triangle.vertex,
-                          rotation: cursorRotation,
+        foliage.set(.init(vertex: triangle.vertex,
                           foliageType: .fornax),
                     for: triangle.vertex)
     }

@@ -162,7 +162,6 @@ extension TerrainSystem {
             let lor = leftOutline.contains(sv0) && leftOutline.contains(sv1)
             
             let adjacentElevation = lor ? leftElevation : rightElevation
-            let adjacentOutline = lor ? leftOutline : rightOutline
             
             guard vertex.elevation > adjacentElevation else { continue }
             

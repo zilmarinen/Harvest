@@ -35,7 +35,7 @@ public class FenceChunk: TriangularChunk,
         
         super.init(triangle)
     }
-    //TODO: Remome mesh encoding / decoding
+    //TODO: Remove mesh encoding / decoding
     required internal init(from decoder: any Decoder) throws {
         
         try super.init(from: decoder)
