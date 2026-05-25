@@ -1,5 +1,5 @@
 //
-//  HexagonalDataStoreTile.swift
+//  DataStoreStitch.swift
 //  Harvest
 //
 //  Created by Zack Brown on 13/03/2026.
@@ -10,7 +10,7 @@ import Lattice
 
 // MARK: Terrain
 
-extension HexagonalDataStoreTile where V == TerrainVertex {
+extension DataStoreStitch where V == TerrainVertex {
     
     internal var apex: Int {
 

@@ -22,7 +22,7 @@ internal struct PortalSystem: System {
               let portals = world.find(entity: .portals) as? Portals,
               let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
-        portals.clean { chunk, wedge in
+        portals.clean { chunk, sieve, wedge in
             
             let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
             
@@ -38,8 +38,8 @@ extension PortalSystem {
     
     private func update(grid: Portals,
                         chunk: PortalChunk,
-                        wedge: TriangularDataStoreWedge<PortalTile>,
-                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
+                        wedge: DataStoreWedge<PortalTile>,
+                        terrainWedge: DataStoreWedge<TerrainVertex>) -> Bool {
         
         print("Cleaning Portal Chunk")
         
@@ -71,18 +71,18 @@ extension PortalSystem {
 //        return true
     }
     
-    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
-                        elevation: Int) -> [Euclid.Polygon] {
-        Mesh.cube(size: .one).polygons
-//        let apex = Vector(0.0,
-//                          TerrainSystem.unitHeight(for: elevation) + 0.01,
-//                          0.0)
-//        
-//        let vertices = tile.vertices.map { $0.key.position(.tile) + apex }
-//        
-//        let volume = Volume(vertices: vertices,
-//                            displacement: Triangle.Scale.tile.length / 2.0)
-//        
-//        return volume.mesh(.red).polygons
-    }
+//    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
+//                        elevation: Int) -> [Euclid.Polygon] {
+//        Mesh.cube(size: .one).polygons
+////        let apex = Vector(0.0,
+////                          TerrainSystem.unitHeight(for: elevation) + 0.01,
+////                          0.0)
+////        
+////        let vertices = tile.vertices.map { $0.key.position(.tile) + apex }
+////        
+////        let volume = Volume(vertices: vertices,
+////                            displacement: Triangle.Scale.tile.length / 2.0)
+////        
+////        return volume.mesh(.red).polygons
+//    }
 }

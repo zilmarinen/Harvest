@@ -9,9 +9,9 @@ import Euclid
 
 extension Mesh {
     
-    internal static func cursor(_ scale: Hexagon.Scale) -> Self {
+    internal static func cursor(_ scale: Triangle.Scale) -> Self {
         
-        let triangle = Hexagon.zero
+        let triangle = Triangle.zero
         let span = scale.length * 0.5
         let center = triangle.position(scale)
         

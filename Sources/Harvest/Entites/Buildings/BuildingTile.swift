@@ -10,7 +10,7 @@ import Lattice
 
 public struct BuildingTile: TriangularDataStoreTile {
     
-    public let origin: Triangle.Vertex
+    public let vertex: Triangle.Vertex
     
     public let rotation: Triangle.Rotation
     
@@ -19,13 +19,13 @@ public struct BuildingTile: TriangularDataStoreTile {
 
 extension BuildingTile {
     
-    public var footprint: Triangle.Footprint {
-        
-        let value = Triangle.Footprint(.init(origin),
+    public var footprint: [Triangle.Vertex] {
+        //TODO: Fix horrible rotation logic
+        let value = Triangle.Footprint(.init(vertex),
                                        septomino.coordinates)
         
-        guard rotation != .identity else { return value }
+        guard rotation != .identity else { return value.tiles.map { $0.vertex} }
         
-        return value.rotate(rotation)
+        return value.rotate(rotation).tiles.map { $0.vertex }
     }
 }

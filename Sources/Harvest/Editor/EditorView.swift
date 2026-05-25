@@ -173,8 +173,6 @@ extension EditorView {
         if let slice = region.slopes { slopes.merge(slice) }
         if let slice = region.terrain { terrain.merge(slice) }
         if let slice = region.water { water.merge(slice) }
-        
-        //TODO: Reload chunks with assets
     }
 }
 
@@ -184,7 +182,7 @@ extension EditorView {
     
     public func save(regions: [Triangle]) -> [Region] {
         
-        return regions.map {
+        regions.map {
             
             save(region: $0)
         }
@@ -280,29 +278,30 @@ extension EditorView {
     public func set(_ septomino: Triangle.Septomino,
                     for triangle: Triangle) {
         
-        let value = BuildingTile(origin: triangle.vertex,
+        let value = BuildingTile(vertex: triangle.vertex,
                                  rotation: cursorRotation,
                                  septomino: septomino)
         
         buildings.set(value,
-                      for: triangle.vertex)
+                      for: triangle)
         
-        for tile in value.footprint.tiles {
+        //TODO: Check and optimise propagation logic
+        for vertex in value.footprint {
          
-            terrain.propagate(triangle: tile)
+            terrain.propagate(vertex: vertex)
         }
     }
     
     public func remove(building triangle: Triangle) {
         
-        guard let existing = buildings.value(for: triangle.vertex) else { return }
+        guard let existing = buildings.value(for: triangle) else { return }
         
-        buildings.set(nil,
-                      for: triangle.vertex)
+        buildings.remove(values: [triangle])
         
-        for tile in existing.footprint.tiles {
-            
-            terrain.propagate(triangle: tile)
+        //TODO: Check and optimise propagation logic
+        for vertex in existing.footprint {
+         
+            terrain.propagate(vertex: vertex)
         }
     }
 }
@@ -323,8 +322,7 @@ extension EditorView {
     
     public func remove(fence vertex: Triangle.Vertex) {
         
-        fences.set(nil,
-                   for: vertex)
+        fences.remove(values: [vertex])
     }
 }
 
@@ -332,17 +330,16 @@ extension EditorView {
 
 extension EditorView {
     
-    public func set(foliage triangle: Triangle) {
+    public func set(foliage vertex: Triangle.Vertex) {
         
-        foliage.set(.init(vertex: triangle.vertex,
+        foliage.set(.init(vertex: vertex,
                           foliageType: .fornax),
-                    for: triangle.vertex)
+                    for: vertex)
     }
     
-    public func remove(foliage triangle: Triangle) {
+    public func remove(foliage vertex: Triangle.Vertex) {
         
-        foliage.set(nil,
-                    for: triangle.vertex)
+        foliage.remove(values: [vertex])
     }
 }
 
@@ -360,8 +357,7 @@ extension EditorView {
     
     public func remove(footpath vertex: Triangle.Vertex) {
         
-        footpaths.set(nil,
-                      for: vertex)
+        footpaths.remove(values: [vertex])
     }
 }
 
@@ -371,15 +367,14 @@ extension EditorView {
     
     public func add(portal triangle: Triangle) {
         
-        portals.set(.init(origin: triangle.vertex,
+        portals.set(.init(vertex: triangle.vertex,
                           rotation: cursorRotation),
-                    for: triangle.vertex)
+                    for: triangle)
     }
     
     public func remove(portal triangle: Triangle) {
         
-        portals.set(nil,
-                    for: triangle.vertex)
+        portals.remove(values: [triangle])
     }
 }
 
@@ -392,31 +387,32 @@ extension EditorView {
                     _ cast: Cast,
                     for triangle: Triangle) {
         
-        let value = SlopeTile(origin: triangle.vertex,
+        let value = SlopeTile(vertex: triangle.vertex,
                               rotation: cursorRotation,
                               slope: slope,
                               rise: rise,
                               cast: cast)
         
         slopes.set(value,
-                   for: triangle.vertex)
+                   for: triangle)
         
-        for tile in value.footprint.tiles {
+        //TODO: Check and optimise propagation logic
+        for vertex in value.footprint {
          
-            terrain.propagate(triangle: tile)
+            terrain.propagate(vertex: vertex)
         }
     }
     
     public func remove(slope triangle: Triangle) {
         
-        guard let existing = slopes.value(for: triangle.vertex) else { return }
+        guard let existing = slopes.value(for: triangle) else { return }
         
-        slopes.set(nil,
-                   for: triangle.vertex)
+        slopes.remove(values: [triangle])
         
-        for tile in existing.footprint.tiles {
-            
-            terrain.propagate(triangle: tile)
+        //TODO: Check and optimise propagation logic
+        for vertex in existing.footprint {
+         
+            terrain.propagate(vertex: vertex)
         }
     }
 }
@@ -480,7 +476,7 @@ extension EditorView {
     
     public func get(water triangle: Triangle) -> WaterTile? {
         
-        water.value(for: triangle.vertex)
+        water.value(for: triangle)
     }
     
     public func set(_ waterType: WaterType,
@@ -492,14 +488,15 @@ extension EditorView {
             return remove(water: triangle)
         }
         
-        water.set(.init(origin: triangle.vertex,
+        water.set(.init(vertex: triangle.vertex,
+                        rotation: .identity,
                         waterType: waterType,
                         elevation: elevation),
-                  for: triangle.vertex)
+                  for: triangle)
     }
     
     public func remove(water triangle: Triangle) {
         
-        water.remove(values: [triangle.vertex])
+        water.remove(values: [triangle])
     }
 }

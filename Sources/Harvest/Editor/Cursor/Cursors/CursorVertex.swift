@@ -12,7 +12,7 @@ import RealityKit
 internal class CursorVertex: Entity,
                              HasMesh {
     
-    var mesh: Mesh? { Mesh.cursor(.conway) }
+    var mesh: Mesh? { Mesh.cursor(.sierpinski) }
     var material: CustomMaterial? { ShaderProgram.shared.material(for: .customMaterial) }
     
     internal required init() {

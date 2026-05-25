@@ -6,10 +6,10 @@
 //
 
 import Deltille
+import Lattice
 import Palisade
 
-public struct FenceVertex: Codable,
-                           Hashable {
+public struct FenceVertex: DataStoreValue {
     
     public let vertex: Triangle.Vertex
     

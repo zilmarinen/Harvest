@@ -23,10 +23,10 @@ internal struct TerrainSystem: System {
               let slopes = world.find(entity: .slopes) as? Slopes,
               let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
-        terrain.clean { chunk, wedge in
+        terrain.clean { chunk, sieve, wedge in
             
             update(chunk: chunk,
-                   wedge: wedge,
+                   weave: wedge.weave(sieve),
                    buildings: buildings,
                    slopes: slopes)
         }
@@ -36,18 +36,20 @@ internal struct TerrainSystem: System {
 extension TerrainSystem {
     
     private func update(chunk: TerrainChunk,
-                        wedge: HexagonalDataStoreWedge<TerrainVertex>,
+                        weave: DataStoreWeave<TerrainVertex>,
                         buildings: Buildings,
                         slopes: Slopes) -> Bool {
         
         print("Cleaning Terrain Chunk")
         
-        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
+        let polygons = weave.data.reduce(into: [Euclid.Polygon]()) { result, tile in
             
-            guard buildings.value(for: tile.triangle.vertex) == nil,
-                  slopes.value(for: tile.triangle.vertex) == nil else { return }
+            let triangle = tile.value.triangle
             
-            result.append(contentsOf: render(tile: tile))
+            guard buildings.value(for: triangle) == nil,
+                  slopes.value(for: triangle) == nil else { return }
+            
+            result.append(contentsOf: render(tile: tile.value))
         }
         
         guard !polygons.isEmpty else { return false }
@@ -59,7 +61,7 @@ extension TerrainSystem {
         return true
     }
     
-    private func render(tile: HexagonalDataStoreTile<TerrainVertex>) -> [Euclid.Polygon] {
+    private func render(tile: DataStoreStitch<TerrainVertex>) -> [Euclid.Polygon] {
         
         let triangle = tile.triangle
         let pattern = triangle.pattern

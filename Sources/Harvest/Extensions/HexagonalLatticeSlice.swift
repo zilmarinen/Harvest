@@ -19,13 +19,14 @@ extension HexagonalLatticeSlice where C == TerrainChunk,
         
         let chunk = triangle.transpose(.region, .chunk)
         
-        let sieve = chunk.sieve(for: .chunk)
+        let sieve = chunk.sieve(for: .tile)
         
-        for vertex in sieve.vertices {
+        //for vertex in sieve.vertices {
+        for vertex in triangle.vertices {
             
             let value = TerrainVertex(vertex: vertex,
                                       biome: .chaparral,
-                                      elevation: 3)
+                                      elevation: 1)
             
             lattice.set(value,
                         for: vertex)

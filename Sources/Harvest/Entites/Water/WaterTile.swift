@@ -9,9 +9,9 @@ import Lattice
 
 public struct WaterTile: TriangularDataStoreTile {
     
-    public let origin: Triangle.Vertex
+    public let vertex: Triangle.Vertex
     
-    public let rotation: Triangle.Rotation = .identity
+    public let rotation: Triangle.Rotation
     
     public let waterType: WaterType
     public let elevation: Int
@@ -19,9 +19,5 @@ public struct WaterTile: TriangularDataStoreTile {
 
 extension WaterTile {
     
-    public var footprint: Triangle.Footprint {
-        
-        .init(.init(origin),
-              [Coordinate.zero])
-    }
+    public var footprint: [Triangle.Vertex] { [vertex] }
 }

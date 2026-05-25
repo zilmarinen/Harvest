@@ -23,16 +23,16 @@ internal struct SlopeSystem: System {
               let slopes = world.find(entity: .slopes) as? Slopes,
               let terrain = world.find(entity: .terrain) as? Terrain else { return }
         
-        slopes.clean { chunk, wedge in
+        slopes.clean { chunk, sieve, wedge in
             
-            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
+            let terrainWedge = terrain.wedge(for: sieve)
             
             guard !terrainWedge.isEmpty else { return false }
             
             return update(grid: slopes,
                           chunk: chunk,
                           wedge: wedge,
-                          terrainWedge: terrainWedge)
+                          weave: terrainWedge.weave(sieve))
         }
     }
 }
@@ -41,20 +41,23 @@ extension SlopeSystem {
     
     private func update(grid: Slopes,
                         chunk: SlopeChunk,
-                        wedge: TriangularDataStoreWedge<SlopeTile>,
-                        terrainWedge: HexagonalDataStoreWedge<TerrainVertex>) -> Bool {
+                        wedge: DataStoreWedge<SlopeTile>,
+                        weave: DataStoreWeave<TerrainVertex>) -> Bool {
         
         print("Cleaning Slope Chunk")
         
-        var invalid: [Triangle.Vertex] = []
+        var invalid: [Triangle] = []
         
-        let unique = Set(wedge.tiles)
+        //TODO: Find unique items
+        let unique = Set(wedge.data.values)
         
         let mesh = unique.reduce(into: Mesh.empty) { result, tile in
             
-            guard let terrainTile = terrainWedge.tile(for: tile.origin) else {
+            let triangle = Triangle(tile.vertex)
+            
+            guard let terrainTile = weave.value(for: triangle) else {
                 
-                invalid.append(tile.origin)
+                invalid.append(triangle)
                 
                 return
             }
@@ -63,8 +66,8 @@ extension SlopeSystem {
             
             let elevation = Vector(0.0, Terrain.apex(for: terrainTile.base), 0.0)
             
-            let offset = terrainTile.triangle.position(.tile)
-            let angle = Angle(radians: tile.rotation.radians + terrainTile.triangle.orientation)
+            let offset = triangle.position(.tile)
+            let angle = Angle(radians: tile.rotation.radians + triangle.orientation)
             let rotation = Rotation.yaw(angle)
             
             let transformed = part.rotated(by: rotation).translated(by: offset + elevation)

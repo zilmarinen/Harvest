@@ -6,10 +6,10 @@
 //
 
 import Cobble
+import Lattice
 import Deltille
 
-public struct FootpathVertex: Codable,
-                              Hashable {
+public struct FootpathVertex: DataStoreValue {
     
     public let vertex: Triangle.Vertex
     

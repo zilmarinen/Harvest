@@ -5,9 +5,9 @@
 //
 
 import Deltille
+import Lattice
 
-public struct TerrainVertex: Codable,
-                             Hashable {
+public struct TerrainVertex: DataStoreValue {
     
     public let vertex: Triangle.Vertex
     

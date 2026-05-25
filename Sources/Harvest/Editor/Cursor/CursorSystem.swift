@@ -53,7 +53,7 @@ extension CursorSystem {
                            terrain: Terrain,
                            water: Water) -> Double {
         
-        guard let value = water.value(for: triangle.vertex) else {
+        guard let value = water.value(for: triangle) else {
             
             for vertex in triangle.vertices {
                 
@@ -74,7 +74,7 @@ extension CursorSystem {
         
         for triangle in vertex.tiles {
             
-            guard let value = water.value(for: triangle.vertex) else { continue }
+            guard let value = water.value(for: triangle) else { continue }
             
             return Water.apex(for: value.elevation)
         }

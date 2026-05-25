@@ -10,8 +10,7 @@ import Deltille
 import Lattice
 import Verdure
 
-public struct FoliageVertex: Codable,
-                             Hashable {
+public struct FoliageVertex: DataStoreValue {
     
     public let vertex: Triangle.Vertex
     
