@@ -285,24 +285,14 @@ extension EditorView {
         buildings.set(value,
                       for: triangle)
         
-        //TODO: Check and optimise propagation logic
-        for vertex in value.footprint {
-         
-            terrain.propagate(vertex: vertex)
-        }
+        terrain.propagate([triangle.vertex])
     }
     
     public func remove(building triangle: Triangle) {
         
-        guard let existing = buildings.value(for: triangle) else { return }
-        
         buildings.remove(values: [triangle])
         
-        //TODO: Check and optimise propagation logic
-        for vertex in existing.footprint {
-         
-            terrain.propagate(vertex: vertex)
-        }
+        terrain.propagate([triangle.vertex])
     }
 }
 
@@ -396,24 +386,14 @@ extension EditorView {
         slopes.set(value,
                    for: triangle)
         
-        //TODO: Check and optimise propagation logic
-        for vertex in value.footprint {
-         
-            terrain.propagate(vertex: vertex)
-        }
+        terrain.propagate([triangle.vertex])
     }
     
     public func remove(slope triangle: Triangle) {
         
-        guard let existing = slopes.value(for: triangle) else { return }
-        
         slopes.remove(values: [triangle])
         
-        //TODO: Check and optimise propagation logic
-        for vertex in existing.footprint {
-         
-            terrain.propagate(vertex: vertex)
-        }
+        terrain.propagate([triangle.vertex])
     }
 }
 
@@ -462,11 +442,11 @@ extension EditorView {
             terrain.remove(values: [vertex])
         }
         
-        fences.propagate(vertex: vertex)
-        foliage.propagate(vertex: vertex)
-        footpaths.propagate(vertex: vertex)
-        slopes.propagate(vertex: vertex)
-        water.propagate(vertex: vertex)
+        fences.propagate([vertex])
+        foliage.propagate([vertex])
+        footpaths.propagate([vertex])
+        slopes.propagate(vertex.tiles)
+        water.propagate(vertex.tiles)
     }
 }
 

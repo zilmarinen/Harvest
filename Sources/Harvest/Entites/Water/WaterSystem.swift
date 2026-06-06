@@ -25,8 +25,6 @@ internal struct WaterSystem: System {
             
             let terrainWedge = terrain.wedge(for: sieve)
             
-            guard !terrainWedge.isEmpty else { return false }
-            
             return update(grid: water,
                           chunk: chunk,
                           wedge: wedge,
@@ -42,7 +40,7 @@ extension WaterSystem {
                         wedge: DataStoreWedge<WaterTile>,
                         weave: DataStoreWeave<TerrainVertex>) -> Bool {
         
-        print("Cleaning Water Chunk")
+        print("Cleaning Water Chunk \(chunk.triangle.id)")
         
         var invalid: [Triangle] = []
         

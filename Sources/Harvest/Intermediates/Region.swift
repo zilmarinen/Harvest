@@ -47,16 +47,14 @@ extension Region {
 
 extension Region {
     
-    public func remove(tiles region: Triangle) {
+    public func remove(values sieve: Triangle.Sieve) {
         
-        let sieve = region.sieve(for: .region)
-        
-        let triangles = sieve.triangles.map { $0.vertex }
+        let triangles = sieve.triangles
         let vertices = sieve.vertices
         
         buildings?.remove(values: triangles)
         fences?.remove(values: vertices)
-        foliage?.remove(values: triangles)
+        foliage?.remove(values: vertices)
         footpaths?.remove(values: vertices)
         portals?.remove(values: triangles)
         slopes?.remove(values: triangles)
@@ -76,7 +74,7 @@ extension Region {
                   footpaths: nil,
                   portals: nil,
                   slopes: nil,
-                  terrain: .init(empty: triangle),
+                  terrain: nil,
                   water: nil)
     }
 }
