@@ -26,7 +26,9 @@ internal class OrthographicCamera: Entity,
         
         name = Entity.Identifier.camera.id
         
-        camera.scale = 10.0
+        zoom = Self.maximumZoom
+        
+        camera.scale = zoom
         
         components.set(camera)
     }

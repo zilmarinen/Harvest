@@ -11,7 +11,7 @@ import RealityKit
 
 internal protocol HasOrthographicCamera: HasTransform {
     
-    var camera: OrthographicCameraComponent { get }
+    var camera: OrthographicCameraComponent { get set }
     
     var focus: Vector { get set }
     var rotation: Hexagon.Rotation { get set }
@@ -26,7 +26,7 @@ internal protocol HasOrthographicCamera: HasTransform {
 internal extension HasOrthographicCamera {
     
     static var maximumZoom: Float { 100.0 }
-    static var minimumZoom: Float { 1.0 }
+    static var minimumZoom: Float { 10.0 }
 }
 
 internal extension HasOrthographicCamera {
@@ -59,5 +59,10 @@ internal extension HasOrthographicCamera {
         zoom = max(Self.minimumZoom,
                    min(Self.maximumZoom,
                        zoom + Float(value)))
+        
+        camera.scale = zoom
+        
+        //TODO: Investigate why we need to re-apply the camera component after updating the scale property
+        components.set(camera)
     }
 }
