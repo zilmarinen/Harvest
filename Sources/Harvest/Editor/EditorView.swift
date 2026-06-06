@@ -22,7 +22,7 @@ open class EditorView: ARView {
     internal let floorPlane = float4x4(simd_quatf(angle: 0.0,
                                                   axis: .init(.unitY)))
     
-    internal let camera = Camera()
+    internal let camera = OrthographicCamera()
     internal let cursor = Cursor()
     
     internal let buildings = Buildings()
@@ -81,7 +81,6 @@ open class EditorView: ARView {
  
     open func registerComponents() {
         
-        CameraComponent.registerComponent()
         CursorComponent.registerComponent()
         
         DataStoreComponent<Triangle.Vertex, WaterTile>.registerComponent()
@@ -106,8 +105,6 @@ open class EditorView: ARView {
 //    https://stackoverflow.com/questions/42912899/interior-like-edge-detection-using-ciimage
 //    https://stackoverflow.com/questions/79802422/realitykit-how-to-support-post-process-with-custom-camera
     private func prepare(with device: MTLDevice) {
-        
-        print("PREPARING")
         
         self.context = .init(mtlDevice: device)
     }
@@ -211,7 +208,8 @@ extension EditorView {
     public func hit(_ point: CGPoint) -> Vector? {
         
         guard let ray = unproject(point,
-                                  ontoPlane: floorPlane) else { return nil }
+                                  ontoPlane: floorPlane,
+                                  relativeToCamera: false) else { return nil }
         
         let nearest = hitTest(point,
                               query: .nearest,

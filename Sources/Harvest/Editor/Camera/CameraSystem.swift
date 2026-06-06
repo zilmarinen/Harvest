@@ -1,5 +1,5 @@
 //
-//  CameraSystem.swift
+//  OrthographicCameraSystem.swift
 //
 //  Created by Zack Brown on 16/08/2025.
 //
@@ -14,23 +14,25 @@ internal struct CameraSystem: System {
     
     internal func update(context: SceneUpdateContext) {
         
-        guard let camera = context.scene.find(entity: .camera) as? Camera else { return }
+        guard let camera = context.scene.find(entity: .camera) as? OrthographicCamera else { return }
         
-        let elevation = Angle(degrees: 45.0)
+        let elevation = Angle(degrees: 35.264)
         
-        let horizontal = camera.radius * cos(elevation)
-        let vertical = camera.radius * sin(elevation)
+        let scale = Double(10.0)
         
-        let x = cos(camera.rotation.radians) * horizontal
-        let z = sin(camera.rotation.radians) * horizontal
+        let horizontal = scale * cos(elevation)
+        let vertical = scale * sin(elevation)
         
-        camera.position = .init(camera.focus)
-        camera.pov.position = .init(Float(x),
-                                    Float(vertical),
-                                    Float(z))
+        let x = (cos(camera.rotation.radians) * horizontal)
+        let z = (sin(camera.rotation.radians) * horizontal)
+        
+        let position = Vector(camera.focus.x + x,
+                              vertical,
+                              camera.focus.z + z)
 
-        camera.pov.look(at: .zero,
-                        from: camera.pov.position,
-                        relativeTo: camera)
+        camera.look(at: .init(camera.focus),
+                    from: .init(position),
+                    upVector: .init(0.0, 1.0, 0.0),
+                    relativeTo: nil)
     }
 }
