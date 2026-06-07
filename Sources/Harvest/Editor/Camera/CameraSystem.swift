@@ -18,7 +18,7 @@ internal struct CameraSystem: System {
         
         let elevation = Angle(degrees: 45.0)//35.264
         
-        let scale = Double(10.0)
+        let scale = Double(camera.camera.far / 2.0)
         
         let horizontal = scale * cos(elevation)
         let vertical = scale * sin(elevation)
@@ -32,7 +32,7 @@ internal struct CameraSystem: System {
 
         camera.look(at: .init(camera.focus),
                     from: .init(position),
-                    upVector: .init(0.0, 1.0, 0.0),
+                    upVector: [0, 1, 0],
                     relativeTo: nil)
     }
 }

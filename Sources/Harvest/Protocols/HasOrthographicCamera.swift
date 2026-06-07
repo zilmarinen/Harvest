@@ -26,7 +26,10 @@ internal protocol HasOrthographicCamera: HasTransform {
 internal extension HasOrthographicCamera {
     
     static var maximumZoom: Float { 100.0 }
-    static var minimumZoom: Float { 10.0 }
+    static var minimumZoom: Float { 5.0 }
+    
+    static var near: Float { -10.0 }
+    static var far: Float { 1000.0 }
 }
 
 internal extension HasOrthographicCamera {

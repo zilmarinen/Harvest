@@ -19,9 +19,6 @@ open class EditorView: ARView {
     
     internal var context: CIContext?
     
-    internal let floorPlane = float4x4(simd_quatf(angle: 0.0,
-                                                  axis: .init(.unitY)))
-    
     internal let camera = OrthographicCamera()
     internal let cursor = Cursor()
     
@@ -207,15 +204,66 @@ extension EditorView {
     
     public func hit(_ point: CGPoint) -> Vector? {
         
-        guard let ray = unproject(point,
-                                  ontoPlane: floorPlane,
-                                  relativeToCamera: false) else { return nil }
+        let viewport = bounds.size
+        let aspect = Float(viewport.width / viewport.height)
         
-        let nearest = hitTest(point,
-                              query: .nearest,
-                              mask: .all)
+        let height = camera.zoom
+        let width = height * aspect
         
-        return .init(nearest.first?.position ?? ray)
+        let projectionMatrix = float4x4.ortho(left: -width,
+                                              right: width,
+                                              top: height,
+                                              bottom: -height,
+                                              near: camera.camera.near,
+                                              far: camera.camera.far)
+        
+        let viewMatrix = camera.transformMatrix(relativeTo: nil)
+        
+        let ray = unproject(point,
+                            viewport: bounds.size,
+                            projectionMatrix: projectionMatrix,
+                            viewMatrix: viewMatrix)
+        
+        let t = -ray.origin.y / ray.direction.y
+        
+        guard t >= 0 else { return nil }
+        
+        let position = ray.origin + t * ray.direction
+        
+        let hit = scene.raycast(origin: .init(ray.origin),
+                                direction: .init(ray.direction),
+                                length: camera.camera.far - camera.camera.near,
+                                query: .nearest,
+                                mask: .all,
+                                relativeTo: nil)
+        
+        guard let hit = hit.first else { return position }
+        
+        return .init(hit.position)
+    }
+    
+    private func unproject(_ point: CGPoint,
+                           viewport: CGSize,
+                           projectionMatrix: float4x4,
+                           viewMatrix: float4x4) -> (origin: Vector, direction: Vector) {
+        
+        let ndcX = Float((2.0 * point.x / viewport.width) - 1.0)
+        let ndcY = Float((2.0 * point.y / viewport.height) - 1.0)
+        
+        let vsPoint = projectionMatrix.inverse * SIMD4<Float>(ndcX, ndcY, -1.0, 1.0)
+        
+        let wsPoint = viewMatrix * SIMD4<Float>(vsPoint.x, vsPoint.y, vsPoint.z, 1.0)
+        
+        let origin = Vector(Double(wsPoint.x),
+                            Double(wsPoint.y),
+                            Double(wsPoint.z))
+        
+        let direction = Vector(-Double(viewMatrix.columns.2.x),
+                               -Double(viewMatrix.columns.2.y),
+                               -Double(viewMatrix.columns.2.z))
+        
+        return (origin: origin,
+                direction: direction.normalized())
     }
 }
 
