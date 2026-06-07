@@ -217,18 +217,14 @@ extension EditorView {
                                               near: camera.camera.near,
                                               far: camera.camera.far)
         
-        let viewMatrix = camera.transformMatrix(relativeTo: nil)
-        
         let ray = unproject(point,
                             viewport: bounds.size,
                             projectionMatrix: projectionMatrix,
-                            viewMatrix: viewMatrix)
+                            viewMatrix: camera.transformMatrix(relativeTo: nil))
         
         let t = -ray.origin.y / ray.direction.y
         
         guard t >= 0 else { return nil }
-        
-        let position = ray.origin + t * ray.direction
         
         let hit = scene.raycast(origin: .init(ray.origin),
                                 direction: .init(ray.direction),
@@ -237,7 +233,7 @@ extension EditorView {
                                 mask: .all,
                                 relativeTo: nil)
         
-        guard let hit = hit.first else { return position }
+        guard let hit = hit.first else { return ray.origin + t * ray.direction }
         
         return .init(hit.position)
     }

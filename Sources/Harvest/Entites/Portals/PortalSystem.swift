@@ -24,12 +24,12 @@ internal struct PortalSystem: System {
         
         portals.clean { chunk, sieve, wedge in
             
-            let terrainWedge = terrain.wedge(for: chunk.triangle.sieve(for: .chunk))
+            let terrainWedge = terrain.wedge(for: sieve)
             
             return update(grid: portals,
                           chunk: chunk,
                           wedge: wedge,
-                          terrainWedge: terrainWedge)
+                          weave: terrainWedge.weave(sieve))
         }
     }
 }
@@ -39,50 +39,73 @@ extension PortalSystem {
     private func update(grid: Portals,
                         chunk: PortalChunk,
                         wedge: DataStoreWedge<PortalTile>,
-                        terrainWedge: DataStoreWedge<TerrainVertex>) -> Bool {
+                        weave: DataStoreWeave<TerrainVertex>) -> Bool {
         
         print("Cleaning Portal Chunk")
         
-        return false
-//        var invalid: [Triangle.Vertex] = []
-//        
-//        let polygons = wedge.tiles.reduce(into: [Euclid.Polygon]()) { result, tile in
-//            
-//            guard let terrainTile = terrainWedge.tile(for: tile.origin),
-//                  let elevation = terrainTile.uniformElevation else {
-//                
-//                invalid.append(tile.origin)
-//                
-//                return
-//            }
-//            
-//            result.append(contentsOf: render(tile: terrainTile,
-//                                             elevation: elevation))
-//        }
-//        
-//        grid.remove(values: invalid)
-//        
-//        guard !polygons.isEmpty else { return false }
-//        
-//        let mesh = Mesh(polygons)
-//        
-//        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
-//        
-//        return true
+        var invalid: [Triangle] = []
+        
+        let polygons = wedge.data.reduce(into: [Euclid.Polygon]()) { result, tile in
+            
+            let triangle = Triangle(tile.value.vertex)
+            
+            guard let terrainTile = weave.value(for: triangle),
+                  terrainTile.floor > 0 else {
+                
+                invalid.append(triangle)
+                
+                return
+            }
+            
+            result.append(contentsOf: render(tile: terrainTile))
+        }
+        
+        grid.remove(values: invalid)
+        
+        guard !polygons.isEmpty else { return false }
+        
+        let mesh = Mesh(polygons)
+        
+        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        
+        return true
     }
     
-//    private func render(tile: HexagonalDataStoreTile<TerrainVertex>,
-//                        elevation: Int) -> [Euclid.Polygon] {
-//        Mesh.cube(size: .one).polygons
-////        let apex = Vector(0.0,
-////                          TerrainSystem.unitHeight(for: elevation) + 0.01,
-////                          0.0)
-////        
-////        let vertices = tile.vertices.map { $0.key.position(.tile) + apex }
-////        
-////        let volume = Volume(vertices: vertices,
-////                            displacement: Triangle.Scale.tile.length / 2.0)
-////        
-////        return volume.mesh(.red).polygons
-//    }
+    private func render(tile: DataStoreStitch<TerrainVertex>) -> [Euclid.Polygon] {
+        
+        let apex = Vector(0.0,
+                          Terrain.apex(for: tile.base) + 0.01,
+                          0.0)
+        
+        let baseVertices = tile.triangle.vertices.map {
+            
+            $0.position(.tile) + apex
+        }
+        let peakVertices = baseVertices.map {
+            
+            $0 + Vector(0.0, 0.5, 0.0)
+        }
+        
+        guard let peak = Polygon.surface(peakVertices,
+                                         .red) else { return [] }
+        
+        var polygons = [peak]
+        
+        for i in baseVertices.indices {
+            
+            let j = (i + 1) % baseVertices.count
+            
+            let v0 = baseVertices[i]
+            let v1 = baseVertices[j]
+            let v2 = peakVertices[j]
+            let v3 = peakVertices[i]
+            
+            guard let surface = Polygon.surface([v0, v1, v2, v3],
+                                                .red) else { continue }
+            
+            polygons.append(surface)
+        }
+        
+        return polygons
+    }
 }
