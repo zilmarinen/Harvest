@@ -80,8 +80,8 @@ open class EditorView: ARView {
         
         CursorComponent.registerComponent()
         
-        DataStoreComponent<Triangle.Vertex, WaterTile>.registerComponent()
-        DataStoreComponent<Triangle.Vertex, TerrainVertex>.registerComponent()
+        DataStoreComponent<WaterTile>.registerComponent()
+        DataStoreComponent<TerrainVertex>.registerComponent()
     }
     
     open func registerSystems() {

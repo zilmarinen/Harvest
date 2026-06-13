@@ -16,12 +16,12 @@ internal struct CameraSystem: System {
         
         guard let camera = context.scene.find(entity: .camera) as? OrthographicCamera else { return }
         
-        let elevation = Angle(degrees: 45.0)//35.264
+        let elevation = Angle(degrees: 35.264)
         
-        let scale = Double(camera.camera.far / 2.0)
+        let distance = Double(camera.camera.far / 2.0)
         
-        let horizontal = scale * cos(elevation)
-        let vertical = scale * sin(elevation)
+        let horizontal = distance * cos(elevation)
+        let vertical = distance * sin(elevation)
         
         let x = (cos(camera.rotation.radians) * horizontal)
         let z = (sin(camera.rotation.radians) * horizontal)

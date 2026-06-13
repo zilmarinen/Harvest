@@ -5,7 +5,7 @@
 //  Created by Zack Brown on 03/05/2026.
 //
 
-public enum FenceSegment: String,
+public enum FenceSegment: Int,
                           CaseIterable,
                           Codable,
                           Identifiable,
@@ -14,5 +14,12 @@ public enum FenceSegment: String,
     case doorway
     case fence
     
-    public var id: String { rawValue.capitalized }
+    public var id: String {
+    
+        switch self {
+            
+        case .doorway: "Doorway"
+        case .fence: "Fence"
+        }
+    }
 }

@@ -7,7 +7,7 @@
 import Alluvium
 import Euclid
 
-public enum WaterType: String,
+public enum WaterType: Int,
                        CaseIterable,
                        Codable,
                        Hashable,
@@ -16,7 +16,14 @@ public enum WaterType: String,
     case ocean
     case river
     
-    public var id: String { rawValue.capitalized }
+    public var id: String {
+    
+        switch self {
+            
+        case .ocean: "Ocean"
+        case .river: "River"
+        }
+    }
 }
 
 extension WaterType {

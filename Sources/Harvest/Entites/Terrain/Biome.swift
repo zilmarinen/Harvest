@@ -7,7 +7,7 @@
 import Alluvium
 import Euclid
 
-public enum Biome: String,
+public enum Biome: Int,
                    CaseIterable,
                    Codable,
                    Identifiable,
@@ -21,7 +21,19 @@ public enum Biome: String,
     case scrubland
     case tundra
     
-    public var id: String { rawValue.capitalized }
+    public var id: String {
+    
+        switch self {
+            
+        case .boreal: "Boreal"
+        case .chaparral: "Chaparral"
+        case .deciduous: "Deciduous"
+        case .prairie: "Prairie"
+        case .rainforest: "Rainforest"
+        case .scrubland: "Scrubland"
+        case .tundra: "Tundra"
+        }
+    }
 }
 
 extension Biome {

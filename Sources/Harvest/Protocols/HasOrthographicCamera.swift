@@ -34,17 +34,17 @@ internal extension HasOrthographicCamera {
 
 internal extension HasOrthographicCamera {
     
-    internal func focus(on value: Vector) {
+    func focus(on value: Vector) {
         
         focus = value
     }
     
-    internal func rotate(_ value: Hexagon.Rotation) {
+    func rotate(_ value: Hexagon.Rotation) {
         
         rotation = .init(turns: rotation.turns + value.turns)
     }
     
-    internal func translate(by value: Vector) {
+    func translate(by value: Vector) {
         
         //zero out y component to translate along xz plane
         let forward = Vector(forward.x,
@@ -57,7 +57,7 @@ internal extension HasOrthographicCamera {
         focus += (forward * (-value.z * scalar)) + (right * (-value.x * scalar))
     }
     
-    internal func zoom(delta value: Double) {
+    func zoom(delta value: Double) {
         
         zoom = max(Self.minimumZoom,
                    min(Self.maximumZoom,
