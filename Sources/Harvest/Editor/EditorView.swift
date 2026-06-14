@@ -224,7 +224,8 @@ extension EditorView {
         
         let t = -ray.origin.y / ray.direction.y
         
-        guard t >= 0 else { return nil }
+        guard abs(ray.direction.y) > .epsilon,
+              t >= 0 else { return nil }
         
         let hit = scene.raycast(origin: .init(ray.origin),
                                 direction: .init(ray.direction),
