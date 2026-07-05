@@ -79,7 +79,7 @@ extension SlopeSystem {
         
         guard !mesh.polygons.isEmpty else { return false }
         
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        chunk.mesh = mesh.translated(by: -chunk.tile.position(chunk.scale))
         
         return true
     }

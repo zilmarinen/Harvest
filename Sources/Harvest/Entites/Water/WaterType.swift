@@ -11,7 +11,8 @@ public enum WaterType: Int,
                        CaseIterable,
                        Codable,
                        Hashable,
-                       Identifiable {
+                       Identifiable,
+                       Sendable {
     
     case ocean
     case river

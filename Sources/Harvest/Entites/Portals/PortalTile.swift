@@ -10,12 +10,12 @@ import Lattice
 
 public struct PortalTile: TriangularDataStoreTile {
     
-    public let vertex: Triangle.Vertex
+    public let coord: Coordinate
     
     public let rotation: Triangle.Rotation
 }
 
 extension PortalTile {
     
-    public var footprint: [Triangle.Vertex] { [vertex] }
+    public var footprint: [Coordinate] { [coord] }
 }

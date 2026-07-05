@@ -1,5 +1,5 @@
 //
-//  Region.swift
+//  RegionSlice.swift
 //
 //  Created by Zack Brown on 13/09/2025.
 //
@@ -7,11 +7,9 @@
 import Deltille
 import Lattice
 
-@MainActor
-//TODO: Rename to RegionSlice?
-public struct Region: Codable,
-                      @preconcurrency Equatable,
-                      @preconcurrency Hashable {
+public struct RegionSlice: Codable,
+                           Equatable,
+                           Hashable {
 
     public let vertex: Triangle.Vertex
     
@@ -29,14 +27,14 @@ public struct Region: Codable,
         hasher.combine(vertex)
     }
     
-    public static func == (lhs: Region,
-                           rhs: Region) -> Bool {
+    public static func == (lhs: RegionSlice,
+                           rhs: RegionSlice) -> Bool {
         
         lhs.vertex == rhs.vertex
     }
 }
 
-extension Region {
+extension RegionSlice {
     
     public var isEmpty: Bool {
         
@@ -45,8 +43,9 @@ extension Region {
     }
 }
 
-extension Region {
+extension RegionSlice {
     
+    @MainActor
     public func remove(values sieve: Triangle.Sieve) {
         
         let triangles = sieve.triangles
@@ -63,7 +62,7 @@ extension Region {
     }
 }
 
-extension Region {
+extension RegionSlice {
     
     public init(empty triangle: Triangle) {
         

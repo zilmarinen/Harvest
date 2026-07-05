@@ -11,7 +11,7 @@ import Deltille
 
 public struct FootpathVertex: DataStoreValue {
     
-    public let vertex: Triangle.Vertex
+    public let coord: Coordinate
     
     public let design: Design
 }

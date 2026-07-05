@@ -12,7 +12,7 @@ import Verdure
 
 public struct FoliageVertex: DataStoreValue {
     
-    public let vertex: Triangle.Vertex
+    public let coord: Coordinate
     
     public let foliageType: Triangle.Septomino
 }

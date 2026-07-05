@@ -40,7 +40,7 @@ extension WaterSystem {
                         wedge: DataStoreWedge<WaterTile>,
                         weave: DataStoreWeave<TerrainVertex>) -> Bool {
         
-        print("Cleaning Water Chunk \(chunk.triangle.id)")
+        print("Cleaning Water Chunk \(chunk.tile.id)")
         
         var invalid: [Triangle] = []
         
@@ -65,7 +65,7 @@ extension WaterSystem {
         
         let mesh = Mesh(polygons)
         
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        chunk.mesh = mesh.translated(by: -chunk.tile.position(chunk.scale))
         
         return true
     }

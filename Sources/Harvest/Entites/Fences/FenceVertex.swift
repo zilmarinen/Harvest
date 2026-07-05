@@ -11,7 +11,7 @@ import Palisade
 
 public struct FenceVertex: DataStoreValue {
     
-    public let vertex: Triangle.Vertex
+    public let coord: Coordinate
     
     public let rampart: Rampart
     public let segment: FenceSegment

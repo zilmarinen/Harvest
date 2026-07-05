@@ -79,9 +79,6 @@ open class EditorView: ARView {
     open func registerComponents() {
         
         CursorComponent.registerComponent()
-        
-        DataStoreComponent<WaterTile>.registerComponent()
-        DataStoreComponent<TerrainVertex>.registerComponent()
     }
     
     open func registerSystems() {
@@ -149,7 +146,7 @@ open class EditorView: ARView {
 
 extension EditorView {
     
-    public func load(regions: [Region]) {
+    public func load(regions: [RegionSlice]) {
         
         for region in regions {
             
@@ -157,7 +154,7 @@ extension EditorView {
         }
     }
     
-    private func load(region: Region) {
+    private func load(region: RegionSlice) {
         
         if let slice = region.buildings { buildings.merge(slice) }
         if let slice = region.fences { fences.merge(slice) }
@@ -174,7 +171,7 @@ extension EditorView {
 
 extension EditorView {
     
-    public func save(regions: [Triangle]) -> [Region] {
+    public func save(regions: [Triangle]) -> [RegionSlice] {
         
         regions.map {
             
@@ -182,7 +179,7 @@ extension EditorView {
         }
     }
     
-    private func save(region triangle: Triangle) -> Region {
+    private func save(region triangle: Triangle) -> RegionSlice {
         
         let terrain = terrain.slice(region: triangle)
         
@@ -321,7 +318,7 @@ extension EditorView {
     public func set(_ septomino: Triangle.Septomino,
                     for triangle: Triangle) {
         
-        let value = BuildingTile(vertex: triangle.vertex,
+        let value = BuildingTile(coord: triangle.vertex.position,
                                  rotation: cursorRotation,
                                  septomino: septomino)
         
@@ -347,7 +344,7 @@ extension EditorView {
                     _ segment: FenceSegment,
                     for vertex: Triangle.Vertex) {
         
-        fences.set(.init(vertex: vertex,
+        fences.set(.init(coord: vertex.position,
                          rampart: rampart,
                          segment: segment),
                       for: vertex)
@@ -365,7 +362,7 @@ extension EditorView {
     
     public func set(foliage vertex: Triangle.Vertex) {
         
-        foliage.set(.init(vertex: vertex,
+        foliage.set(.init(coord: vertex.position,
                           foliageType: .fornax),
                     for: vertex)
     }
@@ -383,7 +380,7 @@ extension EditorView {
     public func set(_ design: Design,
                     for vertex: Triangle.Vertex) {
         
-        footpaths.set(.init(vertex: vertex,
+        footpaths.set(.init(coord: vertex.position,
                             design: design),
                       for: vertex)
     }
@@ -400,7 +397,7 @@ extension EditorView {
     
     public func add(portal triangle: Triangle) {
         
-        portals.set(.init(vertex: triangle.vertex,
+        portals.set(.init(coord: triangle.vertex.position,
                           rotation: cursorRotation),
                     for: triangle)
     }
@@ -420,7 +417,7 @@ extension EditorView {
                     _ cast: Cast,
                     for triangle: Triangle) {
         
-        let value = SlopeTile(vertex: triangle.vertex,
+        let value = SlopeTile(coord: triangle.vertex.position,
                               rotation: cursorRotation,
                               slope: slope,
                               rise: rise,
@@ -475,7 +472,7 @@ extension EditorView {
         
         if let biome {
             
-            terrain.set(.init(vertex: vertex,
+            terrain.set(.init(coord: vertex.position,
                               biome: biome,
                               elevation: elevation),
                         for: vertex)
@@ -511,7 +508,7 @@ extension EditorView {
             return remove(water: triangle)
         }
         
-        water.set(.init(vertex: triangle.vertex,
+        water.set(.init(coord: triangle.vertex.position,
                         rotation: .identity,
                         waterType: waterType,
                         elevation: elevation),

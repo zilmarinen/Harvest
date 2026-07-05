@@ -69,7 +69,7 @@ extension FenceSystem {
         
         let mesh = Mesh(polygons)
         
-        chunk.mesh = mesh.translated(by: -chunk.triangle.position(chunk.scale))
+        chunk.mesh = mesh.translated(by: -chunk.tile.position(chunk.scale))
         
         return true
     }

@@ -10,7 +10,7 @@ import Newel
 
 public struct SlopeTile: TriangularDataStoreTile {
     
-    public let vertex: Triangle.Vertex
+    public let coord: Coordinate
     
     public let rotation: Triangle.Rotation
     
@@ -21,13 +21,13 @@ public struct SlopeTile: TriangularDataStoreTile {
 
 extension SlopeTile {
     
-    public var footprint: [Triangle.Vertex] {
+    public var footprint: [Coordinate] {
         //TODO: Fix horrible rotation logic
-        let value = Triangle.Footprint(.init(vertex),
+        let value = Triangle.Footprint(.init(coord),
                                        slope.coordinates)
         
-        guard rotation != .identity else { return value.tiles.map { $0.vertex} }
+        guard rotation != .identity else { return value.tiles.map { $0.vertex.position } }
         
-        return value.rotate(rotation).tiles.map { $0.vertex }
+        return value.rotate(rotation).tiles.map { $0.vertex.position }
     }
 }
