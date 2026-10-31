@@ -5,6 +5,7 @@
 //  Created by Zack Brown on 30/10/2026.
 //
 
+import Deltille
 import SpriteKit
 
 internal class EditorScene: SKScene {
@@ -14,10 +15,18 @@ internal class EditorScene: SKScene {
     
     override init() {
     
-        super.init()
+        super.init(size: .zero)
         
         addChild(terrain)
         addChild(water)
+        
+        let node = SKShapeNode.init(circleOfRadius: 7.0)
+        
+        node.strokeColor = .systemPink
+        node.fillColor = .white
+        node.lineWidth = 2.0
+        
+        addChild(node)
     }
     
     @available(*, unavailable)

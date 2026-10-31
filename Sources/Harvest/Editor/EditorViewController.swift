@@ -9,9 +9,12 @@ import Alluvium
 import AppKit
 import SpriteKit
 
+public protocol EditorViewDelegate: NSViewController {}
+
 public class EditorViewController: NSViewController {
     
     internal let camera = Camera()
+    internal let cursor = Cursor()
     
     internal lazy var scene = with(EditorScene()) {
         
@@ -19,6 +22,7 @@ public class EditorViewController: NSViewController {
         $0.camera = camera
         
         $0.addChild(camera)
+        $0.addChild(cursor)
     }
     
     internal lazy var editor = with(SKView(frame: .zero)) {
@@ -27,7 +31,11 @@ public class EditorViewController: NSViewController {
         $0.presentScene(scene)
     }
     
-    public init() {
+    private weak var delegate: EditorViewDelegate?
+    
+    public init(delegate: EditorViewDelegate) {
+        
+        self.delegate = delegate
         
         super.init(nibName: nil,
                    bundle: nil)

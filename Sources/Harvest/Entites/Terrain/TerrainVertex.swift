@@ -8,13 +8,13 @@
 import Deltille
 import Lattice
 
-internal struct TerrainVertex: DataStoreValue {
+public struct TerrainVertex: DataStoreValue {
     
-    internal typealias T = Hexagon
+    public typealias T = Hexagon
     
-    internal let vertex: Triangle.Vertex
+    public let vertex: Triangle.Vertex
     
-    internal let footprint: Set<Triangle.Vertex>
+    public let footprint: Set<Triangle.Vertex>
     
-    internal let biome: Biome
+    public let biome: Biome
 }

@@ -8,13 +8,13 @@
 import Deltille
 import Lattice
 
-internal struct WaterTile: DataStoreValue {
+public struct WaterTile: DataStoreValue {
     
-    internal typealias T = Triangle
+    public typealias T = Triangle
     
-    internal let vertex: Triangle
+    public let vertex: Triangle
     
-    internal let footprint: Set<Triangle>
+    public let footprint: Set<Triangle>
     
-    internal let fluid: Fluid
+    public let fluid: Fluid
 }

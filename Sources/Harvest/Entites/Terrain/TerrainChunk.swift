@@ -8,4 +8,4 @@
 import Deltille
 import Lattice
 
-internal class TerrainChunk: TileChunk<Triangle> {}
+public class TerrainChunk: TileChunk<Triangle> {}
