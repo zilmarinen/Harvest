@@ -1,16 +1,20 @@
 //
 //  TerrainVertex.swift
+//  Harvest
 //
-//  Created by Zack Brown on 17/10/2025.
+//  Created by Zack Brown on 30/10/2026.
 //
 
 import Deltille
 import Lattice
 
-public struct TerrainVertex: DataStoreValue {
+internal struct TerrainVertex: DataStoreValue {
     
-    public let coord: Coordinate
+    internal typealias T = Hexagon
     
-    public let biome: Biome
-    public let elevation: Int
+    internal let vertex: Triangle.Vertex
+    
+    internal let footprint: Set<Triangle.Vertex>
+    
+    internal let biome: Biome
 }

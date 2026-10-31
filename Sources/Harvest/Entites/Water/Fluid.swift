@@ -1,24 +1,19 @@
 //
-//  WaterType.swift
+//  Fluid.swift
+//  Harvest
 //
-//  Created by Zack Brown on 26/10/2025.
+//  Created by Zack Brown on 30/10/2026.
 //
 
 import Alluvium
-import Euclid
 
-public enum WaterType: Int,
-                       CaseIterable,
-                       Codable,
-                       Hashable,
-                       Identifiable,
-                       Sendable {
+public enum Fluid: Int, CaseIterable, Codable, Identifiable, Sendable {
     
     case ocean
     case river
     
     public var id: String {
-    
+        
         switch self {
             
         case .ocean: "Ocean"
@@ -27,9 +22,9 @@ public enum WaterType: Int,
     }
 }
 
-extension WaterType {
+internal extension Fluid {
     
-    public var colorPalette: ColorPalette {
+    var water: ColorPalette {
         
         switch self {
             

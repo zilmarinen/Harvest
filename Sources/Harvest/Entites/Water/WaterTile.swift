@@ -1,23 +1,20 @@
 //
 //  WaterTile.swift
+//  Harvest
 //
-//  Created by Zack Brown on 26/10/2025.
+//  Created by Zack Brown on 30/10/2026.
 //
 
 import Deltille
 import Lattice
 
-public struct WaterTile: TriangularDataStoreTile {
+internal struct WaterTile: DataStoreValue {
     
-    public let coord: Coordinate
+    internal typealias T = Triangle
     
-    public let rotation: Triangle.Rotation
+    internal let vertex: Triangle
     
-    public let waterType: WaterType
-    public let elevation: Int
-}
-
-extension WaterTile {
+    internal let footprint: Set<Triangle>
     
-    public var footprint: [Coordinate] { [coord] }
+    internal let fluid: Fluid
 }

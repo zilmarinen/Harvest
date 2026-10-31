@@ -5,13 +5,8 @@
 //
 
 import Alluvium
-import Euclid
 
-public enum Biome: Int,
-                   CaseIterable,
-                   Codable,
-                   Identifiable,
-                   Sendable {
+public enum Biome: Int, CaseIterable, Codable, Identifiable, Sendable {
     
     case boreal
     case chaparral
@@ -36,9 +31,9 @@ public enum Biome: Int,
     }
 }
 
-extension Biome {
+internal extension Biome {
     
-    public var terrain: ColorPalette {
+    var biome: ColorPalette {
         
         switch self {
             
