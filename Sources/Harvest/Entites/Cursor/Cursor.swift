@@ -7,4 +7,4 @@
 
 import SpriteKit
 
-internal class Cursor: SKNode {}
+internal class Cursor: SKShapeNode {}

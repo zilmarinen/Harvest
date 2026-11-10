@@ -1,5 +1,5 @@
 //
-//  TerrainVertex.swift
+//  SurfaceVertex.swift
 //  Harvest
 //
 //  Created by Zack Brown on 30/10/2026.
@@ -8,7 +8,7 @@
 import Deltille
 import Lattice
 
-public struct TerrainVertex: DataStoreValue {
+public struct SurfaceVertex: DataStoreValue {
     
     public typealias T = Hexagon
     

@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Harvest",
-    platforms: [.macOS(.v15)],
+    platforms: [.macOS(.v26)],
     products: [
         .library(name: "Harvest",
                  targets: ["Harvest"])

@@ -12,13 +12,13 @@ public struct Region: Codable, Equatable, Hashable {
     
     public let triangle: Triangle
     
-    public let terrain: LatticeSlice<TerrainChunk, Hexagon, Triangle, TerrainVertex>?
+    public let surface: LatticeSlice<SurfaceChunk, Hexagon, Triangle, SurfaceVertex>?
     public let water: LatticeSlice<WaterChunk, Triangle, Triangle, WaterTile>?
     
     public init(empty triangle: Triangle) {
         
         self.triangle = triangle
-        self.terrain = nil
+        self.surface = nil
         self.water = nil
     }
     
@@ -38,7 +38,7 @@ public extension Region {
  
     var isEmpty: Bool {
         
-        (terrain?.isEmpty ?? true) &&
+        (surface?.isEmpty ?? true) &&
         (water?.isEmpty ?? true)
     }
 }
@@ -51,7 +51,7 @@ public extension Region {
         let tiles = sieve.tiles
         let vertices = sieve.vertices
         
-        terrain?.remove(keys: vertices)
+        surface?.remove(keys: vertices)
         water?.remove(keys: tiles)
     }
 }
