@@ -1,79 +1,57 @@
 //
-//  RegionSlice.swift
+//  Region.swift
+//  Harvest
 //
-//  Created by Zack Brown on 13/09/2025.
+//  Created by Zack Brown on 31/10/2026.
 //
 
 import Deltille
 import Lattice
 
-public struct RegionSlice: Codable,
-                           Equatable,
-                           Hashable {
-
-    public let vertex: Triangle.Vertex
+public struct Region: Codable, Equatable, Hashable {
     
-    public let buildings: TriangularLatticeSlice<BuildingChunk, BuildingTile>?
-    public let fences: HexagonalLatticeSlice<FenceChunk, FenceVertex>?
-    public let foliage: HexagonalLatticeSlice<FoliageChunk, FoliageVertex>?
-    public let footpaths: HexagonalLatticeSlice<FootpathChunk, FootpathVertex>?
-    public let portals: TriangularLatticeSlice<PortalChunk, PortalTile>?
-    public let slopes: TriangularLatticeSlice<SlopeChunk, SlopeTile>?
-    public let terrain: HexagonalLatticeSlice<TerrainChunk, TerrainVertex>?
-    public let water: TriangularLatticeSlice<WaterChunk, WaterTile>?
+    public let triangle: Triangle
+    
+    public let surface: LatticeSlice<SurfaceChunk, Hexagon, Triangle, SurfaceVertex>?
+    public let water: LatticeSlice<WaterChunk, Triangle, Triangle, WaterTile>?
+    
+    public init(empty triangle: Triangle) {
+        
+        self.triangle = triangle
+        self.surface = nil
+        self.water = nil
+    }
     
     public func hash(into hasher: inout Hasher) {
         
-        hasher.combine(vertex)
+        hasher.combine(triangle)
     }
     
-    public static func == (lhs: RegionSlice,
-                           rhs: RegionSlice) -> Bool {
+    public static func == (lhs: Region,
+                           rhs: Region) -> Bool {
         
-        lhs.vertex == rhs.vertex
+        lhs.triangle == rhs.triangle
     }
 }
 
-extension RegionSlice {
-    
-    public var isEmpty: Bool {
+public extension Region {
+ 
+    var isEmpty: Bool {
         
-        (terrain?.isEmpty ?? true) &&
+        (surface?.isEmpty ?? true) &&
         (water?.isEmpty ?? true)
     }
 }
 
-extension RegionSlice {
+public extension Region {
     
     @MainActor
-    public func remove(values sieve: Triangle.Sieve) {
+    func remove(values sieve: Triangle.Sieve) {
         
-        let triangles = sieve.triangles
+        let tiles = sieve.tiles
         let vertices = sieve.vertices
         
-        buildings?.remove(values: triangles)
-        fences?.remove(values: vertices)
-        foliage?.remove(values: vertices)
-        footpaths?.remove(values: vertices)
-        portals?.remove(values: triangles)
-        slopes?.remove(values: triangles)
-        terrain?.remove(values: vertices)
-        water?.remove(values: triangles)
-    }
-}
-
-extension RegionSlice {
-    
-    public init(empty triangle: Triangle) {
-        
-        self.init(vertex: triangle.vertex,
-                  buildings: nil,
-                  fences: nil,
-                  foliage: nil,
-                  footpaths: nil,
-                  portals: nil,
-                  slopes: nil,
-                  terrain: nil,
-                  water: nil)
+        surface?.remove(keys: vertices)
+        water?.remove(keys: tiles)
     }
 }

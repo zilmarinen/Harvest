@@ -1,11 +1,11 @@
-// swift-tools-version: 6.2
+// swift-tools-version: 6.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "Harvest",
-    platforms: [.macOS(.v15)],
+    platforms: [.macOS(.v26)],
     products: [
         .library(name: "Harvest",
                  targets: ["Harvest"])
@@ -15,26 +15,15 @@ let package = Package(
                  branch: "main"),
         .package(path: "../Alluvium"),
         .package(path: "../Bivouac"),
-        .package(path: "../Cobble"),
         .package(path: "../Deltille"),
         .package(path: "../Lattice"),
-        .package(path: "../Lintel"),
-        .package(path: "../Newel"),
-        .package(path: "../Verdure"),
-        .package(path: "../Yield")
     ],
     targets: [
         .target(name: "Harvest",
                 dependencies: ["Alluvium",
                                "Bivouac",
-                               "Cobble",
                                "Deltille",
                                "Euclid",
-                               "Lattice",
-                               "Lintel",
-                               "Newel",
-                               "Verdure",
-                               "Yield"],
-                resources: [.process("Shaders")])
+                               "Lattice"])
     ]
 )

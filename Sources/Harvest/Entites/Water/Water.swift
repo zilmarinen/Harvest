@@ -1,24 +1,19 @@
 //
 //  Water.swift
+//  Harvest
 //
-//  Created by Zack Brown on 26/10/2025.
+//  Created by Zack Brown on 30/10/2026.
 //
 
 import Deltille
 import Lattice
-import RealityKit
 
-internal class Water: TriangularLattice<WaterChunk, WaterTile> {
+internal class Water: TileLattice<WaterChunk, WaterTile> {
     
-    internal static func apex(for elevation: Int) -> Double {
+    override func clean(_ chunk: WaterChunk,
+                        _ sieve: Triangle.Sieve,
+                        _ wedge: DataStoreWedge<Triangle, WaterTile>) -> Bool {
         
-        Terrain.base(for: elevation) - Terrain.Constant.apexHeight
-    }
-    
-    required internal init() {
-        
-        super.init()
-        
-        name = Entity.Identifier.water.id
+        false
     }
 }
