@@ -13,7 +13,14 @@ internal class EditorScene: SKScene {
     private let surface = Surface()
     private let water = Water()
     
-    internal let lattice: Double
+    internal var lattice: Double {
+        
+        didSet {
+            
+            surface.lattice = lattice
+            water.lattice = lattice
+        }
+    }
     
     internal init(_ lattice: Double) {
         

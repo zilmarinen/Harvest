@@ -135,3 +135,17 @@ extension EditorViewController: @MainActor SKSceneDelegate {
         scene.clean()
     }
 }
+
+// MARK: Scene
+
+public extension EditorViewController {
+    
+    // MARK: Lattice
+    
+    func update(lattice value: Double) {
+        
+        viewModel.update(lattice: value)
+        
+        scene.lattice = viewModel.lattice
+    }
+}

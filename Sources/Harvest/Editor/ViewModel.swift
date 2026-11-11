@@ -16,7 +16,7 @@ internal class ViewModel {
     
     private(set) var hitTest: HitTest = .init(.zero)
     
-    internal let lattice: Double = 25.0
+    private(set) var lattice: Double = 25.0
 }
 
 internal extension ViewModel {
@@ -38,5 +38,12 @@ internal extension ViewModel {
         
         hitTest = .init(vector,
                         lattice)
+    }
+    
+    // MARK: Lattice
+    
+    func update(lattice value: Double) {
+        
+        lattice = max(10.0, min(100.0, value))
     }
 }
