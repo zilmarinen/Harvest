@@ -22,12 +22,21 @@ public class EditorViewController: NSViewController {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private let camera = Camera()
+    private lazy var camera = with(Camera()) {
+        
+        $0.addChild(grid)
+    }
+    
     private let cursor = with(Cursor(circleOfRadius: 3.5)) {
         
         $0.strokeColor = .systemPink
         $0.fillColor = .white
         $0.lineWidth = 2.0
+    }
+    
+    private lazy var grid = with(Grid(lattice: viewModel.lattice)) {
+        
+        $0.isHidden = !viewModel.showGrid
     }
     
     private lazy var scene = with(EditorScene(viewModel.lattice)) {
@@ -104,6 +113,9 @@ public class EditorViewController: NSViewController {
                                           owner: self)
         
         editor.addTrackingArea(trackingArea)
+        
+        grid.size = .init(width: editor.frame.size.width - 100.0,
+                          height: editor.frame.size.height - 100.0)
     }
     
     override public func mouseMoved(with event: NSEvent) {
@@ -140,12 +152,25 @@ extension EditorViewController: @MainActor SKSceneDelegate {
 
 public extension EditorViewController {
     
+    // MARK: Grid
+    
+    var showGrid: Bool {
+        
+        viewModel.showGrid
+    }
+    
+    func update(showGrid value: Bool) {
+        
+        viewModel.update(showGrid: value)
+    }
+    
     // MARK: Lattice
     
     func update(lattice value: Double) {
         
         viewModel.update(lattice: value)
         
+        grid.lattice = viewModel.lattice
         scene.lattice = viewModel.lattice
     }
 }
