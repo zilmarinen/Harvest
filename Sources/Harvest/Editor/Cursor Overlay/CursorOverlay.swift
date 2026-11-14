@@ -11,38 +11,14 @@ import Deltille
 
 internal class CursorOverlay: NSControl {
     
-    internal enum Mode: Identifiable {
-        
-        case tile
-        case vertex
-        
-        public var id: String {
-            
-            switch self {
-                
-            case .tile: "T"
-            case .vertex: "V"
-            }
-        }
-        
-        public var color: NSColor {
-            
-            switch self {
-                
-            case .tile: .systemPink
-            case .vertex: .systemPurple
-            }
-        }
-    }
-    
     private lazy var glass = with(NSGlassEffectView()) {
         
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.style = .regular
-        $0.contentView = wrapper
+        $0.contentView = contentView
     }
     
-    private lazy var wrapper = with(NSView()) {
+    private lazy var contentView = with(NSView()) {
         
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -73,8 +49,8 @@ internal class CursorOverlay: NSControl {
         $0.isBordered = true
         $0.target = self
         $0.action = #selector(button(_:))
-        $0.bezelColor = mode.color
-        $0.title = mode.id
+        $0.bezelColor = cursorMode.color
+        $0.title = cursorMode.id
     }
     
     private lazy var xLabel = with(NSTextField()) {
@@ -124,14 +100,14 @@ internal class CursorOverlay: NSControl {
         }
     }
     
-    internal var mode: Mode = .tile {
+    internal var cursorMode: CursorMode = .tile {
         
         didSet {
             
             update()
             
-            button.bezelColor = mode.color
-            button.title = mode.id
+            button.bezelColor = cursorMode.color
+            button.title = cursorMode.id
         }
     }
     
@@ -141,7 +117,7 @@ internal class CursorOverlay: NSControl {
         
         addSubview(glass)
         
-        wrapper.addSubview(stackView)
+        contentView.addSubview(stackView)
         
         NSLayoutConstraint.activate([
             
@@ -150,17 +126,17 @@ internal class CursorOverlay: NSControl {
             glass.bottomAnchor.constraint(equalTo: bottomAnchor),
             glass.rightAnchor.constraint(equalTo: rightAnchor),
             
-            wrapper.topAnchor.constraint(equalTo: glass.topAnchor),
-            wrapper.leftAnchor.constraint(equalTo: glass.leftAnchor),
-            wrapper.bottomAnchor.constraint(equalTo: glass.bottomAnchor),
-            wrapper.rightAnchor.constraint(equalTo: glass.rightAnchor),
+            contentView.topAnchor.constraint(equalTo: glass.topAnchor),
+            contentView.leftAnchor.constraint(equalTo: glass.leftAnchor),
+            contentView.bottomAnchor.constraint(equalTo: glass.bottomAnchor),
+            contentView.rightAnchor.constraint(equalTo: glass.rightAnchor),
             
-            stackView.topAnchor.constraint(equalTo: wrapper.topAnchor,
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor,
                                            constant: .padding),
-            stackView.leftAnchor.constraint(equalTo: wrapper.leftAnchor,
+            stackView.leftAnchor.constraint(equalTo: contentView.leftAnchor,
                                             constant: .padding),
-            stackView.centerXAnchor.constraint(equalTo: wrapper.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: wrapper.centerYAnchor),
+            stackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             
             button.widthAnchor.constraint(equalToConstant: .buttonSize),
             button.heightAnchor.constraint(equalToConstant: .buttonSize),
@@ -184,12 +160,12 @@ private extension CursorOverlay {
     @objc
     func button(_ sender: NSButton) {
         
-        mode = mode == .tile ? .vertex : .tile
+        cursorMode = cursorMode == .tile ? .vertex : .tile
     }
     
     func update() {
         
-        switch mode {
+        switch cursorMode {
             
         case .tile:
             
