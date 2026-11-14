@@ -22,7 +22,7 @@ internal extension SKShader {
         }
     }
     
-    convenience init(program: Program,
+    convenience init(_ program: Program,
                      uniforms: [SKUniform]) {
         
         guard let path = Bundle.module.path(forResource: program.id,

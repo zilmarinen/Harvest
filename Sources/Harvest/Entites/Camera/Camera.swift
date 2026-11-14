@@ -7,7 +7,4 @@
 
 import SpriteKit
 
-internal class Camera: SKCameraNode {
-    
-    
-}
+internal class Camera: SKCameraNode {}

@@ -58,7 +58,7 @@ internal class CursorOverlay: NSControl {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize,
                                              weight: .regular)
-        $0.textColor = .lightGray
+        $0.textColor = .labelColor
         $0.isEditable = false
         $0.isBordered = false
         $0.maximumNumberOfLines = 1
@@ -71,7 +71,7 @@ internal class CursorOverlay: NSControl {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize,
                                              weight: .regular)
-        $0.textColor = .lightGray
+        $0.textColor = .labelColor
         $0.isEditable = false
         $0.isBordered = false
         $0.maximumNumberOfLines = 1
@@ -84,7 +84,7 @@ internal class CursorOverlay: NSControl {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize,
                                              weight: .regular)
-        $0.textColor = .lightGray
+        $0.textColor = .labelColor
         $0.isEditable = false
         $0.isBordered = false
         $0.maximumNumberOfLines = 1

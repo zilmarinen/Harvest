@@ -24,6 +24,7 @@ let package = Package(
                                "Bivouac",
                                "Deltille",
                                "Euclid",
-                               "Lattice"])
+                               "Lattice"],
+                resources: [.process("Shaders")])
     ]
 )

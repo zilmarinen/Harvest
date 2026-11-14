@@ -27,7 +27,7 @@ public class EditorViewController: NSViewController {
         $0.addChild(grid)
     }
     
-    private let cursor = with(Cursor(circleOfRadius: 3.5)) {
+    private lazy var cursor = with(Cursor(lattice: viewModel.lattice)) {
         
         $0.strokeColor = .systemPink
         $0.fillColor = .white
@@ -114,8 +114,7 @@ public class EditorViewController: NSViewController {
         
         editor.addTrackingArea(trackingArea)
         
-        grid.size = .init(width: editor.frame.size.width - 100.0,
-                          height: editor.frame.size.height - 100.0)
+        grid.size = editor.frame.size
     }
     
     override public func mouseMoved(with event: NSEvent) {
@@ -133,6 +132,8 @@ public class EditorViewController: NSViewController {
         
         cursor.position = .init(x: position.x,
                                 y: position.z)
+        
+        cursor.zRotation = viewModel.hitTest.triangle.orientation
         
         cursorOverlay.hitTest = viewModel.hitTest
     }
@@ -162,6 +163,8 @@ public extension EditorViewController {
     func update(showGrid value: Bool) {
         
         viewModel.update(showGrid: value)
+        
+        grid.isHidden = !viewModel.showGrid
     }
     
     // MARK: Lattice
@@ -170,6 +173,7 @@ public extension EditorViewController {
         
         viewModel.update(lattice: value)
         
+        cursor.lattice = viewModel.lattice
         grid.lattice = viewModel.lattice
         scene.lattice = viewModel.lattice
     }

@@ -25,14 +25,14 @@ internal class Grid: SKSpriteNode {
         self.lattice = lattice
         
         //TODO: Convert to SKUniform.uniform enum
-        self.latticeUniform = .init(name: "lattice",
-                                    float: Float(lattice))
+        self.latticeUniform = .init(.lattice,
+                                    value: Float(lattice))
         
         super.init(texture: nil,
                    color: .clear,
                    size: .zero)
         
-        shader = .init(program: .grid,
+        shader = .init(.grid,
                        uniforms: [latticeUniform])
         zPosition = -1.0
     }
