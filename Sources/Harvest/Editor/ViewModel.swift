@@ -12,14 +12,11 @@ import Euclid
 @MainActor
 internal class ViewModel {
     
-    private static let latticeMaximum = 100.0
-    private static let latticeMinimum = 10.0
-    
     private(set) var focus: Triangle = .zero
     
     private(set) var hitTest: HitTest = .init(.zero)
     
-    private(set) lazy var lattice: Double = (Self.latticeMaximum - Self.latticeMinimum) / 2.0
+    private(set) var zoomLevel: ZoomLevel = .x4
     
     private(set) var showGrid: Bool = true
 }
@@ -42,7 +39,7 @@ internal extension ViewModel {
                             value.y)
         
         hitTest = .init(vector,
-                        lattice)
+                        zoomLevel.lattice)
     }
     
     // MARK: Grid
@@ -54,8 +51,15 @@ internal extension ViewModel {
     
     // MARK: Lattice
     
-    func update(lattice value: Double) {
+    var lattice: Double {
         
-        lattice = max(Self.latticeMinimum, min(Self.latticeMaximum, value))
+        zoomLevel.lattice
+    }
+    
+    // MARK: Zoom Level
+    
+    func update(zoomLevel value: ZoomLevel) {
+        
+        zoomLevel = value
     }
 }

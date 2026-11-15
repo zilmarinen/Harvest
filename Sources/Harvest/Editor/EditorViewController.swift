@@ -167,11 +167,16 @@ public extension EditorViewController {
         grid.isHidden = !viewModel.showGrid
     }
     
-    // MARK: Lattice
+    // MARK: Zoom Level
     
-    func update(lattice value: Double) {
+    var zoomLevel: ZoomLevel {
         
-        viewModel.update(lattice: value)
+        viewModel.zoomLevel
+    }
+    
+    func update(zoomLevel value: ZoomLevel) {
+        
+        viewModel.update(zoomLevel: value)
         
         cursor.lattice = viewModel.lattice
         grid.lattice = viewModel.lattice
