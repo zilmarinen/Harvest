@@ -17,10 +17,6 @@ internal class Surface: VertexLattice<SurfaceChunk, SurfaceVertex> {
         
         print("Cleaning surface chunk \(chunk.tile.id)")
         
-        chunk.lineWidth = 2.0
-        chunk.strokeColor = .black
-        chunk.fillColor = .systemGray
-        
         let weave = wedge.weave(sieve)
         
         return weave.data.reduce(into: CGMutablePath()) { path, element in

@@ -9,7 +9,7 @@ import Alluvium
 import AppKit
 import Deltille
 import Euclid
-import SpriteKit
+import MetalKit
 
 public protocol EditorViewDataSource: NSViewController {}
 
@@ -22,43 +22,29 @@ public class EditorViewController: NSViewController {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private lazy var camera = with(Camera()) {
-        
-        $0.addChild(grid)
-    }
+    private lazy var camera = Camera()
     
-    private lazy var cursor = with(Cursor(lattice: viewModel.lattice)) {
-        
-        $0.strokeColor = .systemPink
-        $0.fillColor = .clear
-        $0.lineWidth = 2.0
-    }
-    
-    private lazy var grid = with(Grid(lattice: viewModel.lattice)) {
-        
-        $0.isHidden = !viewModel.showGrid
-    }
-    
-    private lazy var scene = with(EditorScene(viewModel.lattice)) {
-        
-        $0.delegate = self
-        $0.backgroundColor = .windowBackgroundColor
-        $0.scaleMode = .resizeFill
-        $0.camera = camera
-        
-        $0.addChild(camera)
-        $0.addChild(cursor)
-    }
-    
-    private lazy var editor = with(SKView(frame: .zero)) {
+    private lazy var editor = with(MTKView(frame: .zero)) {
         
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.presentScene(scene)
+        $0.clearColor = .init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
+        $0.isPaused = false
+        $0.enableSetNeedsDisplay = false
     }
     
     private let viewModel: ViewModel
     private weak var dataSource: EditorViewDataSource?
     private weak var delegate: EditorViewDelegate?
+    
+    private static let clearColor: MTLClearColor = {
+        
+        let color = NSColor.windowBackgroundColor.usingColorSpace(.deviceRGB) ?? .white
+        
+        return MTLClearColor(red: color.redComponent,
+                             green: color.greenComponent,
+                             blue: color.blueComponent,
+                             alpha: color.alphaComponent)
+    }()
     
     public init(dataSource: EditorViewDataSource,
                 delegate: EditorViewDelegate) {
@@ -113,8 +99,6 @@ public class EditorViewController: NSViewController {
                                           owner: self)
         
         editor.addTrackingArea(trackingArea)
-        
-        grid.size = editor.frame.size
     }
     
     override public func mouseMoved(with event: NSEvent) {
@@ -124,28 +108,10 @@ public class EditorViewController: NSViewController {
         let screenSpace = editor.convert(event.locationInWindow,
                                          from: nil)
         
-        let worldSpace = scene.convertPoint(fromView: screenSpace)
+        let worldSpace = camera.worldPoint(fromView: screenSpace,
+                                           viewSize: editor.frame.size)
         
         viewModel.update(hitTest: worldSpace)
-        
-        let position = viewModel.hitTest.triangle.vertex.vector(scene.lattice)
-        
-        cursor.position = .init(x: position.x,
-                                y: position.z)
-        
-        cursor.zRotation = viewModel.hitTest.triangle.orientation
-        
-        cursorOverlay.hitTest = viewModel.hitTest
-    }
-}
-
-// MARK: Scene Delegate
-
-extension EditorViewController: @MainActor SKSceneDelegate {
-    
-    public func didFinishUpdate(for _: SKScene) {
-        
-        scene.clean()
     }
 }
 
@@ -163,8 +129,6 @@ public extension EditorViewController {
     func update(showGrid value: Bool) {
         
         viewModel.update(showGrid: value)
-        
-        grid.isHidden = !viewModel.showGrid
     }
     
     // MARK: Zoom Level
@@ -177,41 +141,5 @@ public extension EditorViewController {
     func update(zoomLevel value: ZoomLevel) {
         
         viewModel.update(zoomLevel: value)
-        
-        cursor.lattice = viewModel.lattice
-        grid.lattice = viewModel.lattice
-        scene.lattice = viewModel.lattice
-    }
-}
-
-// MARK: Surface
-
-public extension EditorViewController {
-    
-    func set(surface biome: Biome? = nil,
-             _ elevation: Int? = nil,
-             for vertex: Triangle.Vertex,
-             _ footprint: Set<Triangle.Vertex>? = nil) {
-        
-        scene.set(surface: biome,
-                  elevation,
-                  for: vertex,
-                  with: footprint ?? [vertex])
-    }
-}
-
-// MARK: Water
-
-public extension EditorViewController {
-    
-    func set(water fluid: Fluid? = nil,
-             _ elevation: Int? = nil,
-             for triangle: Triangle,
-             _ footprint: Set<Triangle>? = nil) {
-        
-        scene.set(water: fluid,
-                  elevation,
-                  for: triangle,
-                  with: footprint ?? [triangle])
     }
 }
