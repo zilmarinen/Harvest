@@ -17,4 +17,5 @@ public struct SurfaceVertex: DataStoreValue {
     public let footprint: Set<Triangle.Vertex>
     
     public let biome: Biome
+    public let elevation: Int
 }

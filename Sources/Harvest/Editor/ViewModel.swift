@@ -18,7 +18,7 @@ internal class ViewModel {
     
     private(set) var zoomLevel: ZoomLevel = .x4
     
-    private(set) var showGrid: Bool = true
+    private(set) var showGrid: Bool = false
 }
 
 internal extension ViewModel {

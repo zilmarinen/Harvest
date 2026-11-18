@@ -17,4 +17,5 @@ public struct WaterTile: DataStoreValue {
     public let footprint: Set<Triangle>
     
     public let fluid: Fluid
+    public let elevation: Int
 }

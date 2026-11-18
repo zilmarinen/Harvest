@@ -6,17 +6,18 @@
 //
 
 constant float lineWidth = 1.0;
+
+constant float sqrt3 = 1.7320508076;   // sqrt(3.0)
+constant float sqrt3d2 = 0.8660254038; // sqrt(3.0) / 2.0
+constant float sqrt3d3 = 0.5773502692; // sqrt(3.0) / 3.0
+
 constant float pid4 = 0.7853981634; // pi / 4
-constant float sqrt2d3 = 0.4714045208;
-constant float sqrt3d2 = 0.8660254038;
+
 constant float sqrt3m1d2 = 0.36602540378;
 constant float sqrt3m3d6 = 0.211324865;
 
-float dot2(vec2 v) {
-    
-    return dot(v, v);
-}
-
+// Signed distance from point p to the triangle (c0, c1, c2).
+// Negative inside the triangle, positive outside.
 float triangleSDF(vec2 p,
                   vec2 c0,
                   vec2 c1,
@@ -30,32 +31,33 @@ float triangleSDF(vec2 p,
     vec2 v1 = p - c1;
     vec2 v2 = p - c2;
     
-    float d0 = dot2(v0 - p0 * clamp(dot(v0, p0) / dot2(p0), 0.0, 1.0));
-    float d1 = dot2(v1 - p1 * clamp(dot(v1, p1) / dot2(p1), 0.0, 1.0));
-    float d2 = dot2(v2 - p2 * clamp(dot(v2, p2) / dot2(p2), 0.0, 1.0));
+    vec2 d0 = v0 - p0 * clamp(dot(v0, p0) / dot(p0, p0), 0.0, 1.0);
+    vec2 d1 = v1 - p1 * clamp(dot(v1, p1) / dot(p1, p1), 0.0, 1.0);
+    vec2 d2 = v2 - p2 * clamp(dot(v2, p2) / dot(p2, p2), 0.0, 1.0);
     
     float o = p0.x * p2.y - p0.y * p2.x;
     
-    vec2 d = min(min(vec2(d0, o * (v0.x * p0.y - v0.y * p0.x)),
-                     vec2(d1, o * (v1.x * p1.y - v1.y * p1.x))),
-                     vec2(d2, o * (v2.x * p2.y - v2.y * p2.x)));
+    vec2 d = min(min(vec2(dot(d0, d0), o * (v0.x * p0.y - v0.y * p0.x)),
+                     vec2(dot(d1, d1), o * (v1.x * p1.y - v1.y * p1.x))),
+                     vec2(dot(d2, d2), o * (v2.x * p2.y - v2.y * p2.x)));
     
     return -sqrt(d.x) * sign(d.y);
 }
 
-float world_grid(vec2 worldXZ,
-                 float size) {
+float grid(vec2 worldXZ,
+           float size) {
     
     float c = cos(-pid4);
     float s = sin(-pid4);
     float scale = 1.0 / size;
     
-    //vec2 offset = vec2((sqrt2d3 * 2.0) * size, 0.0);
+    //vec2 offset = vec2((sqrt3d2 * 2.0) * size, 0.0);
+    vec2 offset = vec2(0.0, 0.0);
     
     mat2 rotation = mat2(c, -s, s, c);
     
-    //vec2 position = (rotation * ((worldXZ * sqrt2d3) + offset)) * scale;
-    vec2 position = rotation * worldXZ * scale;
+    vec2 position = (rotation * ((worldXZ * sqrt3d3) + offset)) * scale;
+//    vec2 position = worldXZ / size;
     
     vec2 index = floor(position + (position.x + position.y) * sqrt3m1d2);
     vec2 corner = index + (index.x + index.y) * -sqrt3m3d6;
@@ -81,49 +83,11 @@ float world_grid(vec2 worldXZ,
 
 void main() {
     
-    float grid = world_grid(gl_FragCoord.xy, lattice);
+    float i = grid(gl_FragCoord.xy,
+                      lattice);
     
     vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 background = vec4(1.0, 1.0, 1.0, 1.0);
     
-    gl_FragColor = mix(background, black, grid);
+    gl_FragColor = mix(background, black, i);
 }
-
-//float triLineDistance(vec2 p, vec2 n, float spacing) {
-//    float t = dot(p, n) / spacing;
-//    return abs(fract(t + 0.5) - 0.5) * spacing;
-//}
-//
-//float triLineCoverage(float dist, float width) {
-//    return clamp(0.5 * width + 0.5 - dist, 0.0, 1.0);
-//}
-//
-//void main() {
-//
-//    float lineWidth = 1.0;            // in pixels
-//    float sqrt3d2   = 0.8660254038;   // sqrt(3) / 2
-//
-//    // Move pixel centres onto whole numbers so horizontal lines are crisp.
-//    // Works with Metal's top-left origin as well as OpenGL's bottom-left.
-//    vec2 p = gl_FragCoord.xy - vec2(0.5, 0.5);
-//
-//    float spacing = lattice * 2.0 * 1.5;
-//
-//    vec2 n0 = vec2(0.0, 1.0);
-//    vec2 n1 = vec2(sqrt3d2, 0.5);
-//    vec2 n2 = vec2(-sqrt3d2, 0.5);
-//
-//    float c0 = triLineCoverage(triLineDistance(p, n0, spacing), lineWidth);
-//    float c1 = triLineCoverage(triLineDistance(p, n1, spacing), lineWidth);
-//    float c2 = triLineCoverage(triLineDistance(p, n2, spacing), lineWidth);
-//
-//    float grid = max(c0, max(c1, c2));
-//
-//    vec3 background = vec3(0.117647, 0.117647, 0.117647);
-//    vec3 lineColor  = vec3(0.35);
-//
-//    vec3 rgb = mix(background, lineColor, grid);
-//    float alpha = 1.0;
-//
-//    gl_FragColor = vec4(rgb * alpha, alpha);   // premultiplied
-//}

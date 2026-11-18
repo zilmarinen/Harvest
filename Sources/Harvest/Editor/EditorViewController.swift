@@ -30,7 +30,7 @@ public class EditorViewController: NSViewController {
     private lazy var cursor = with(Cursor(lattice: viewModel.lattice)) {
         
         $0.strokeColor = .systemPink
-        $0.fillColor = .white
+        $0.fillColor = .clear
         $0.lineWidth = 2.0
     }
     
@@ -181,5 +181,37 @@ public extension EditorViewController {
         cursor.lattice = viewModel.lattice
         grid.lattice = viewModel.lattice
         scene.lattice = viewModel.lattice
+    }
+}
+
+// MARK: Surface
+
+public extension EditorViewController {
+    
+    func set(surface biome: Biome? = nil,
+             _ elevation: Int? = nil,
+             for vertex: Triangle.Vertex,
+             _ footprint: Set<Triangle.Vertex>? = nil) {
+        
+        scene.set(surface: biome,
+                  elevation,
+                  for: vertex,
+                  with: footprint ?? [vertex])
+    }
+}
+
+// MARK: Water
+
+public extension EditorViewController {
+    
+    func set(water fluid: Fluid? = nil,
+             _ elevation: Int? = nil,
+             for triangle: Triangle,
+             _ footprint: Set<Triangle>? = nil) {
+        
+        scene.set(water: fluid,
+                  elevation,
+                  for: triangle,
+                  with: footprint ?? [triangle])
     }
 }
