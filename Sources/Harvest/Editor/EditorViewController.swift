@@ -7,9 +7,12 @@
 
 import Alluvium
 import AppKit
+import Bivouac
 import Deltille
 import Euclid
+import Lattice
 import MetalKit
+import simd
 
 public protocol EditorViewDataSource: NSViewController {}
 
@@ -22,34 +25,20 @@ public class EditorViewController: NSViewController {
         $0.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    private lazy var camera = Camera()
-    
-    private lazy var editor = with(MTKView(frame: .zero)) {
+    private lazy var editor = with(EditorView()) {
         
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.clearColor = .init(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
-        $0.isPaused = false
-        $0.enableSetNeedsDisplay = false
     }
     
-    private let viewModel: ViewModel
+    public private(set) var showGrid: Bool = false
+    public private(set) var zoomLevel: ZoomLevel = .x4
+    
     private weak var dataSource: EditorViewDataSource?
     private weak var delegate: EditorViewDelegate?
-    
-    private static let clearColor: MTLClearColor = {
-        
-        let color = NSColor.windowBackgroundColor.usingColorSpace(.deviceRGB) ?? .white
-        
-        return MTLClearColor(red: color.redComponent,
-                             green: color.greenComponent,
-                             blue: color.blueComponent,
-                             alpha: color.alphaComponent)
-    }()
     
     public init(dataSource: EditorViewDataSource,
                 delegate: EditorViewDelegate) {
         
-        self.viewModel = .init()
         self.dataSource = dataSource
         self.delegate = delegate
         
@@ -108,38 +97,32 @@ public class EditorViewController: NSViewController {
         let screenSpace = editor.convert(event.locationInWindow,
                                          from: nil)
         
-        let worldSpace = camera.worldPoint(fromView: screenSpace,
-                                           viewSize: editor.frame.size)
+        let worldSpace = worldPoint(fromView: screenSpace,
+                                    viewSize: editor.bounds.size)
         
-        viewModel.update(hitTest: worldSpace)
+        let vector = Vector(worldSpace.x,
+                            0.0,
+                            worldSpace.y)
+        
+        cursorOverlay.hitTest = .init(vector,
+                                      zoomLevel.lattice)
     }
 }
 
-// MARK: Scene
-
-public extension EditorViewController {
+// MARK: Coordinate Conversion
+//
+private extension EditorViewController {
     
-    // MARK: Grid
-    
-    var showGrid: Bool {
+    func worldPoint(fromView point: CGPoint,
+                    viewSize: CGSize) -> CGPoint {
         
-        viewModel.showGrid
-    }
-    
-    func update(showGrid value: Bool) {
+        let flipped = CGPoint(x: point.x,
+                              y: viewSize.height - point.y)
         
-        viewModel.update(showGrid: value)
-    }
-    
-    // MARK: Zoom Level
-    
-    var zoomLevel: ZoomLevel {
+//        return CGPoint(x: (flipped.x - viewSize.width / 2) / cameraScale + cameraPosition.x,
+//                       y: (flipped.y - viewSize.height / 2) / cameraScale + cameraPosition.y)
         
-        viewModel.zoomLevel
-    }
-    
-    func update(zoomLevel value: ZoomLevel) {
-        
-        viewModel.update(zoomLevel: value)
+        return CGPoint(x: (flipped.x - viewSize.width / 2) / 1.0,
+                       y: (flipped.y - viewSize.height / 2) / 1.0)
     }
 }

@@ -27,8 +27,17 @@ struct Camera {
     
     float2 position;
     float  scale;
-    float  lattice;
-    float2 viewSize;
+    float2 viewport;
+    
+};
+
+// MARK: Cursor
+
+struct Cursor {
+    
+    float2 corner0;
+    float2 corner1;
+    float2 corner2;
     
 };
 
@@ -100,17 +109,119 @@ float grid(float2 worldXZ,
                             outline);
 }
 
-// MARK: Grid Pass
+// MARK: Cursor
 
-struct GridVertex {
+float cursorOutline(float2 worldXZ,
+                    Cursor cursor,
+                    float scale) {
     
-    float2 position [[attribute(0)]];
+    float sdf = triangleSDF(worldXZ,
+                            cursor.corner0,
+                            cursor.corner1,
+                            cursor.corner2) * scale / lineWidth;
     
-};
+    float outline = abs(sdf) - 0.5;
+    
+    return 1.0 - smoothstep(-0.5,
+                            0.5,
+                            outline);
+}
 
-struct GridVertexOutput {
+// MARK: Editor Pass
+
+struct EditorVertexOutput {
     
     float4 position [[position]];
-    float2 world;
     
 };
+
+vertex EditorVertexOutput editorVertex(uint id [[vertex_id]]) {
+    
+    float2 position = float2((id << 1) & 2,
+                             id & 2);
+    
+    EditorVertexOutput out;
+    
+    out.position = float4(position * 2.0 - 1.0,
+                          0.0,
+                          1.0);
+    
+    return out;
+}
+
+fragment float4 editorFragment(EditorVertexOutput in [[stage_in]],
+                               constant Camera &camera [[buffer(0)]],
+                               constant Cursor &cursor [[buffer(1)]],
+                               constant float &showGrid [[buffer(2)]],
+                               constant float4 &background [[buffer(3)]]) {
+    
+    float2 pixel = in.position.xy;
+    
+    float2 world = (pixel - 0.5 * camera.viewport) / camera.scale + camera.position;
+    
+    float4 color = background;
+    
+    if (showGrid > 0.5) {
+        
+        float g = grid(world,
+                       camera.scale,
+                       camera.scale);
+        
+        color = mix(color,
+                    float4(1.0, 1.0, 1.0, 1.0),
+                    float4(g, g, g, g));
+    }
+    
+    float c = cursorOutline(world,
+                            cursor,
+                            camera.scale);
+    
+    color = mix(color,
+                float4(1.0, 0.0, 0.8, 1.0),
+                float4(c, c, c, c));
+    
+    return color;
+}
+
+// MARK: Mesh Pass
+
+struct MeshVertex {
+    
+    float2 position;
+    float4 color;
+    
+};
+
+struct MeshVertexOutput {
+    
+    float4 position [[position]];
+    float4 color;
+    
+};
+
+vertex MeshVertexOutput meshVertex(uint id [[vertex_id]],
+                                   constant Camera &camera [[buffer(0)]],
+                                   device const MeshVertex *vertices [[buffer(1)]]) {
+    
+    MeshVertex v = vertices[id];
+    
+    float2 pixel = (v.position - camera.position) * camera.scale + 0.5 * camera.viewport;
+    
+    float2 clip = (2.0 * float2(pixel.x,
+                                camera.viewport.y - pixel.y) / camera.viewport) - 1.0;
+    
+    MeshVertexOutput out;
+    
+    out.position = float4(clip,
+                          0.0,
+                          1.0);
+    out.color = v.color;
+    
+    return out;
+}
+
+fragment float4 meshFragment(MeshVertexOutput in [[stage_in]]) {
+    
+    return in.color;
+}
+
