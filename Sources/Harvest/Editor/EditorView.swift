@@ -110,9 +110,9 @@ internal extension EditorView {
             index: 2,
             encoder)
         
-        //
-        let triangle = hit.triangle//Triangle.zero
-        let tiles = [triangle]// + triangle.adjacent
+        // Debug
+        let triangle = hit.triangle
+        let tiles = [triangle] + triangle.adjacent
         let vertices: [Vertex2D] = tiles.flatMap {
             
             let color = SIMD4<Float>(Float(abs($0.x)), Float(abs($0.y)), Float(abs($0.z)), 1.0)
@@ -186,15 +186,21 @@ internal extension EditorView {
  
     func hit(_ point: CGPoint) -> HitTest {
         
-        let flipped = CGPoint(x: point.x,
-                              y: bounds.size.height - point.y)
+        let scale = window?.backingScaleFactor ?? 1.0
+        let viewport = CGSize(width: Double(camera.viewport.x),
+                              height: Double(camera.viewport.y))
+        let position = CGPoint(x: Double(camera.position.x),
+                               y: Double(camera.position.y))
         
-        let x = (flipped.x - bounds.size.width / 2)
-        let y = (flipped.y - bounds.size.height / 2)
+        let pixel = CGPoint(x: point.x * scale,
+                            y: viewport.height - point.y * scale)
         
-        let vector = Vector(x / CGFloat(lattice) + CGFloat(camera.position.x),
+        let x = pixel.x - viewport.width / 2.0
+        let y = pixel.y - viewport.height / 2.0
+        
+        let vector = Vector(x / CGFloat(lattice) + position.x,
                             0.0,
-                            y / CGFloat(lattice) + CGFloat(camera.position.y))
+                            y / CGFloat(lattice) + position.y)
         
         return .init(vector,
                      lattice)
