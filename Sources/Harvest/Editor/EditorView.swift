@@ -5,6 +5,9 @@
 //  Created by Zack Brown on 19/11/2026.
 //
 
+import Bivouac
+import Deltille
+import Euclid
 import Metal
 import MetalKit
 
@@ -12,37 +15,40 @@ import MetalKit
 internal class EditorView: MTKView,
                            MTKViewDelegate {
     
-    private var camera = Camera(.zero,
-                                1.0,
-                                .zero)
+    internal private(set) var showGrid: Bool = true
+    
+    private var camera = Camera()
+    internal var hit: HitTest = .init(.zero)
+    
+    private let gridPipeline: MTLRenderPipelineState
+    private let meshPipeline: MTLRenderPipelineState
     
     private let queue: MTLCommandQueue
     private let library: MTLLibrary
     
     internal init() {
         
-        guard let device = MTLCreateSystemDefaultDevice(),
-              let queue = device.makeCommandQueue() else {
-            
-            fatalError("Error initialising Metal device / queue")
-        }
-        
         do {
+            
+            guard let device = MTLCreateSystemDefaultDevice(),
+                  let queue = device.makeCommandQueue() else { throw CocoaError(.featureUnsupported) }
             
             self.queue = queue
             self.library = try device.makeDefaultLibrary(bundle: .module)
+            self.gridPipeline = try device.makeRenderPipelineState(descriptor: .init(.grid,
+                                                                                     library))
+            self.meshPipeline = try device.makeRenderPipelineState(descriptor: .init(.mesh,
+                                                                                     library))
+            
+            super.init(frame: .zero,
+                       device: device)
+            
+            delegate = self
         }
         catch {
             
-            fatalError("Error creating default Metal device library")
+            fatalError("Error creating default Metal device / library / queue: \(error)")
         }
-        
-        super.init(frame: .zero,
-                   device: device)
-        
-        delegate = self
-        
-        clearColor = .init(red: 0.0125, green: 0.0125, blue: 0.0125, alpha: 1.0)
     }
     
     @available(*, unavailable)
@@ -65,11 +71,77 @@ internal extension EditorView {
               let descriptor = view.currentRenderPassDescriptor,
               let encoder = buffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
         
-        // Start
-
-        //
+        // MARK: Grid
         
-        // End
+        encoder.setRenderPipelineState(gridPipeline)
+        
+        set(fragmentBytes: camera.position,
+            index: 0,
+            encoder)
+        
+        set(fragmentBytes: camera.viewport,
+            index: 1,
+            encoder)
+        
+        set(fragmentBytes: Float(camera.zoomLevel.lattice),
+            index: 2,
+            encoder)
+        
+        set(fragmentBytes: Float(showGrid ? 1.0 : 0.0),
+            index: 3,
+            encoder)
+        
+        encoder.drawPrimitives(type: .triangle,
+                               vertexStart: 0,
+                               vertexCount: 3)
+        
+        // MARK: Scene
+        encoder.setRenderPipelineState(meshPipeline)
+        
+        set(vertexBytes: camera.position,
+            index: 0,
+            encoder)
+        
+        set(vertexBytes: camera.viewport,
+            index: 1,
+            encoder)
+        
+        set(vertexBytes: Float(camera.zoomLevel.lattice),
+            index: 2,
+            encoder)
+        
+        //
+        let triangle = hit.triangle//Triangle.zero
+        let tiles = [triangle]// + triangle.adjacent
+        let vertices: [Vertex2D] = tiles.flatMap {
+            
+            let color = SIMD4<Float>(Float(abs($0.x)), Float(abs($0.y)), Float(abs($0.z)), 1.0)
+            
+            return $0.vertices().map {
+                
+                let vector = $0.vector(lattice)
+                
+                return Vertex2D(.init(Float(vector.x),
+                                      Float(vector.z)),
+                                color)
+            }
+        }
+        
+        let mesh = Mesh2D(vertices)
+        
+        if let meshBuffer = device?.makeBuffer(bytes: mesh.vertices,
+                                               length: mesh.length) {
+            
+            encoder.setVertexBuffer(meshBuffer,
+                                    offset: 0,
+                                    index: 3)
+            
+            encoder.drawPrimitives(type: .triangle,
+                                   vertexStart: 0,
+                                   vertexCount: mesh.vertexCount)
+        }
+        
+        // MARK: Render
         
         encoder.endEncoding()
         
@@ -107,5 +179,53 @@ private extension EditorView {
                                      length: bytes.count,
                                      index: index)
         }
+    }
+}
+
+internal extension EditorView {
+ 
+    func hit(_ point: CGPoint) -> HitTest {
+        
+        let flipped = CGPoint(x: point.x,
+                              y: bounds.size.height - point.y)
+        
+        let x = (flipped.x - bounds.size.width / 2)
+        let y = (flipped.y - bounds.size.height / 2)
+        
+        let vector = Vector(x / CGFloat(lattice) + CGFloat(camera.position.x),
+                            0.0,
+                            y / CGFloat(lattice) + CGFloat(camera.position.y))
+        
+        return .init(vector,
+                     lattice)
+    }
+}
+
+internal extension EditorView {
+    
+    // MARK: Grid
+    
+    func update(showGrid value: Bool) {
+        
+        showGrid = value
+    }
+    
+    // MARK: Lattice
+    
+    var lattice: Double {
+        
+        camera.lattice
+    }
+    
+    // MARK: Zoom Level
+    
+    var zoomLevel: ZoomLevel {
+        
+        camera.zoomLevel
+    }
+    
+    func update(zoomLevel value: ZoomLevel) {
+        
+        camera.zoomLevel = value
     }
 }

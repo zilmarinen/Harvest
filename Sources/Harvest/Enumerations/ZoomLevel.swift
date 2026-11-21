@@ -28,10 +28,10 @@ public enum ZoomLevel: CaseIterable,
         
         switch self {
             
-        case .x1: 16
-        case .x2: 32
-        case .x4: 64
-        case .x8: 128
+        case .x1: 4
+        case .x2: 8
+        case .x4: 16
+        case .x8: 32
         }
     }
 }

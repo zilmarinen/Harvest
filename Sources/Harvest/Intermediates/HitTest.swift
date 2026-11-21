@@ -10,6 +10,7 @@ import Euclid
 
 public struct HitTest {
     
+    public let vector: Vector
     public let triangle: Triangle
     public let vertex: Triangle.Vertex
     
@@ -19,6 +20,7 @@ public struct HitTest {
         let tile = Triangle(vector,
                             lattice)
         
+        self.vector = vector
         self.triangle = tile
         self.vertex = tile.closest(vertex: vector,
                                    .tile,
